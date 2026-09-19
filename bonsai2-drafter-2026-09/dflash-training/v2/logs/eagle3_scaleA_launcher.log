@@ -1,0 +1,5 @@
+[20:45:35] half-A features ready: 220665222364 bytes
+[20:45:35] training set: batch1.bin batch2.bin batch3_broad.bin broad2_a.bin 
+[20:45:35] launch scale-up A (spark1)
+[00:44:13] train exit 0
+[00:44:13] SCALE-UP A DONE: val step 13202/13202 acc 0.713/0.614/0.556/0.512 ce 1.792/2.324/2.650/2.923 n_tok 89337 (ema) 26s

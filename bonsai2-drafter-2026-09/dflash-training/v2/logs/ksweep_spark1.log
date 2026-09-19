@@ -1,0 +1,3 @@
+[03:58:00] GPU free; K sweep of DSpark v2 (K=3..7), 48 matrix prompts, one slot
+[04:32:49] harness exit 0: done in 34.7 min; results in dflash-training/eval/spec_bench_full/results/gb10-ksweep-1
+[04:32:49] K SWEEP FINISHED: /home/usman/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-ksweep-1/summary.md

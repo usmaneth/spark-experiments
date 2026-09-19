@@ -1,0 +1,85 @@
+{
+  "total": 20000,
+  "target": {
+    "math": 5000,
+    "reasoning": 5000,
+    "chat": 4000,
+    "code": 3000,
+    "longform": 3000
+  },
+  "per_category": {
+    "math": 5000,
+    "reasoning": 5000,
+    "chat": 4000,
+    "code": 3000,
+    "longform": 3000
+  },
+  "per_source": {
+    "math": {
+      "gsm8k": 2500,
+      "hendrycks_math": 1750,
+      "platypus_math": 750
+    },
+    "reasoning": {
+      "platypus_reason": 2388,
+      "arc_challenge": 788,
+      "logiqa": 637,
+      "strategyqa": 637,
+      "template_reasoning": 550
+    },
+    "chat": {
+      "no_robots": 1600,
+      "dolly": 1400,
+      "ultrachat": 1000
+    },
+    "code": {
+      "codealpaca_fresh": 1950,
+      "evol_code": 1050
+    },
+    "longform": {
+      "no_robots_gen": 1200,
+      "dolly_creative": 600,
+      "ultrachat_long": 900,
+      "template_longform": 300
+    }
+  },
+  "dedupe_against": {
+    "files": [
+      "prompts_batch1.jsonl",
+      "prompts_gen_batch2.jsonl",
+      "prompts_gen_broad.jsonl",
+      "prompts_broad.jsonl"
+    ],
+    "text_prompts": 4500,
+    "token_prompts": 3354
+  },
+  "rejected_at_collect": {
+    "short_or_long": 703,
+    "dup_text": 1014,
+    "special_tokens": 0
+  },
+  "dropped_at_token_filter": {
+    "too_long": {
+      "math/hendrycks_math": 6,
+      "math/platypus_math": 4,
+      "chat/no_robots": 2,
+      "chat/dolly": 1,
+      "chat/ultrachat": 1,
+      "code/evol_code": 1
+    },
+    "too_short": {},
+    "dup_tokens": {},
+    "tok_fail": {}
+  },
+  "avg_chars": 365.42375,
+  "avg_tokens": 92.5487,
+  "max_tokens": 742,
+  "max_tokens_limit": 768,
+  "max_chars_limit": 2600,
+  "seed": 1,
+  "optional_sources_skipped": {
+    "meta-math/MetaMathQA": "used only when cached locally; not in the HF cache",
+    "Open-Orca/OpenOrca": "used only when cached locally; not in the HF cache"
+  },
+  "ids_file": "prompts_broad2_ids.jsonl"
+}

@@ -1,0 +1,22 @@
+[04:38:32] QUANT PROBE: convert step600 to f32 dflash gguf
+[04:39:58] f32 gguf: 7440380352 bytes
+[04:40:03] Q5_K_M: 1313173952 bytes
+[04:40:06] Q6_K: 1534777792 bytes
+[04:40:08] Q8_0: 1984590272 bytes
+[04:40:10] F16: 3725799872 bytes
+RESULT v2-Q4_K_M K=5 math | accept 52.113% | 60.523 tok/s | 148/284
+RESULT v2-Q4_K_M K=5 code | accept 42.947% | 52.549 tok/s | 137/319
+RESULT v2-Q4_K_M K=5 code2 | accept 49.481% | 58.300 tok/s | 143/289
+RESULT v2-Q5_K_M K=5 math | accept 52.113% | 58.555 tok/s | 148/284
+RESULT v2-Q5_K_M K=5 code | accept 38.372% | 47.699 tok/s | 132/344
+RESULT v2-Q5_K_M K=5 code2 | accept 49.481% | 56.487 tok/s | 143/289
+RESULT v2-Q6_K K=5 math | accept 50.865% | 55.827 tok/s | 147/289
+RESULT v2-Q6_K K=5 code | accept 39.233% | 46.547 tok/s | 133/339
+RESULT v2-Q6_K K=5 code2 | accept 49.481% | 55.000 tok/s | 143/289
+RESULT v2-Q8_0 K=5 math | accept 52.113% | 54.635 tok/s | 148/284
+RESULT v2-Q8_0 K=5 code | accept 39.233% | 44.739 tok/s | 133/339
+RESULT v2-Q8_0 K=5 code2 | accept 49.481% | 53.111 tok/s | 143/289
+RESULT v2-F16 K=5 math | accept 52.113% | 47.527 tok/s | 148/284
+RESULT v2-F16 K=5 code | accept 39.233% | 39.021 tok/s | 133/339
+RESULT v2-F16 K=5 code2 | accept 50.704% | 46.885 tok/s | 144/284
+[04:42:08] QUANT PROBE FINISHED

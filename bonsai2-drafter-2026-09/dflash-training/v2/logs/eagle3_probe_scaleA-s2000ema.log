@@ -1,0 +1,6 @@
+[21:19:42] PROBE scaleA-s2000ema: /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000_ema.safetensors
+RESULT eagle3-scaleA-s2000ema K=5 math | accept 23.241% | 12.327 tok/s | 109/469
+RESULT eagle3-scaleA-s2000ema K=5 code | accept 18.690% | 11.105 tok/s | 97/519
+RESULT eagle3-scaleA-s2000ema K=5 code2 | accept 18.945% | 11.047 tok/s | 97/512
+SWEEP DONE
+[21:22:06] PROBE scaleA-s2000ema FINISHED (spark2 contended by gen B; acceptance valid, tok/s not)

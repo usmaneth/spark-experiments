@@ -1,0 +1,5 @@
+[00:46:18] rsync half-B features from spark2
+[00:53:11] half-B features: 220270852309 bytes
+[00:53:11] training set: batch1.bin batch2.bin batch3_broad.bin broad2_a.bin broad2_b.bin 
+[03:55:06] train exit 0
+[03:55:06] SCALE-UP B DONE: val step 11601/11601 acc 0.731/0.641/0.588/0.546 ce 1.661/2.143/2.440/2.703 n_tok 88651 (ema) 26s

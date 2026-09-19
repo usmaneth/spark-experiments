@@ -1,0 +1,26 @@
+[09:35:09] waiting for GEN HALF a DONE in /home/usman/Bonsai-demo/dflash-training/v2/logs/gen_broad2_a.log
+[18:57:11] gen done: 10000 records; stopping gen server pid 4127006
+{
+  "records": 10000,
+  "unmatched": 0,
+  "per_category": {
+    "chat": 2028,
+    "math": 2475,
+    "code": 1526,
+    "reasoning": 2455,
+    "longform": 1516
+  },
+  "gen_tokens_per_category": {
+    "chat": 840337,
+    "math": 962060,
+    "code": 702859,
+    "reasoning": 1199631,
+    "longform": 748944
+  }
+}
+[18:57:22] extracting BON3 -> feats_e3/broad2_a.bin
+[20:40:51] extract exit 0 size 220665222364
+
+samples=10000 total_tokens=5386676 scanned=10000 gen(loss=1)_tokens_scanned=4453831 bad=0
+mean_tokens/sample=538.7 file_bytes=220665222364
+[20:44:55] EXTRACT HALF a DONE

@@ -1,0 +1,3 @@
+  bonsai2-dspark-full2step900-dspark-raw.gguf
+    -> bonsai2-dspark-full2step900-conv.gguf
+    kv 24 -> 33, tensors 62, data 7429433376 bytes copied verbatim

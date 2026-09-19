@@ -1,0 +1,4 @@
+server pid 4127006
+[09:21:25] server up on 8095 (half a, 10000 prompts)
+[18:57:06] gen_client exit 0 ; records: 10000
+GEN HALF a DONE

@@ -1,0 +1,29 @@
+[11:48:44] tool snapshot: /home/usman/Bonsai-demo/dflash-training/eval/spec_bench_run_gb10-clean-1
+[11:48:45] opening the window
+[11:48:45] flag set
+gen client pid(s) on spark2: 101696
+[11:48:48] slots busy=24 gpu util=86%
+[11:48:58] slots busy=20 gpu util=89%
+[11:49:09] slots busy=16 gpu util=95%
+[11:49:20] slots busy=15 gpu util=94%
+[11:49:31] slots busy=12 gpu util=95%
+[11:49:42] slots busy=11 gpu util=95%
+[11:49:53] slots busy=9 gpu util=95%
+[11:50:04] slots busy=7 gpu util=95%
+[11:50:15] slots busy=6 gpu util=92%
+[11:50:26] slots busy=4 gpu util=92%
+[11:50:37] slots busy=0 gpu util=0%
+3039589, ./bin/cuda/llama-server, 11006 MiB
+100703, bin/cuda/llama-server, 13310 MiB
+WINDOW OPEN
+[11:50:38] gpu util before start: 0%
+[11:50:38] launching spec_bench on spark2 (detached)
+1018922
+[11:50:38] poll: tail -f spark2:/home/usman/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-clean-1/run.log ; finish marker: 'done in' line
+  stopped llama-server pid 1424696 (exit 0)
+
+done in 49.2 min; results in dflash-training/eval/spec_bench_full/results/gb10-clean-1
+[12:40:01] closing the window
+gen client resumed: 101696
+[12:40:02] flag removed; WINDOW CLOSED
+[12:40:02] CLEAN BENCH gb10-clean-1 FINISHED

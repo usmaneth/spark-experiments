@@ -1,0 +1,6 @@
+[22:55:22] epoch1 waiter started (cap 5h)
+[02:11:32] EPOCH1 CHECKPOINT: 3714723290 bytes
+step1 exit 0 size 7429438048
+step2 exit 0 size 7440380352
+quantize exit 0 size 1104605632
+[02:14:31] EPOCH1 GGUF READY: /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1ep1-Q4_K_M.gguf

@@ -1,0 +1,71 @@
+
+==========
+== vLLM ==
+==========
+
+NVIDIA Release 26.08 (build 409447798)
+vLLM Version 0.27.1+93523f72
+Container image Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+Various files include modifications (c) NVIDIA CORPORATION & AFFILIATES.  All rights reserved.
+
+GOVERNING TERMS: The software and materials are governed by the NVIDIA Software License Agreement
+(found at https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-software-license-agreement/)
+and the Product-Specific Terms for NVIDIA AI Products
+(found at https://www.nvidia.com/en-us/agreements/enterprise-software/product-specific-terms-for-ai-products/).
+
+NOTE: CUDA Forward Compatibility mode ENABLED.
+  Using CUDA 13.4 driver version 615.65.02 with kernel driver version 580.178.04.
+  See https://docs.nvidia.com/deploy/cuda-compatibility/ for details.
+
+[train] device=cuda bf16-autocast=True (NVIDIA GB10)
+[init] reading teacher matrices (2 x 2.5 GB f16) ...
+[warm-start] loading /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_warmL4_init.safetensors
+[warm-start] loaded 14 tensors. missing=0 unexpected=0 meta={'fold_qk_norm': '1', 'target_layers': '6,34,62', 'embd_scale': '0.5', 'seed': '0', 'taps': '0,2,4', 'warm_layer': '4', 'warm_source': 'bonsai2_dspark_full2_step600.safetensors', 'step': '0'}
+[init] trainable params = 597,724,160; token_embd frozen (248320, 5120)
+[data] indexed 3401 samples across 3 file(s) (BON2: 3, BON3: 0); embd=5120 taps=[0, 2, 4] target_layers=[6, 34, 62]
+[data] train 3301 samples, val 100 samples (last 100 of the index)
+[train] 1651 steps, 1 epochs, 3301 samples, ttt_depth=4 batch=2 accum=1 max_seq_len=1024 lr=0.0001 warmup=100 ema=0.0 hard_alpha=0.0 taps=[0, 2, 4] target_layers=[6, 34, 62]
+ep 1/1 step 50/1651 loss 5.5827 (hard 5.5813 steps 5.670/5.525/5.545/5.590) acc 0.050/0.034/0.033/0.031 gnorm 14.98 lr 5.10e-05 vram 19.0G 3.16s/step 2.6m
+ep 1/1 step 100/1651 loss 6.8805 (hard 6.8237 steps 6.650/6.831/6.977/7.064) acc 0.088/0.075/0.061/0.058 gnorm 8.41 lr 1.00e-04 vram 19.0G 2.93s/step 5.1m
+ep 1/1 step 150/1651 loss 5.9358 (hard 5.9082 steps 5.313/5.892/6.184/6.354) acc 0.236/0.168/0.124/0.096 gnorm 7.17 lr 9.97e-05 vram 19.0G 2.78s/step 7.4m
+ep 1/1 step 200/1651 loss 5.6537 (hard 5.6619 steps 4.731/5.635/6.028/6.220) acc 0.280/0.104/0.084/0.077 gnorm 8.34 lr 9.90e-05 vram 19.0G 2.43s/step 9.4m
+ep 1/1 step 250/1651 loss 5.8118 (hard 5.7109 steps 4.839/5.769/6.169/6.471) acc 0.302/0.187/0.114/0.093 gnorm 8.35 lr 9.77e-05 vram 19.0G 2.74s/step 11.7m
+ep 1/1 step 300/1651 loss 4.2031 (hard 4.1197 steps 3.030/4.088/4.684/5.010) acc 0.483/0.257/0.132/0.108 gnorm 9.90 lr 9.60e-05 vram 19.0G 3.19s/step 14.4m
+val step 300/1651 acc 0.326/0.165/0.109/0.084 ce 4.763/5.726/6.155/6.431 n_tok 47009 161s
+ep 1/1 step 350/1651 loss 5.5527 (hard 5.4695 steps 4.457/5.462/5.981/6.311) acc 0.394/0.215/0.136/0.091 gnorm 7.43 lr 9.38e-05 vram 19.0G 6.04s/step 19.4m
+ep 1/1 step 400/1651 loss 6.3862 (hard 6.2766 steps 5.227/6.364/6.841/7.113) acc 0.278/0.146/0.081/0.066 gnorm 12.04 lr 9.11e-05 vram 19.0G 3.69s/step 22.5m
+ep 1/1 step 450/1651 loss 3.7080 (hard 3.6783 steps 2.456/3.544/4.184/4.648) acc 0.555/0.330/0.209/0.137 gnorm 7.94 lr 8.81e-05 vram 19.0G 2.68s/step 24.7m
+ep 1/1 step 500/1651 loss 5.4897 (hard 5.3543 steps 4.270/5.456/5.948/6.284) acc 0.347/0.170/0.115/0.097 gnorm 12.98 lr 8.46e-05 vram 19.0G 2.64s/step 26.9m
+ep 1/1 step 550/1651 loss 4.3279 (hard 4.3355 steps 3.050/4.234/4.827/5.200) acc 0.501/0.310/0.220/0.145 gnorm 7.38 lr 8.08e-05 vram 19.0G 2.66s/step 29.1m
+ep 1/1 step 600/1651 loss 5.4049 (hard 5.3483 steps 4.128/5.253/5.913/6.325) acc 0.384/0.232/0.147/0.094 gnorm 9.43 lr 7.67e-05 vram 19.0G 3.13s/step 31.7m
+val step 600/1651 acc 0.416/0.237/0.164/0.122 ce 3.929/5.088/5.622/5.966 n_tok 47009 138s
+ep 1/1 step 650/1651 loss 5.4445 (hard 5.3782 steps 4.199/5.351/5.913/6.315) acc 0.391/0.251/0.173/0.115 gnorm 7.27 lr 7.23e-05 vram 19.0G 5.40s/step 36.2m
+ep 1/1 step 700/1651 loss 3.5200 (hard 3.5108 steps 2.158/3.372/4.070/4.479) acc 0.584/0.380/0.242/0.191 gnorm 8.69 lr 6.77e-05 vram 19.0G 3.31s/step 39.0m
+ep 1/1 step 750/1651 loss 4.2883 (hard 4.1573 steps 3.159/4.199/4.776/5.019) acc 0.552/0.352/0.236/0.188 gnorm 9.59 lr 6.29e-05 vram 19.0G 2.72s/step 41.3m
+ep 1/1 step 800/1651 loss 5.4622 (hard 5.3465 steps 4.295/5.341/5.930/6.283) acc 0.417/0.291/0.218/0.154 gnorm 14.41 lr 5.80e-05 vram 19.0G 2.99s/step 43.7m
+ep 1/1 step 850/1651 loss 3.7186 (hard 3.6263 steps 2.392/3.507/4.237/4.738) acc 0.533/0.357/0.247/0.196 gnorm 8.41 lr 5.31e-05 vram 19.0G 2.66s/step 46.0m
+ep 1/1 step 900/1651 loss 5.4885 (hard 5.3559 steps 4.516/5.429/5.872/6.138) acc 0.346/0.212/0.144/0.119 gnorm 11.16 lr 4.80e-05 vram 19.0G 2.88s/step 48.4m
+val step 900/1651 acc 0.472/0.301/0.219/0.172 ce 3.569/4.639/5.183/5.562 n_tok 47009 115s
+ep 1/1 step 950/1651 loss 3.1591 (hard 3.0616 steps 1.958/2.924/3.614/4.140) acc 0.654/0.458/0.327/0.237 gnorm 9.25 lr 4.31e-05 vram 19.0G 5.01s/step 52.5m
+ep 1/1 step 1000/1651 loss 2.4579 (hard 2.4457 steps 1.131/2.158/3.004/3.539) acc 0.763/0.533/0.353/0.255 gnorm 12.50 lr 3.81e-05 vram 19.0G 2.75s/step 54.8m
+ep 1/1 step 1050/1651 loss 3.7250 (hard 3.6371 steps 2.557/3.529/4.200/4.615) acc 0.579/0.389/0.268/0.216 gnorm 6.56 lr 3.34e-05 vram 19.0G 2.73s/step 57.1m
+ep 1/1 step 1100/1651 loss 3.8123 (hard 3.7661 steps 2.781/3.728/4.152/4.588) acc 0.562/0.403/0.318/0.228 gnorm 9.82 lr 2.88e-05 vram 19.0G 2.65s/step 59.3m
+ep 1/1 step 1150/1651 loss 4.6320 (hard 4.5859 steps 3.461/4.510/5.060/5.497) acc 0.529/0.341/0.280/0.228 gnorm 18.14 lr 2.44e-05 vram 19.0G 2.86s/step 61.7m
+ep 1/1 step 1200/1651 loss 5.4425 (hard 5.3819 steps 4.265/5.320/5.914/6.270) acc 0.406/0.261/0.194/0.155 gnorm 12.27 lr 2.03e-05 vram 19.0G 2.48s/step 63.8m
+val step 1200/1651 acc 0.502/0.339/0.255/0.194 ce 3.380/4.371/4.935/5.346 n_tok 47009 85s
+ep 1/1 step 1250/1651 loss 3.6368 (hard 3.5220 steps 2.467/3.476/4.043/4.561) acc 0.585/0.408/0.303/0.243 gnorm 10.50 lr 1.65e-05 vram 19.0G 4.10s/step 67.2m
+ep 1/1 step 1300/1651 loss 5.0933 (hard 4.9612 steps 3.891/4.990/5.597/5.895) acc 0.423/0.266/0.197/0.157 gnorm 12.72 lr 1.30e-05 vram 19.2G 2.35s/step 69.1m
+ep 1/1 step 1350/1651 loss 3.3589 (hard 3.2719 steps 2.176/3.147/3.796/4.317) acc 0.645/0.465/0.348/0.275 gnorm 13.51 lr 9.92e-06 vram 19.2G 2.13s/step 70.9m
+ep 1/1 step 1400/1651 loss 4.2552 (hard 4.1606 steps 3.315/4.141/4.597/4.967) acc 0.507/0.361/0.299/0.243 gnorm 15.69 lr 7.26e-06 vram 19.2G 2.45s/step 72.9m
+ep 1/1 step 1450/1651 loss 4.8020 (hard 4.7109 steps 3.625/4.675/5.253/5.655) acc 0.441/0.290/0.233/0.171 gnorm 7.46 lr 5.05e-06 vram 19.2G 2.50s/step 75.0m
+ep 1/1 step 1500/1651 loss 3.8866 (hard 3.8351 steps 2.714/3.766/4.313/4.754) acc 0.570/0.373/0.287/0.232 gnorm 13.16 lr 3.30e-06 vram 19.2G 2.61s/step 77.2m
+val step 1500/1651 acc 0.516/0.354/0.269/0.210 ce 3.285/4.256/4.815/5.226 n_tok 47009 68s
+ep 1/1 step 1550/1651 loss 4.4915 (hard 4.4061 steps 3.313/4.366/4.932/5.355) acc 0.532/0.383/0.301/0.235 gnorm 13.80 lr 2.03e-06 vram 19.2G 3.69s/step 80.3m
+ep 1/1 step 1600/1651 loss 5.1984 (hard 5.0605 steps 4.113/5.146/5.597/5.938) acc 0.393/0.250/0.209/0.171 gnorm 9.34 lr 1.26e-06 vram 19.4G 2.16s/step 82.1m
+ep 1/1 step 1650/1651 loss 3.4396 (hard 3.3565 steps 2.151/3.288/3.949/4.371) acc 0.600/0.400/0.277/0.227 gnorm 6.97 lr 1.00e-06 vram 19.4G 2.41s/step 84.1m
+ep 1/1 step 1651/1651 loss 2.3220 (hard 2.2320 steps 1.255/2.044/2.703/3.286) acc 0.756/0.551/0.420/0.287 gnorm 23.94 lr 1.00e-06 vram 19.4G 0.02s/step 84.1m
+val step 1651/1651 acc 0.518/0.356/0.271/0.211 ce 3.275/4.243/4.802/5.213 n_tok 47009 78s
+[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_warmL4.safetensors
+[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_warmL4_epoch1.safetensors
+[train] done.

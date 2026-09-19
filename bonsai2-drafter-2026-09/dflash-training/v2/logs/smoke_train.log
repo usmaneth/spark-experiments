@@ -1,0 +1,38 @@
+
+==========
+== vLLM ==
+==========
+
+NVIDIA Release 26.08 (build 409447798)
+vLLM Version 0.27.1+93523f72
+Container image Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+Various files include modifications (c) NVIDIA CORPORATION & AFFILIATES.  All rights reserved.
+
+GOVERNING TERMS: The software and materials are governed by the NVIDIA Software License Agreement
+(found at https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-software-license-agreement/)
+and the Product-Specific Terms for NVIDIA AI Products
+(found at https://www.nvidia.com/en-us/agreements/enterprise-software/product-specific-terms-for-ai-products/).
+
+NOTE: CUDA Forward Compatibility mode ENABLED.
+  Using CUDA 13.4 driver version 615.65.02 with kernel driver version 580.178.04.
+  See https://docs.nvidia.com/deploy/cuda-compatibility/ for details.
+
+NOTE: The SHMEM allocation limit is set to the default of 64MB.  This may be
+   insufficient for vLLM.  NVIDIA recommends the use of the following flags:
+   docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 ...
+
+[train] device=cuda dtype=torch.bfloat16 (NVIDIA GB10)
+[train] loading teacher matrices (this reads ~2.5 GB f16 each) ...
+[data] indexed 47 samples across 1 file(s); embd=5120 n_taps=5
+[warm-start] loading /home/usman/Bonsai-demo/models/qwen38-dspark/model.safetensors
+[warm-start] loaded. missing=0 unexpected=0
+[train] 24 steps, 1 epochs, 47 samples, num_anchors=512, block_size=7
+ep 1/1 step 5/24 loss 0.9664 (ce 0.1106 l1 0.4642 conf 0.3915) acc 0.757 acc_p 0.742 lr 1.79e-04 vram 18.7G 2.1m
+ep 1/1 step 10/24 loss 1.0491 (ce 0.1477 l1 0.5402 conf 0.3611) acc 0.710 acc_p 0.700 lr 1.26e-04 vram 18.7G 5.1m
+ep 1/1 step 15/24 loss 0.9579 (ce 0.1099 l1 0.4666 conf 0.3814) acc 0.760 acc_p 0.741 lr 6.24e-05 vram 18.7G 7.8m
+ep 1/1 step 20/24 loss 1.1496 (ce 0.1343 l1 0.5538 conf 0.4614) acc 0.711 acc_p 0.692 lr 1.43e-05 vram 18.7G 10.7m
+ep 1/1 step 24/24 loss 1.3766 (ce 0.1650 l1 0.7068 conf 0.5048) acc 0.614 acc_p 0.607 lr 1.00e-06 vram 18.7G 12.6m
+[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2_smoke.safetensors
+[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2_smoke_epoch1.safetensors
+[train] done.

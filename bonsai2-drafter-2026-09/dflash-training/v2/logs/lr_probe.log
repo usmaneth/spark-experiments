@@ -1,0 +1,55 @@
+[07:13:46] LR PROBE: continue from step600, lr 2e-4, 200 steps, anchors 256 (spark2)
+[data] indexed 3401 samples across 3 file(s); embd=5120 n_taps=5
+[warm-start] loading /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step600.safetensors
+[warm-start] loaded. missing=0 unexpected=0
+ep 1/1 step 10/1701 loss 1.1522 (ce 0.1341 l1 0.5247 conf 0.4934) acc 0.722 acc_p 0.709 lr 4.00e-04 vram 18.7G 3.3m
+ep 1/1 step 20/1701 loss 1.7757 (ce 0.2701 l1 0.9100 conf 0.5955) acc 0.509 acc_p 0.494 lr 4.00e-04 vram 18.7G 6.7m
+ep 1/1 step 30/1701 loss 1.1459 (ce 0.1364 l1 0.5438 conf 0.4658) acc 0.716 acc_p 0.698 lr 4.00e-04 vram 18.7G 10.1m
+ep 1/1 step 40/1701 loss 1.3559 (ce 0.1786 l1 0.6821 conf 0.4952) acc 0.650 acc_p 0.621 lr 3.99e-04 vram 18.7G 13.5m
+ep 1/1 step 50/1701 loss 1.3405 (ce 0.1646 l1 0.6502 conf 0.5257) acc 0.643 acc_p 0.639 lr 3.99e-04 vram 18.7G 17.0m
+ep 1/1 step 60/1701 loss 1.6456 (ce 0.2581 l1 0.8422 conf 0.5454) acc 0.543 acc_p 0.532 lr 3.99e-04 vram 18.7G 20.4m
+ep 1/1 step 70/1701 loss 1.2159 (ce 0.1465 l1 0.5947 conf 0.4747) acc 0.686 acc_p 0.670 lr 3.98e-04 vram 18.7G 23.8m
+ep 1/1 step 80/1701 loss 1.0620 (ce 0.1254 l1 0.5049 conf 0.4316) acc 0.752 acc_p 0.719 lr 3.98e-04 vram 18.7G 27.4m
+ep 1/1 step 90/1701 loss 0.9460 (ce 0.1129 l1 0.4304 conf 0.4027) acc 0.786 acc_p 0.761 lr 3.97e-04 vram 18.7G 30.8m
+ep 1/1 step 100/1701 loss 0.9160 (ce 0.1016 l1 0.4226 conf 0.3917) acc 0.777 acc_p 0.765 lr 3.97e-04 vram 18.7G 34.1m
+ep 1/1 step 110/1701 loss 1.3983 (ce 0.2042 l1 0.6991 conf 0.4950) acc 0.626 acc_p 0.612 lr 3.96e-04 vram 18.7G 38.0m
+ep 1/1 step 120/1701 loss 1.0296 (ce 0.1266 l1 0.4843 conf 0.4187) acc 0.750 acc_p 0.731 lr 3.95e-04 vram 18.7G 41.5m
+ep 1/1 step 130/1701 loss 0.9469 (ce 0.1007 l1 0.4424 conf 0.4038) acc 0.765 acc_p 0.754 lr 3.94e-04 vram 18.7G 44.9m
+ep 1/1 step 140/1701 loss 1.7270 (ce 0.2821 l1 0.9111 conf 0.5338) acc 0.501 acc_p 0.494 lr 3.93e-04 vram 18.7G 48.3m
+ep 1/1 step 150/1701 loss 1.0139 (ce 0.1200 l1 0.4761 conf 0.4178) acc 0.740 acc_p 0.735 lr 3.92e-04 vram 18.7G 51.7m
+ep 1/1 step 160/1701 loss 0.8711 (ce 0.0951 l1 0.4089 conf 0.3671) acc 0.793 acc_p 0.773 lr 3.91e-04 vram 18.7G 55.1m
+ep 1/1 step 170/1701 loss 0.9025 (ce 0.0870 l1 0.3886 conf 0.4268) acc 0.813 acc_p 0.784 lr 3.90e-04 vram 18.7G 58.5m
+ep 1/1 step 180/1701 loss 0.9553 (ce 0.0940 l1 0.4206 conf 0.4408) acc 0.794 acc_p 0.766 lr 3.89e-04 vram 18.7G 61.9m
+ep 1/1 step 190/1701 loss 1.3028 (ce 0.1949 l1 0.6562 conf 0.4517) acc 0.651 acc_p 0.635 lr 3.88e-04 vram 18.7G 65.4m
+[train] max_steps 200 reached; stopping early
+[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe.safetensors
+[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe_epoch1.safetensors
+ckpt: 3714723290 /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe.safetensors
+[08:23:32] convert + quantize on spark2
+ls: cannot access '/home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf': No such file or directory
+[08:23:33] eval K=5 exact (200-tok x3 + long-form x6) on spark2
+SWEEP DONE
+SWEEP+TYP DONE
+LONGFORM DONE
+[08:24:01] LR PROBE FINISHED
+[08:25:31] LR PROBE FIX: convert on spark1 (spark2 python has no numpy), eval on spark2
+[08:25:36] ckpt on spark1: 3714723290 bytes
+[08:27:46] gguf: 1104605632 /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf
+[08:27:49] eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on spark2; demo llama-server co-resident (idle unless chatted)
+RESULT lrprobe K=5 math | accept 47.368% | 57.447 tok/s | 144/304
+RESULT lrprobe K=5 code | accept 35.165% | 47.678 tok/s | 128/364
+RESULT lrprobe K=5 code2 | accept 43.949% | 54.936 tok/s | 138/314
+SWEEP DONE
+RESULT lrprobe K=5 tau=0.05 math | accept 65.690% | 72.213 tok/s | 157/239
+RESULT lrprobe K=5 tau=0.05 code | accept 61.508% | 68.931 tok/s | 155/252
+RESULT lrprobe K=5 tau=0.05 code2 | accept 59.459% | 67.664 tok/s | 154/259
+SWEEP+TYP DONE
+RESULT LONGFORM exact K=5 p1 | 1474 | 56.827 tok/s | 1018/2280
+RESULT LONGFORM exact K=5 p2 | 2001 | 54.739 tok/s | 1361/3199
+RESULT LONGFORM exact K=5 p3 | 2006 | 62.668 tok/s | 1449/2781
+RESULT LONGFORM exact K=5 p4 | 2003 | 62.781 tok/s | 1445/2786
+RESULT LONGFORM exact K=5 p5 | 2004 | 56.190 tok/s | 1381/3111
+RESULT LONGFORM exact K=5 p6 | 1451 | 66.540 tok/s | 1072/1895
+RESULT LONGFORM MEAN exact K=5 over 6: 60.0 tok/s
+LONGFORM DONE
+[08:31:57] LR PROBE FIX FINISHED

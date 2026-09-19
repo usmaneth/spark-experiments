@@ -1,0 +1,23 @@
+[23:19:58] extract start on 856 completions
+  feat 550 (skip 0) | tok 153645 gen 135522 | 757.1 tok/s | 203.0s
+CUDA Graph id 1758 reused
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  feat 600 (skip 0) | tok 167459 gen 147667 | 759.0 tok/s | 220.6s
+  feat 650 (skip 0) | tok 181076 gen 159642 | 758.3 tok/s | 238.8s
+CUDA Graph id 2082 reused
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  feat 700 (skip 0) | tok 194714 gen 171540 | 759.3 tok/s | 256.5s
+CUDA Graph id 2163 reused
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  feat 750 (skip 0) | tok 208074 gen 183123 | 759.1 tok/s | 274.1s
+  feat 800 (skip 0) | tok 221937 gen 195336 | 760.1 tok/s | 292.0s
+  feat 850 (skip 0) | tok 235655 gen 207463 | 762.4 tok/s | 309.1s
+~llama_context:      CUDA0 compute buffer size is 2340.0704 MiB, matches expectation of 2340.0704 MiB
+~llama_context:  CUDA_Host compute buffer size is  88.0782 MiB, matches expectation of  88.0782 MiB
+=== done === samples=856 skip=0 tokens=237426 gen=208999 time=311.4s (762.5 tok/s)
+out:feats/batch2.bin.tmp
+[23:25:11] tmp size 29176097466
+[23:25:11] BATCH2 WRITTEN 29176097466 bytes

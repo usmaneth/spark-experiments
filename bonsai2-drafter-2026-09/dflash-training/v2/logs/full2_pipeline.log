@@ -1,0 +1,17 @@
+[02:20:23] round-2 waiter started (needs full1 PIPELINE FINISHED + batch3_broad.bin stable; cap 12h)
+[02:46:10] round-2 waiter started (needs full1 PIPELINE FINISHED + batch3_broad.bin stable; cap 12h)
+[03:08:41] GATE MET: full1 finished, batch3_broad 161847173894 bytes
+total 188158108
+drwxrwsr-x  2 usman p-usman         4096 Sep 18 03:08 .
+drwxrwsr-x 11 usman p-usman         4096 Sep 18 03:08 ..
+-rw-rw-r--  2 usman p-usman   1650591540 Sep 17 23:26 batch1.bin
+-rw-rw-r--  2 usman p-usman  29176097466 Sep 17 23:27 batch2.bin
+-rw-r--r--  2 usman p-usman 161847173894 Sep 18 03:06 batch3_broad.bin
+[03:08:41] LAUNCH round-2: continue from full1, 1 epoch, anchors 256, lr 6e-5
+[03:22:50] LAUNCH round-2 (restart): continue from full1, 1 epoch, anchors 256, lr 6e-5, save every 300 steps
+total 188158108
+drwxrwsr-x  2 usman p-usman         4096 Sep 18 03:08 .
+drwxrwsr-x 11 usman p-usman         4096 Sep 18 03:22 ..
+-rw-rw-r--  2 usman p-usman   1650591540 Sep 17 23:26 batch1.bin
+-rw-rw-r--  2 usman p-usman  29176097466 Sep 17 23:27 batch2.bin
+-rw-r--r--  2 usman p-usman 161847173894 Sep 18 03:06 batch3_broad.bin

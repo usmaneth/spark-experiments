@@ -1,0 +1,72 @@
+Duplicated key name 'general.architecture', overwriting it with new value 'eagle3' of type STRING
+[gguf] reading /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000_ema.safetensors
+[gguf] checkpoint metadata: {'max_seq_len': '1024', 'taps': '0,2,4', 'epoch': '1', 'ttt_depth': '4', 'accum': '1', 'ema_weights': '1', 'hard_alpha': '0.0', 'lr': '0.0001', 'ema': '0.999', 'val_samples': '200', 'step': '2000', 'batch_size': '2', 'target_layers': '6,34,62'}
+[gguf] target_layers = [6, 34, 62] (checkpoint metadata)
+[gguf] copied 10 tokenizer.* keys from Ternary-Bonsai-2-27B-PQ2_0.gguf
+[gguf] + fc.weight                    float16  (5120, 15360)
+[gguf] + enc.output_norm.weight       float32  (15360,)
+[gguf] + blk.0.attn_norm.weight       float32  (5120,)
+[gguf] + blk.0.attn_norm_2.weight     float32  (5120,)
+[gguf] + blk.0.attn_q.weight          float16  (4096, 10240)
+[gguf] + blk.0.attn_k.weight          float16  (1024, 10240)
+[gguf] + blk.0.attn_v.weight          float16  (1024, 10240)
+[gguf] + blk.0.attn_output.weight     float16  (5120, 4096)
+[gguf] + blk.0.ffn_norm.weight        float32  (5120,)
+[gguf] + blk.0.ffn_gate.weight        float16  (17408, 5120)
+[gguf] + blk.0.ffn_up.weight          float16  (17408, 5120)
+[gguf] + blk.0.ffn_down.weight        float16  (5120, 17408)
+[gguf] + output_norm.weight           float32  (5120,)
+[gguf] + output.weight                float16  (32768, 5120)
+[gguf] + d2t                          int64    (32768,)
+[gguf] + token_embd.weight            float16  (248320, 5120)
+[gguf] wrote /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-scaleA-s2000ema-conv.gguf (3.49 GiB)
+[gguf] KV:
+  GGUF.version = 3 (UINT32)
+  GGUF.tensor_count = 16 (UINT64)
+  GGUF.kv_count = 29 (UINT64)
+  general.architecture = 'eagle3'
+  general.name = 'Bonsai-2-27B-EAGLE3'
+  general.file_type = 1 (UINT32)
+  eagle3.block_count = 1 (UINT32)
+  eagle3.context_length = 8192 (UINT32)
+  eagle3.embedding_length = 5120 (UINT32)
+  eagle3.feed_forward_length = 17408 (UINT32)
+  eagle3.attention.head_count = 32 (UINT32)
+  eagle3.attention.head_count_kv = 8 (UINT32)
+  eagle3.attention.key_length = 128 (UINT32)
+  eagle3.attention.value_length = 128 (UINT32)
+  eagle3.rope.dimension_count = 128 (UINT32)
+  eagle3.rope.freq_base = 10000000.0 (FLOAT32)
+  eagle3.attention.layer_norm_rms_epsilon = 9.999999974752427e-07 (FLOAT32)
+  eagle3.vocab_size = 248320 (UINT32)
+  eagle3.target_layers = ARRAY[INT32] n=3 [6, 34, 62]
+  eagle3.target_hidden_size = 5120 (UINT32)
+  eagle3.norm_before_fc = True (BOOL)
+  eagle3.norm_before_residual = False (BOOL)
+  tokenizer.ggml.model = 'gpt2'
+  tokenizer.ggml.pre = 'qwen35'
+  tokenizer.ggml.tokens = ARRAY[STRING] n=248320 ['!', '"', '#'] ...
+  tokenizer.ggml.token_type = ARRAY[INT32] n=248320 [1, 1, 1, 1, 1, 1, 1, 1] ...
+  tokenizer.ggml.merges = ARRAY[STRING] n=247587 ['Ġ Ġ', 'ĠĠ ĠĠ', 'i n'] ...
+  tokenizer.ggml.eos_token_id = 248046 (UINT32)
+  tokenizer.ggml.padding_token_id = 248044 (UINT32)
+  tokenizer.ggml.bos_token_id = 248044 (UINT32)
+  tokenizer.ggml.add_bos_token = False (BOOL)
+  tokenizer.chat_template = '{%- set image_count = namespace(value=0) %}\n{%- set video...'
+[gguf] tensors:
+  fc.weight                    F16   ne=[15360, 5120] n=78643200
+  enc.output_norm.weight       F32   ne=[15360] n=15360
+  blk.0.attn_norm.weight       F32   ne=[5120] n=5120
+  blk.0.attn_norm_2.weight     F32   ne=[5120] n=5120
+  blk.0.attn_q.weight          F16   ne=[10240, 4096] n=41943040
+  blk.0.attn_k.weight          F16   ne=[10240, 1024] n=10485760
+  blk.0.attn_v.weight          F16   ne=[10240, 1024] n=10485760
+  blk.0.attn_output.weight     F16   ne=[4096, 5120] n=20971520
+  blk.0.ffn_norm.weight        F32   ne=[5120] n=5120
+  blk.0.ffn_gate.weight        F16   ne=[5120, 17408] n=89128960
+  blk.0.ffn_up.weight          F16   ne=[5120, 17408] n=89128960
+  blk.0.ffn_down.weight        F16   ne=[17408, 5120] n=89128960
+  output_norm.weight           F32   ne=[5120] n=5120
+  output.weight                F16   ne=[5120, 32768] n=167772160
+  d2t                          I64   ne=[32768] n=32768
+  token_embd.weight            F16   ne=[5120, 248320] n=1271398400

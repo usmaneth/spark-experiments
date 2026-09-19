@@ -1,0 +1,158 @@
+diff --git a/src/llama-context.cpp b/src/llama-context.cpp
+index cc8c004eb..f688ea7ef 100644
+--- a/src/llama-context.cpp
++++ b/src/llama-context.cpp
+@@ -237,6 +237,16 @@ llama_context::llama_context(
+         }
+     }
+ 
++    hadamard_rotations = model.hadamard_rotations;
++    hadamard_inverses  = model.hadamard_inverses;
++    if (cparams.ctx_other) {
++        // tensors borrowed from the target are looked up by pointer, so the
++        // target's entries never collide with this model's
++        const auto & other = cparams.ctx_other->model;
++        hadamard_rotations.insert(other.hadamard_rotations.begin(), other.hadamard_rotations.end());
++        hadamard_inverses .insert(other.hadamard_inverses .begin(), other.hadamard_inverses .end());
++    }
++
+     auto rope_scaling_type = params.rope_scaling_type;
+     if (rope_scaling_type == LLAMA_ROPE_SCALING_TYPE_UNSPECIFIED) {
+         rope_scaling_type = hparams.rope_scaling_type_train;
+@@ -2689,8 +2699,8 @@ ggml_cgraph * llama_context::graph_reserve(
+ 
+     // verify transform coverage on the pristine graph: after scheduling,
+     // cross-backend copies break the producer chain the check follows
+-    if (!hadamard_verified && gf && (!model.hadamard_rotations.empty() || !model.hadamard_inverses.empty())) {
+-        llama_verify_hadamard_graph(gf, model.hadamard_rotations, model.hadamard_inverses);
++    if (!hadamard_verified && gf && (!hadamard_rotations.empty() || !hadamard_inverses.empty())) {
++        llama_verify_hadamard_graph(gf, hadamard_rotations, hadamard_inverses);
+         hadamard_verified = true;
+     }
+ 
+@@ -2733,8 +2743,8 @@ llm_graph_params llama_context::graph_params(
+         /*.dspark_has_context =*/!dspark_ctx.v_ctx_feat.empty(),
+         /*.dspark_ctx_rows =*/dspark_ctx.n_ctx_rows,
+         /*.dspark_ctx_width =*/dspark_ctx.n_embd_cap,
+-        /*.hadamard_rotations =*/&model.hadamard_rotations,
+-        /*.hadamard_inverses  =*/&model.hadamard_inverses,
++        /*.hadamard_rotations =*/&hadamard_rotations,
++        /*.hadamard_inverses  =*/&hadamard_inverses,
+         /*.samplers    =*/sampling.samplers,
+         /*.n_outputs   =*/n_outputs,
+         /*.cb          =*/graph_get_cb(),
+diff --git a/src/llama-context.h b/src/llama-context.h
+index ef0c3a50d..6057da7f4 100644
+--- a/src/llama-context.h
++++ b/src/llama-context.h
+@@ -394,6 +394,12 @@ private:
+     llm_graph_result_ptr gf_res_prev;
+     llm_graph_result_ptr gf_res_reserve;
+ 
++    // the Hadamard transforms this context's graphs consult: the model's own,
++    // plus the target's when the model borrows its token embeddings or output
++    // head through ctx_other (those tensors keep the target's folding)
++    llama_hadamard_rotations hadamard_rotations;
++    llama_hadamard_rotations hadamard_inverses;
++
+     // one-time Hadamard transform-coverage check on the first built graph
+     bool hadamard_verified = false;
+ 
+diff --git a/src/llama-graph.cpp b/src/llama-graph.cpp
+index 99f263e32..9ad7fa925 100644
+--- a/src/llama-graph.cpp
++++ b/src/llama-graph.cpp
+@@ -2395,6 +2395,24 @@ ggml_tensor * llm_graph_context::build_moe_ffn(
+     return moe_out;
+ }
+ 
++ggml_tensor * llm_graph_context::build_embd_rows(ggml_tensor * tok_embd, ggml_tensor * ids) const {
++    ggml_tensor * cur = ggml_get_rows(ctx0, tok_embd, ids);
++
++    // a Hadamard-latent embedding table stores rotated rows; restore the
++    // primal basis right after the lookup: h = s * (H z)
++    if (hadamard_inverses) {
++        const auto it = hadamard_inverses->find(tok_embd);
++        if (it != hadamard_inverses->end()) {
++            cur = llama_mul_mat_hadamard(ctx0, cur, it->second.rot);
++            if (it->second.signs) {
++                cur = ggml_mul(ctx0, cur, it->second.signs);
++            }
++        }
++    }
++
++    return cur;
++}
++
+ // input embeddings with optional lora
+ ggml_tensor * llm_graph_context::build_inp_embd(ggml_tensor * tok_embd) const {
+     const int64_t n_embd_inp = hparams.n_embd_inp();
+@@ -2421,19 +2439,7 @@ ggml_tensor * llm_graph_context::build_inp_embd(ggml_tensor * tok_embd) const {
+     {
+         auto & cur = inps[0];
+ 
+-        cur = ggml_get_rows(ctx0, tok_embd, inp->tokens);
+-
+-        // a Hadamard-latent embedding table stores rotated rows; restore the
+-        // primal basis right after the lookup: h = s * (H z)
+-        if (hadamard_inverses) {
+-            const auto it = hadamard_inverses->find(tok_embd);
+-            if (it != hadamard_inverses->end()) {
+-                cur = llama_mul_mat_hadamard(ctx0, cur, it->second.rot);
+-                if (it->second.signs) {
+-                    cur = ggml_mul(ctx0, cur, it->second.signs);
+-                }
+-            }
+-        }
++        cur = build_embd_rows(tok_embd, inp->tokens);
+ 
+         // apply lora for embedding tokens if needed
+         for (const auto & lora : *loras) {
+diff --git a/src/llama-graph.h b/src/llama-graph.h
+index e85c1aa20..6c2db6420 100644
+--- a/src/llama-graph.h
++++ b/src/llama-graph.h
+@@ -1167,6 +1167,12 @@ struct llm_graph_context {
+               ggml_tensor * ids,
+               ggml_tensor * w_s = nullptr) const;
+ 
++    // read rows of a token-embedding table; a Hadamard-latent table gets the
++    // inverse transform so the result is in the primal basis
++    ggml_tensor * build_embd_rows(
++              ggml_tensor * tok_embd,
++              ggml_tensor * ids) const;
++
+     ggml_tensor * build_norm(
+              ggml_tensor * cur,
+              ggml_tensor * mw,
+diff --git a/src/models/dflash.cpp b/src/models/dflash.cpp
+index 155e119f7..92a26c825 100644
+--- a/src/models/dflash.cpp
++++ b/src/models/dflash.cpp
+@@ -584,7 +584,7 @@ static void build_dfly_correction_head(llm_graph_context & g, const llama_model
+         //                         z = [rms(h_i); rms(embd(prev))]
+         if (prev) {
+             // chained positions condition on the previously drafted token: an argmax, always in range
+-            prev_embd = ggml_get_rows(ctx0, tok_embd, prev); // [n_embd, n_blocks]
++            prev_embd = g.build_embd_rows(tok_embd, prev); // [n_embd, n_blocks]
+         }
+ 
+         ggml_tensor * h_i = ggml_cont(ctx0, ggml_view_2d(ctx0, hidden, n_embd, n_blocks,
+@@ -740,7 +740,7 @@ llama_model_dflash::graph<false>::graph(const llama_model & model, const llm_gra
+ 
+     ggml_tensor * inp_tokens = inp->tokens;
+ 
+-    ggml_tensor * inpL = ggml_get_rows(ctx0, tok_embd, inp->tokens);
++    ggml_tensor * inpL = build_embd_rows(tok_embd, inp->tokens);
+     cb(inpL, "inp_noise_embd", -1);
+ 
+     // the DFly chain conditions position 1 on the block anchor's embedding; reuse the rows
+@@ -981,7 +981,7 @@ llama_model_dflash::graph_dsv4::graph_dsv4(const llama_model & model, const llm_
+ 
+     ggml_tensor * inp_tokens = inp->tokens;
+ 
+-    ggml_tensor * inpL = ggml_get_rows(ctx0, tok_embd, inp->tokens);
++    ggml_tensor * inpL = build_embd_rows(tok_embd, inp->tokens);
+     cb(inpL, "inp_noise_embd", -1);
+     // the DSV4 hyper-connection backbone replicates inpL across hc lanes below, so
+     // the log-SNR term would need to be added per lane. No such checkpoint exists

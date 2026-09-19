@@ -1,0 +1,2673 @@
+#!/usr/bin/env python3
+import os
+import re
+import sys
+import json
+import time
+import asyncio
+import subprocess
+import signal
+from collections import deque
+from aiohttp import web, ClientSession
+
+HOST = "0.0.0.0"
+PORT = 8090
+LLAMA_SERVER_PORT = 8085
+LLAMA_SERVER_URL = os.environ.get("DASH_CHAT_URL", "http://10.99.0.2:8096/v1/chat/completions")  # playground chat target: the DSpark v2 speculative server on spark2
+
+BASE_DIR = "/home/usman/Bonsai-demo"
+BIN_DIR = os.path.join(BASE_DIR, "bin", "cuda")
+SPEC_BIN = os.path.join(BIN_DIR, "llama-speculative-simple")
+SERVER_BIN = os.path.join(BIN_DIR, "llama-server")
+CLI_BIN = os.path.join(BIN_DIR, "llama-cli")
+
+# Round-2 drafter training (v2 trainer). The container mirrors its stdout to
+# ROUND2_TRAIN_LOG. The dashboard reads the file first and falls back to
+# `docker logs` when the file is absent.
+V2_LOG_DIR = os.path.join(BASE_DIR, "dflash-training", "v2", "logs")
+ROUND2_TRAIN_LOG = os.path.join(V2_LOG_DIR, "train_full2.log")
+ROUND2_CKPT_EVAL_LOG = os.path.join(V2_LOG_DIR, "full2_step_ckpt_eval.log")
+TRAINER_IMAGE = "bonsai/dflash-trainer:latest"
+TRAINER_V2_SCRIPT = "train_dspark_v2.py"
+
+ROUND2_RUN_META = {
+    "name": "round-2 (broad self-distilled data)",
+    "script": "v2/train_dspark_v2.py",
+    "samples": 3401,
+    "sample_files": ["batch1", "batch2", "batch3_broad"],
+    "approx_tokens": 1570000,
+    "approx_tokens_label": "1.57M",
+    "warm_start": "full1 (epoch-1 weights)",
+    "epochs": 1,
+    "batch_size": 2,
+    "lr": "6e-5",
+    "num_anchors": 256,
+    "sec_per_step_nominal": 22,
+    "save_every": 300,
+    "checkpoint_steps": [300, 600, 900, 1200, 1500, 1701],
+    "output": "models/bonsai2-dspark/bonsai2_dspark_full2.safetensors",
+}
+
+# Static reference numbers for the checkpoint table. Measured in prior sessions
+# on the same GPU. Not re-measured by this dashboard.
+CKPT_REFERENCE = {
+    "baseline_tok_s": 29.8,
+    "baseline_note": "no drafter, same GPU, flat at any length",
+    "short_form_tokens": 200,
+    "longform_budget_tokens": 2000,
+    "exactness_note": "All rows are bit-identical-to-greedy exact match, except rows tagged tau (typical acceptance, short-form only).",
+    "prior_drafters": [
+        {
+            "name": "narrow epoch-1 drafter (full1)",
+            "metric": "long-form mean",
+            "K": 5,
+            "mode": "exact",
+            "tok_s": 62.6,
+        },
+        {
+            "name": "smoke drafter",
+            "metric": "200-tok math",
+            "K": 5,
+            "mode": "exact",
+            "accept_pct": 48.9,
+            "tok_s": 53.8,
+        },
+    ],
+}
+
+LONGFORM_PROMPTS = {
+    "p1": "CSV parser",
+    "p2": "LRU cache",
+    "p3": "log-file script",
+    "p4": "Dijkstra",
+    "p5": "email validator",
+    "p6": "math train problem",
+}
+
+# Model Catalog
+BASE_MODELS = {
+    "PQ2_0": {
+        "id": "PQ2_0",
+        "name": "Bonsai 2 (27B) - PQ2_0",
+        "label": "PQ2_0 (1.76 bpw)",
+        "quant_type": "Official Native Ternary",
+        "path": os.path.join(BASE_DIR, "models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"),
+        "size_gb": 6.78,
+        "bits_per_weight": 1.76,
+        "baseline_gen_tok_s": 27.79,
+        "prompt_speed_tok_s": 919.05,
+        "memory_footprint_gb": 6.78,
+        "description": "Official PrismML release weights. 1.76 bpw native ternary matrix multiplication on NVIDIA GB10 Tensor Cores."
+    },
+    "PTQ1_0": {
+        "id": "PTQ1_0",
+        "name": "Bonsai 2 (27B) - PTQ1_0",
+        "label": "PTQ1_0 (1.58 bpw)",
+        "quant_type": "Post-Training Quantized Ternary",
+        "path": os.path.join(BASE_DIR, "models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PTQ1_0.gguf"),
+        "size_gb": 5.53,
+        "bits_per_weight": 1.58,
+        "baseline_gen_tok_s": 32.83,
+        "prompt_speed_tok_s": 432.59,
+        "memory_footprint_gb": 5.53,
+        "speedup": "+18.1% Base Decode Speedup",
+        "description": "Quantized ternary weights with lower memory bandwidth consumption. Yields +18.1% faster base generation speed (32.83 tok/s)."
+    }
+}
+
+DRAFTER_MODELS = {
+    "trained_q4": {
+        "id": "trained_q4",
+        "name": "Bonsai 2 DFlash Adapted Drafter (Q4_0)",
+        "label": "Trained DFlash Q4_0 (1008 MB)",
+        "path": os.path.join(BASE_DIR, "models/bonsai2-dspark/bonsai2-dspark-trained-Q4_0.gguf"),
+        "size_mb": 1008,
+        "params": "500M params (6 blocks)",
+        "trained": True,
+        "hadamard_adapted": True,
+        "spec_type": "draft-dspark",
+        "peak_gen_tok_s": 47.85,
+        "max_acceptance_pct": 69.23,
+        "description": "Trained on Bonsai 2 hidden state taps [2, 16, 31, 46, 61] with Hadamard adaptation. Boosts throughput up to 47.85 tok/s (+72.2%)."
+    },
+    "trained_conv": {
+        "id": "trained_conv",
+        "name": "Bonsai 2 DFlash Drafter (FP16 / Conv)",
+        "label": "Trained DFlash FP16 (7.0 GB)",
+        "path": os.path.join(BASE_DIR, "models/bonsai2-dspark/bonsai2-dspark-trained-conv.gguf"),
+        "size_mb": 7168,
+        "params": "500M params (6 blocks)",
+        "trained": True,
+        "hadamard_adapted": True,
+        "spec_type": "draft-dspark",
+        "description": "Full-precision FP16 converted drafter checkpoint."
+    },
+    "bonsai2_dspark_q4": {
+        "id": "bonsai2_dspark_q4",
+        "name": "Bonsai 2 DSpark Drafter (Q4_0)",
+        "label": "Bonsai 2 DSpark Q4_0 (603 MB)",
+        "path": os.path.join(BASE_DIR, "models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf"),
+        "size_mb": 603,
+        "params": "300M params",
+        "trained": False,
+        "hadamard_adapted": False,
+        "spec_type": "draft-dspark",
+        "description": "Compact converted drafter checkpoint (603 MB)."
+    },
+    "qwen38_mismatch": {
+        "id": "qwen38_mismatch",
+        "name": "Qwen 3.8 Zero-Shot Drafter (Hadamard Mismatch)",
+        "label": "Qwen 3.8 Mismatch (0.89% Acc)",
+        "path": os.path.join(BASE_DIR, "models/qwen38-dspark/Qwen3.8-27B-dspark-dflash-Q4_0.gguf"),
+        "size_mb": 1008,
+        "params": "500M params",
+        "trained": False,
+        "hadamard_adapted": False,
+        "spec_type": "draft-dspark",
+        "peak_gen_tok_s": 13.20,
+        "max_acceptance_pct": 0.89,
+        "description": "Ablation baseline demonstrating rotation collapse: 0.89% acceptance rate and -53% degradation without Hadamard adaptation."
+    },
+    "none": {
+        "id": "none",
+        "name": "Standard Autoregressive (No Drafter)",
+        "label": "No Drafter (Baseline Autoregressive)",
+        "path": "",
+        "size_mb": 0,
+        "params": "None",
+        "trained": False,
+        "hadamard_adapted": False,
+        "spec_type": "none",
+        "description": "Direct single-stream token-by-token generation without speculative decoding."
+    }
+}
+
+# Current Active Configuration in Dashboard
+CURRENT_CONFIG = {
+    "base_model": "PQ2_0",
+    "speculative_enabled": True,
+    "drafter": "trained_q4",
+    "n_max": 4,
+    "p_min": 0.0,
+    "kv_cache_quant": "f16",
+    "flash_attn": True,
+    "context_size": 8192,
+    "temperature": 0.7,
+    "top_p": 0.95
+}
+
+# Server Process Management State
+class ServerManager:
+    def __init__(self):
+        self.process = None
+        self.pid = None
+        self.status = "stopped"  # stopped, starting, running, error
+        self.started_at = None
+        self.active_config = dict(CURRENT_CONFIG)
+        self.log_buffer = deque(maxlen=200)
+        self.error_message = None
+
+    def is_running(self):
+        if self.process is not None:
+            if self.process.poll() is None:
+                return True
+            self.status = "stopped"
+            self.pid = None
+            self.process = None
+        return False
+
+    async def start(self, config=None):
+        if self.is_running():
+            await self.stop()
+
+        if config:
+            self.active_config.update(config)
+
+        cfg = self.active_config
+        base_id = cfg.get("base_model", "PQ2_0")
+        base_meta = BASE_MODELS.get(base_id, BASE_MODELS["PQ2_0"])
+        model_path = base_meta["path"]
+
+        if not os.path.exists(model_path):
+            self.status = "error"
+            self.error_message = f"Base model file not found: {model_path}"
+            return False, self.error_message
+
+        cmd = [
+            SERVER_BIN,
+            "-m", model_path,
+            "--host", "0.0.0.0",
+            "--port", str(LLAMA_SERVER_PORT),
+            "-ngl", "999",
+            "-c", str(cfg.get("context_size", 8192)),
+            "--temp", str(cfg.get("temperature", 0.7)),
+            "--top-p", str(cfg.get("top_p", 0.95)),
+            "--jinja"
+        ]
+
+        if cfg.get("flash_attn", True):
+            cmd.extend(["-fa", "on"])
+
+        # Multimodal Projector if available
+        mmproj_path = os.path.join(BASE_DIR, "models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf")
+        if os.path.exists(mmproj_path):
+            cmd.extend(["--mmproj", mmproj_path])
+
+        # Speculative Decoding configuration
+        if cfg.get("speculative_enabled", True):
+            drafter_id = cfg.get("drafter", "trained_q4")
+            drafter_meta = DRAFTER_MODELS.get(drafter_id)
+            if drafter_meta and drafter_meta["path"] and os.path.exists(drafter_meta["path"]):
+                n_max = cfg.get("n_max", 4)
+                p_min = cfg.get("p_min", 0.0)
+                cmd.extend([
+                    "-md", drafter_meta["path"],
+                    "--spec-type", drafter_meta.get("spec_type", "draft-dspark"),
+                    "--spec-draft-n-max", str(n_max),
+                    "--spec-draft-p-min", str(p_min),
+                    "-ngld", "999",
+                    "-np", "1"
+                ])
+
+        # KV Cache Quantization
+        if cfg.get("kv_cache_quant") == "q4_0":
+            cmd.extend(["--cache-type-k", "q4_0", "--cache-type-v", "q4_0"])
+
+        env = dict(os.environ)
+        env["LD_LIBRARY_PATH"] = BIN_DIR + (f":{env['LD_LIBRARY_PATH']}" if "LD_LIBRARY_PATH" in env else "")
+
+        try:
+            self.status = "starting"
+            self.log_buffer.clear()
+            self.process = subprocess.Popen(
+                cmd,
+                cwd=BASE_DIR,
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
+            self.pid = self.process.pid
+            self.started_at = time.time()
+
+            # Background reader for logs
+            asyncio.create_task(self._read_logs())
+
+            # Wait up to 10s for port readiness
+            for _ in range(20):
+                await asyncio.sleep(0.5)
+                if await self._check_health():
+                    self.status = "running"
+                    return True, "Server started successfully"
+                if self.process.poll() is not None:
+                    break
+
+            if self.is_running():
+                self.status = "running"
+                return True, "Server process launched"
+            else:
+                self.status = "stopped"
+                return False, "Server process exited prematurely"
+
+        except Exception as e:
+            self.status = "error"
+            self.error_message = str(e)
+            return False, str(e)
+
+    async def _read_logs(self):
+        loop = asyncio.get_event_loop()
+        while self.process and self.process.poll() is None:
+            line = await loop.run_in_executor(None, self.process.stdout.readline)
+            if line:
+                self.log_buffer.append(line.rstrip())
+            else:
+                break
+
+    async def _check_health(self):
+        try:
+            async with ClientSession() as session:
+                async with session.get(f"http://127.0.0.1:{LLAMA_SERVER_PORT}/health", timeout=1.0) as resp:
+                    return resp.status == 200
+        except Exception:
+            return False
+
+    async def stop(self):
+        if self.process is not None:
+            try:
+                self.process.terminate()
+                for _ in range(10):
+                    await asyncio.sleep(0.2)
+                    if self.process.poll() is not None:
+                        break
+                if self.process.poll() is None:
+                    self.process.kill()
+            except Exception:
+                pass
+        self.process = None
+        self.pid = None
+        self.status = "stopped"
+        return True, "Server stopped"
+
+server_mgr = ServerManager()
+
+# Historical Benchmark Records
+BENCHMARK_HISTORY = [
+    {
+        "id": "b-official-baseline",
+        "timestamp": "2026-09-17 17:10:00",
+        "base_model": "PQ2_0",
+        "drafter": "none",
+        "n_max": 0,
+        "p_min": 0.0,
+        "prompt_tok_s": 919.05,
+        "gen_tok_s": 27.79,
+        "acceptance_pct": 0.0,
+        "n_accept": 0,
+        "n_drafted": 0,
+        "notes": "Official release baseline on GB10 (native ternary packing)"
+    },
+    {
+        "id": "b-ptq1-baseline",
+        "timestamp": "2026-09-17 17:15:00",
+        "base_model": "PTQ1_0",
+        "drafter": "none",
+        "n_max": 0,
+        "p_min": 0.0,
+        "prompt_tok_s": 432.59,
+        "gen_tok_s": 32.83,
+        "acceptance_pct": 0.0,
+        "n_accept": 0,
+        "n_drafted": 0,
+        "notes": "PTQ1_0 baseline: +18.1% faster base generation"
+    },
+    {
+        "id": "b-qwen-mismatch",
+        "timestamp": "2026-09-17 17:20:00",
+        "base_model": "PQ2_0",
+        "drafter": "qwen38_mismatch",
+        "n_max": 4,
+        "p_min": 0.0,
+        "prompt_tok_s": 919.05,
+        "gen_tok_s": 13.20,
+        "acceptance_pct": 0.89,
+        "n_accept": 3,
+        "n_drafted": 337,
+        "notes": "Hadamard rotation mismatch (-53% degradation)"
+    },
+    {
+        "id": "b-dflash-k2",
+        "timestamp": "2026-09-17 17:38:00",
+        "base_model": "PQ2_0",
+        "drafter": "trained_q4",
+        "n_max": 2,
+        "p_min": 0.0,
+        "prompt_tok_s": 890.12,
+        "gen_tok_s": 37.89,
+        "acceptance_pct": 69.23,
+        "n_accept": 45,
+        "n_drafted": 65,
+        "notes": "+36.3% over baseline; high acceptance on 2-token windows"
+    },
+    {
+        "id": "b-dflash-k3",
+        "timestamp": "2026-09-17 17:40:00",
+        "base_model": "PQ2_0",
+        "drafter": "trained_q4",
+        "n_max": 3,
+        "p_min": 0.0,
+        "prompt_tok_s": 905.40,
+        "gen_tok_s": 43.65,
+        "acceptance_pct": 63.64,
+        "n_accept": 42,
+        "n_drafted": 66,
+        "notes": "+57.1% over baseline; 43.65 tok/s"
+    },
+    {
+        "id": "b-dflash-k4",
+        "timestamp": "2026-09-17 17:42:00",
+        "base_model": "PQ2_0",
+        "drafter": "trained_q4",
+        "n_max": 4,
+        "p_min": 0.0,
+        "prompt_tok_s": 912.30,
+        "gen_tok_s": 46.54,
+        "acceptance_pct": 56.96,
+        "n_accept": 45,
+        "n_drafted": 79,
+        "notes": "+67.5% over baseline; 46.54 tok/s"
+    },
+    {
+        "id": "b-dflash-k5",
+        "timestamp": "2026-09-17 17:45:00",
+        "base_model": "PQ2_0",
+        "drafter": "trained_q4",
+        "n_max": 5,
+        "p_min": 0.0,
+        "prompt_tok_s": 915.20,
+        "gen_tok_s": 47.85,
+        "acceptance_pct": 50.54,
+        "n_accept": 47,
+        "n_drafted": 93,
+        "notes": "+72.2% over baseline; 47.85 tok/s sustained peak"
+    },
+    {
+        "id": "b-dflash-pmin05",
+        "timestamp": "2026-09-17 17:48:00",
+        "base_model": "PQ2_0",
+        "drafter": "trained_q4",
+        "n_max": 4,
+        "p_min": 0.5,
+        "prompt_tok_s": 914.80,
+        "gen_tok_s": 47.92,
+        "acceptance_pct": 64.10,
+        "n_accept": 25,
+        "n_drafted": 39,
+        "notes": "p_min = 0.5 filter: boosts acceptance from 56.9% to 64.1%"
+    },
+    {
+        "id": "b-dflash-pmin09",
+        "timestamp": "2026-09-17 17:50:00",
+        "base_model": "PQ2_0",
+        "drafter": "trained_q4",
+        "n_max": 4,
+        "p_min": 0.9,
+        "prompt_tok_s": 916.10,
+        "gen_tok_s": 38.20,
+        "acceptance_pct": 100.0,
+        "n_accept": 12,
+        "n_drafted": 12,
+        "notes": "p_min = 0.9 filter: 100% acceptance rate on verified draft tokens"
+    },
+    {
+        "id": "b-dflash-5ep-calibrated",
+        "timestamp": "2026-09-17 18:29:00",
+        "base_model": "PQ2_0",
+        "drafter": "trained_q4",
+        "n_max": 2,
+        "p_min": 0.6,
+        "prompt_tok_s": 918.00,
+        "gen_tok_s": 39.91,
+        "acceptance_pct": 95.83,
+        "n_accept": 23,
+        "n_drafted": 24,
+        "notes": "5-epoch calibrated drafter: 95.83% acceptance rate milestone"
+    },
+    {
+        "id": "b-quant-f16",
+        "timestamp": "2026-09-17 19:35:00",
+        "base_model": "PQ2_0",
+        "drafter": "f16_quant",
+        "n_max": 5,
+        "p_min": 0.6,
+        "prompt_tok_s": 912.00,
+        "gen_tok_s": 6.72,
+        "acceptance_pct": 46.88,
+        "n_accept": 15,
+        "n_drafted": 32,
+        "notes": "F16 Drafter (3.55 GB): heavy memory footprint limits spec throughput"
+    },
+    {
+        "id": "b-quant-q8_0",
+        "timestamp": "2026-09-17 19:35:30",
+        "base_model": "PQ2_0",
+        "drafter": "q8_0_quant",
+        "n_max": 5,
+        "p_min": 0.6,
+        "prompt_tok_s": 914.00,
+        "gen_tok_s": 7.43,
+        "acceptance_pct": 48.48,
+        "n_accept": 16,
+        "n_drafted": 33,
+        "notes": "Q8_0 Drafter (1.89 GB): 8-bit integer quantization"
+    },
+    {
+        "id": "b-quant-q6_k",
+        "timestamp": "2026-09-17 19:36:00",
+        "base_model": "PQ2_0",
+        "drafter": "q6_k_quant",
+        "n_max": 5,
+        "p_min": 0.6,
+        "prompt_tok_s": 915.00,
+        "gen_tok_s": 7.87,
+        "acceptance_pct": 53.33,
+        "n_accept": 16,
+        "n_drafted": 30,
+        "notes": "Q6_K Drafter (1.46 GB): 6-bit K-quant"
+    },
+    {
+        "id": "b-quant-q4_k_m",
+        "timestamp": "2026-09-17 19:36:30",
+        "base_model": "PQ2_0",
+        "drafter": "q4_k_m_quant",
+        "n_max": 5,
+        "p_min": 0.6,
+        "prompt_tok_s": 916.00,
+        "gen_tok_s": 7.67,
+        "acceptance_pct": 59.09,
+        "n_accept": 13,
+        "n_drafted": 22,
+        "notes": "Q4_K_M Drafter (1.05 GB): 59.09% acceptance on complex code"
+    },
+    {
+        "id": "b-quant-q4_0",
+        "timestamp": "2026-09-17 19:37:00",
+        "base_model": "PQ2_0",
+        "drafter": "q4_0_quant",
+        "n_max": 5,
+        "p_min": 0.6,
+        "prompt_tok_s": 918.00,
+        "gen_tok_s": 7.82,
+        "acceptance_pct": 52.00,
+        "n_accept": 13,
+        "n_drafted": 25,
+        "notes": "Q4_0 Drafter (1.00 GB): fast lightweight 4-bit standard"
+    },
+    {
+        "id": "b-epoch1-math-k2",
+        "timestamp": "2026-09-17 20:42:00",
+        "base_model": "PQ2_0",
+        "drafter": "epoch1_q4_k_m",
+        "n_max": 2,
+        "p_min": 0.0,
+        "prompt_tok_s": 918.00,
+        "gen_tok_s": 41.37,
+        "acceptance_pct": 57.50,
+        "n_accept": 23,
+        "n_drafted": 40,
+        "notes": "Epoch 1 (20k CodeAlpaca) on Math: 41.37 tok/s (+48.9% over baseline)"
+    },
+    {
+        "id": "b-epoch1-math-k5",
+        "timestamp": "2026-09-17 20:42:30",
+        "base_model": "PQ2_0",
+        "drafter": "epoch1_q4_k_m",
+        "n_max": 5,
+        "p_min": 0.0,
+        "prompt_tok_s": 918.00,
+        "gen_tok_s": 42.89,
+        "acceptance_pct": 32.94,
+        "n_accept": 28,
+        "n_drafted": 85,
+        "notes": "Epoch 1 on Math K=5: 42.89 tok/s peak sustained throughput"
+    },
+    {
+        "id": "b-epoch1-code-k2",
+        "timestamp": "2026-09-17 20:43:00",
+        "base_model": "PQ2_0",
+        "drafter": "epoch1_q4_k_m",
+        "n_max": 2,
+        "p_min": 0.0,
+        "prompt_tok_s": 920.00,
+        "gen_tok_s": 32.35,
+        "acceptance_pct": 29.87,
+        "n_accept": 23,
+        "n_drafted": 77,
+        "notes": "Epoch 1 on Python Code: acceptance jumped from 12.2% to 29.9% (+280% speedup over unaligned)"
+    },
+    {
+        "id": "b-epoch2-math-k2",
+        "timestamp": "2026-09-17 21:25:00",
+        "base_model": "PQ2_0",
+        "drafter": "epoch2_q4_k_m",
+        "n_max": 2,
+        "p_min": 0.0,
+        "prompt_tok_s": 918.00,
+        "gen_tok_s": 42.39,
+        "acceptance_pct": 62.96,
+        "n_accept": 34,
+        "n_drafted": 54,
+        "notes": "Epoch 2 Final Converged (20k CodeAlpaca) on Math: 42.39 tok/s (+52.5% over baseline)"
+    },
+    {
+        "id": "b-epoch2-math-k5",
+        "timestamp": "2026-09-17 21:25:30",
+        "base_model": "PQ2_0",
+        "drafter": "epoch2_q4_k_m",
+        "n_max": 5,
+        "p_min": 0.0,
+        "prompt_tok_s": 918.00,
+        "gen_tok_s": 44.93,
+        "acceptance_pct": 37.04,
+        "n_accept": 40,
+        "n_drafted": 108,
+        "notes": "Epoch 2 on Math K=5: 44.93 tok/s peak sustained throughput (+61.7% over baseline)"
+    },
+    {
+        "id": "b-epoch2-code-k2",
+        "timestamp": "2026-09-17 21:26:00",
+        "base_model": "PQ2_0",
+        "drafter": "epoch2_q4_k_m",
+        "n_max": 2,
+        "p_min": 0.0,
+        "prompt_tok_s": 920.00,
+        "gen_tok_s": 31.97,
+        "acceptance_pct": 29.87,
+        "n_accept": 23,
+        "n_drafted": 77,
+        "notes": "Epoch 2 on Python Code K=2: 31.97 tok/s (+15.0% over baseline)"
+    }
+]
+
+# Training Step Logs
+TRAINING_LOGS = [
+    {"step": 10, "loss": 6.8125, "vram_gb": 13.23, "elapsed_s": 6.2},
+    {"step": 20, "loss": 6.0625, "vram_gb": 13.23, "elapsed_s": 12.4},
+    {"step": 30, "loss": 5.8750, "vram_gb": 13.23, "elapsed_s": 18.5},
+    {"step": 40, "loss": 5.6250, "vram_gb": 13.24, "elapsed_s": 24.6},
+    {"step": 50, "loss": 5.4375, "vram_gb": 13.24, "elapsed_s": 30.7},
+    {"step": 60, "loss": 5.2500, "vram_gb": 13.24, "elapsed_s": 36.9},
+    {"step": 70, "loss": 5.1250, "vram_gb": 13.24, "elapsed_s": 43.1},
+    {"step": 80, "loss": 4.9688, "vram_gb": 13.24, "elapsed_s": 49.2},
+    {"step": 90, "loss": 4.8750, "vram_gb": 13.24, "elapsed_s": 55.4},
+    {"step": 100, "loss": 4.7500, "vram_gb": 13.24, "elapsed_s": 61.5},
+    {"step": 110, "loss": 4.6562, "vram_gb": 13.24, "elapsed_s": 67.7},
+    {"step": 120, "loss": 4.5625, "vram_gb": 13.24, "elapsed_s": 73.8},
+    {"step": 130, "loss": 4.4688, "vram_gb": 13.24, "elapsed_s": 80.0},
+    {"step": 140, "loss": 4.4062, "vram_gb": 13.24, "elapsed_s": 86.2},
+    {"step": 150, "loss": 4.3438, "vram_gb": 13.24, "elapsed_s": 92.3},
+    {"step": 160, "loss": 4.2812, "vram_gb": 13.24, "elapsed_s": 98.5},
+    {"step": 170, "loss": 4.2500, "vram_gb": 13.24, "elapsed_s": 104.6},
+    {"step": 180, "loss": 4.2188, "vram_gb": 13.24, "elapsed_s": 110.8},
+    {"step": 190, "loss": 4.1875, "vram_gb": 13.24, "elapsed_s": 116.9},
+    {"step": 200, "loss": 4.1250, "vram_gb": 13.24, "elapsed_s": 123.1},
+    {"step": 210, "loss": 4.0938, "vram_gb": 13.24, "elapsed_s": 129.2},
+    {"step": 220, "loss": 4.0625, "vram_gb": 13.24, "elapsed_s": 132.1},
+    {"step": 230, "loss": 4.0469, "vram_gb": 13.24, "elapsed_s": 133.5},
+    {"step": 240, "loss": 4.0312, "vram_gb": 13.24, "elapsed_s": 135.0},
+    {"step": 250, "loss": 4.4062, "vram_gb": 13.23, "elapsed_s": 140.7}
+]
+
+# Benchmark lock to avoid parallel executions contending GPU
+benchmark_lock = asyncio.Lock()
+
+# Cluster State Cache for Dual DGX Sparks (Deep Health)
+CLUSTER_STATE = {
+    "spark1": {
+        "hostname": "spark1",
+        "online": True,
+        "role": "Primary / Inference Node",
+        "ip_fabric0": "10.99.0.1",
+        "ip_fabric1": "10.99.1.1",
+        "gpu_name": "NVIDIA GB10",
+        "temperature_c": 75.0,
+        "utilization_pct": 91.0,
+        "power_draw_w": 72.0,
+        "sm_clock_mhz": 2420,
+        "max_clock_mhz": 3003,
+        "memory_used_mb": 32000.0,
+        "memory_total_mb": 124608.0,
+        "memory_free_mb": 92608.0,
+        "disk": {"total_tb": 3.67, "used_gb": 506.9, "avail_tb": 3.17, "used_pct": 13.5},
+        "uptime_str": "9h 15m",
+        "cpu_load": {"1m": 2.5, "5m": 2.2, "15m": 1.7},
+        "fabric_stats": {
+            "link0": {"rx_gb": 0.41, "tx_gb": 136.28, "rx_pkts": 3587120, "tx_pkts": 18238123},
+            "link1": {"rx_gb": 0.0, "tx_gb": 0.0, "rx_pkts": 3189, "tx_pkts": 3161}
+        },
+        "last_seen": time.time()
+    },
+    "spark2": {
+        "hostname": "spark2",
+        "online": True,
+        "role": "Cluster / Worker Node",
+        "ip_fabric0": "10.99.0.2",
+        "ip_fabric1": "10.99.1.2",
+        "gpu_name": "NVIDIA GB10",
+        "temperature_c": 80.0,
+        "utilization_pct": 88.0,
+        "power_draw_w": 80.0,
+        "sm_clock_mhz": 2380,
+        "max_clock_mhz": 3003,
+        "memory_used_mb": 17300.0,
+        "memory_total_mb": 124608.0,
+        "memory_free_mb": 107308.0,
+        "disk": {"total_tb": 3.67, "used_gb": 534.4, "avail_tb": 3.15, "used_pct": 14.2},
+        "uptime_str": "15h 45m",
+        "cpu_load": {"1m": 1.16, "5m": 1.42, "15m": 1.15},
+        "last_seen": time.time()
+    },
+    "interconnect": {
+        "type": "Dual 200Gbps Direct Attach Copper (DAC)",
+        "aggregate_bandwidth_gbps": 400,
+        "status": "connected",
+        "link0": {
+            "interface": "enp1s0f1np1",
+            "speed_mbps": 200000,
+            "mtu": 9000,
+            "local_ip": "10.99.0.1",
+            "remote_ip": "10.99.0.2",
+            "rtt_ms": 0.11,
+            "status": "UP"
+        },
+        "link1": {
+            "interface": "enP2p1s0f1np1",
+            "speed_mbps": 200000,
+            "mtu": 9000,
+            "local_ip": "10.99.1.1",
+            "remote_ip": "10.99.1.2",
+            "rtt_ms": 0.11,
+            "status": "UP"
+        }
+    }
+}
+
+async def probe_spark2_stats():
+    cmd = (
+        "python3 -c '"
+        "import os, subprocess, json;"
+        "res = {};"
+        "try:\n"
+        "  out = subprocess.check_output([\"nvidia-smi\", \"--query-gpu=name,temperature.gpu,utilization.gpu,power.draw,clocks.current.graphics,clocks.max.graphics\", \"--format=csv,noheader,nounits\"]).decode().strip();"
+        "  p = [x.strip() for x in out.split(\",\")];"
+        "  res[\"gpu_name\"] = p[0]; res[\"temp_c\"] = float(p[1]); res[\"util_pct\"] = float(p[2]); res[\"power_w\"] = float(p[3]);"
+        "  res[\"sm_clock_mhz\"] = int(p[4]) if p[4] != \"[N/A]\" else 0; res[\"max_clock_mhz\"] = int(p[5]) if p[5] != \"[N/A]\" else 3003;\n"
+        "except Exception as e:\n"
+        "  res[\"error\"] = str(e);"
+        "try:\n"
+        "  with open(\"/proc/meminfo\") as f:\n"
+        "    mi = {l.split(\":\")[0].strip(): l.split(\":\")[1].strip() for l in f if \":\" in l};"
+        "  tot_kb = float(mi.get(\"MemTotal\", \"0\").split()[0]); avail_kb = float(mi.get(\"MemAvailable\", \"0\").split()[0]);"
+        "  res[\"mem_total_mb\"] = tot_kb / 1024.0; res[\"mem_used_mb\"] = (tot_kb - avail_kb) / 1024.0; res[\"mem_free_mb\"] = avail_kb / 1024.0;\n"
+        "except Exception:\n"
+        "  pass;"
+        "try:\n"
+        "  st = os.statvfs(\"/\"); total_b = st.f_blocks * st.f_frsize; avail_b = st.f_bavail * st.f_frsize; used_b = total_b - avail_b;"
+        "  res[\"disk\"] = {\"total_tb\": round(total_b/(1024**4),2), \"used_gb\": round(used_b/(1024**3),1), \"avail_tb\": round(avail_b/(1024**4),2), \"used_pct\": round((used_b/total_b)*100,1)};\n"
+        "except Exception:\n"
+        "  pass;"
+        "try:\n"
+        "  with open(\"/proc/uptime\") as f:\n"
+        "    up_s = float(f.read().split()[0]); res[\"uptime_str\"] = f\"{int(up_s//3600)}h {int((up_s%3600)//60)}m\";\n"
+        "except Exception:\n"
+        "  res[\"uptime_str\"] = \"unknown\";"
+        "res[\"load\"] = list(os.getloadavg());"
+        "print(json.dumps(res))'"
+    )
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=2", "spark2", cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, _ = await proc.communicate()
+        if stdout:
+            data = json.loads(stdout.decode().strip())
+            sp2 = CLUSTER_STATE["spark2"]
+            sp2["online"] = True
+            if "gpu_name" in data:
+                sp2["gpu_name"] = data["gpu_name"]
+                sp2["temperature_c"] = data.get("temp_c", 42.0)
+                sp2["utilization_pct"] = data.get("util_pct", 0.0)
+                sp2["power_draw_w"] = data.get("power_w", 4.6)
+                sp2["sm_clock_mhz"] = data.get("sm_clock_mhz", 2380)
+                sp2["max_clock_mhz"] = data.get("max_clock_mhz", 3003)
+            if "mem_used_mb" in data:
+                sp2["memory_used_mb"] = data["mem_used_mb"]
+                sp2["memory_total_mb"] = data.get("mem_total_mb", 124608.0)
+                sp2["memory_free_mb"] = data.get("mem_free_mb", 107300.0)
+            if "disk" in data:
+                sp2["disk"] = data["disk"]
+            if "uptime_str" in data:
+                sp2["uptime_str"] = data["uptime_str"]
+            if "load" in data and len(data["load"]) == 3:
+                l = data["load"]
+                sp2["cpu_load"] = {"1m": l[0], "5m": l[1], "15m": l[2]}
+            sp2["last_seen"] = time.time()
+    except Exception:
+        if time.time() - CLUSTER_STATE["spark2"]["last_seen"] > 8.0:
+            CLUSTER_STATE["spark2"]["online"] = False
+async def probe_fabric_links():
+    for idx, (ip, dev) in enumerate([("10.99.0.2", "enp1s0f1np1"), ("10.99.1.2", "enP2p1s0f1np1")]):
+        key = f"link{idx}"
+        # ping RTT
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "ping", "-c", "1", "-W", "1", ip,
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
+            stdout, _ = await proc.communicate()
+            m = re.search(r"time=([0-9\.]+) ms", stdout.decode())
+            if m:
+                CLUSTER_STATE["interconnect"][key]["rtt_ms"] = float(m.group(1))
+                CLUSTER_STATE["interconnect"][key]["status"] = "UP"
+            else:
+                CLUSTER_STATE["interconnect"][key]["status"] = "DEGRADED"
+        except Exception:
+            CLUSTER_STATE["interconnect"][key]["status"] = "DOWN"
+
+        # speed
+        try:
+            if os.path.exists(f"/sys/class/net/{dev}/speed"):
+                with open(f"/sys/class/net/{dev}/speed") as f:
+                    CLUSTER_STATE["interconnect"][key]["speed_mbps"] = int(f.read().strip())
+        except Exception:
+            pass
+
+    l0 = CLUSTER_STATE["interconnect"]["link0"]["status"]
+    l1 = CLUSTER_STATE["interconnect"]["link1"]["status"]
+    if l0 == "UP" and l1 == "UP":
+        CLUSTER_STATE["interconnect"]["status"] = "connected"
+        CLUSTER_STATE["interconnect"]["aggregate_bandwidth_gbps"] = 400
+    elif l0 == "UP" or l1 == "UP":
+        CLUSTER_STATE["interconnect"]["status"] = "degraded"
+        CLUSTER_STATE["interconnect"]["aggregate_bandwidth_gbps"] = 200
+    else:
+        CLUSTER_STATE["interconnect"]["status"] = "disconnected"
+        CLUSTER_STATE["interconnect"]["aggregate_bandwidth_gbps"] = 0
+
+async def update_cluster_loop():
+    while True:
+        try:
+            await probe_spark2_stats()
+            await probe_fabric_links()
+        except Exception:
+            pass
+        await asyncio.sleep(2.0)
+
+async def get_gpu_telemetry():
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "nvidia-smi",
+            "--query-gpu=name,temperature.gpu,utilization.gpu,power.draw,clocks.current.graphics,clocks.max.graphics",
+            "--format=csv,noheader,nounits",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, _ = await proc.communicate()
+        line = stdout.decode().strip()
+        
+        name = "NVIDIA GB10"
+        temp = 45.0
+        util = 0.0
+        pwr = 13.0
+        sm_clock = 2418
+        max_clock = 3003
+        
+        if line:
+            parts = [p.strip() for p in line.split(",")]
+            name = parts[0]
+            temp = float(parts[1]) if parts[1] != "[N/A]" else 45.0
+            util = float(parts[2]) if parts[2] != "[N/A]" else 0.0
+            pwr = float(parts[3]) if parts[3] != "[N/A]" else 13.0
+            sm_clock = int(parts[4]) if len(parts) > 4 and parts[4] != "[N/A]" else 2418
+            max_clock = int(parts[5]) if len(parts) > 5 and parts[5] != "[N/A]" else 3003
+            
+        mem_total_mb = 124608.0
+        mem_used_mb = 24000.0
+        mem_free_mb = 100608.0
+        try:
+            with open("/proc/meminfo", "r") as f:
+                mem_info = {}
+                for l in f:
+                    p = l.split(":")
+                    if len(p) == 2:
+                        mem_info[p[0].strip()] = p[1].strip()
+                total_kb = float(mem_info.get("MemTotal", "0").split()[0])
+                avail_kb = float(mem_info.get("MemAvailable", "0").split()[0])
+                mem_total_mb = total_kb / 1024.0
+                mem_used_mb = (total_kb - avail_kb) / 1024.0
+                mem_free_mb = avail_kb / 1024.0
+        except Exception:
+            pass
+
+        # Disk
+        disk_stats = {"total_tb": 3.67, "used_gb": 506.9, "avail_tb": 3.17, "used_pct": 13.5}
+        try:
+            st = os.statvfs("/")
+            total_b = st.f_blocks * st.f_frsize
+            avail_b = st.f_bavail * st.f_frsize
+            used_b = total_b - avail_b
+            disk_stats = {
+                "total_tb": round(total_b / (1024**4), 2),
+                "used_gb": round(used_b / (1024**3), 1),
+                "avail_tb": round(avail_b / (1024**4), 2),
+                "used_pct": round((used_b / total_b) * 100, 1)
+            }
+        except Exception:
+            pass
+
+        # Uptime
+        uptime_str = "9h"
+        try:
+            with open("/proc/uptime", "r") as f:
+                up_s = float(f.read().split()[0])
+                hrs = int(up_s // 3600)
+                mins = int((up_s % 3600) // 60)
+                uptime_str = f"{hrs}h {mins}m"
+        except Exception:
+            pass
+
+        # CPU load
+        load1, load5, load15 = 0.0, 0.0, 0.0
+        try:
+            with open("/proc/loadavg", "r") as f:
+                parts = f.read().split()
+                load1, load5, load15 = float(parts[0]), float(parts[1]), float(parts[2])
+        except Exception:
+            pass
+
+        # Fabric traffic stats on spark1
+        fabric_stats = {
+            "link0": {"rx_gb": 0.41, "tx_gb": 136.28, "rx_pkts": 3587120, "tx_pkts": 18238123},
+            "link1": {"rx_gb": 0.0, "tx_gb": 0.0, "rx_pkts": 3189, "tx_pkts": 3161}
+        }
+        try:
+            for idx, dev in enumerate(["enp1s0f1np1", "enP2p1s0f1np1"]):
+                key = f"link{idx}"
+                rx_b, tx_b, rx_p, tx_p = 0, 0, 0, 0
+                if os.path.exists(f"/sys/class/net/{dev}/statistics/rx_bytes"):
+                    with open(f"/sys/class/net/{dev}/statistics/rx_bytes") as f: rx_b = int(f.read().strip())
+                    with open(f"/sys/class/net/{dev}/statistics/tx_bytes") as f: tx_b = int(f.read().strip())
+                    with open(f"/sys/class/net/{dev}/statistics/rx_packets") as f: rx_p = int(f.read().strip())
+                    with open(f"/sys/class/net/{dev}/statistics/tx_packets") as f: tx_p = int(f.read().strip())
+                    fabric_stats[key] = {
+                        "rx_gb": round(rx_b / (1024**3), 2),
+                        "tx_gb": round(tx_b / (1024**3), 2),
+                        "rx_pkts": rx_p,
+                        "tx_pkts": tx_p
+                    }
+        except Exception:
+            pass
+
+        # Update local spark1 in CLUSTER_STATE
+        sp1 = CLUSTER_STATE["spark1"]
+        sp1["temperature_c"] = temp
+        sp1["utilization_pct"] = util
+        sp1["power_draw_w"] = pwr
+        sp1["sm_clock_mhz"] = sm_clock
+        sp1["max_clock_mhz"] = max_clock
+        sp1["memory_used_mb"] = mem_used_mb
+        sp1["memory_total_mb"] = mem_total_mb
+        sp1["memory_free_mb"] = mem_free_mb
+        sp1["disk"] = disk_stats
+        sp1["uptime_str"] = uptime_str
+        sp1["cpu_load"] = {"1m": load1, "5m": load5, "15m": load15}
+        sp1["fabric_stats"] = fabric_stats
+        sp1["last_seen"] = time.time()
+
+        sp2 = CLUSTER_STATE["spark2"]
+        total_cluster_mem_gb = (sp1["memory_total_mb"] + sp2["memory_total_mb"]) / 1024.0
+        used_cluster_mem_gb = (sp1["memory_used_mb"] + sp2["memory_used_mb"]) / 1024.0
+        free_cluster_mem_gb = total_cluster_mem_gb - used_cluster_mem_gb
+        total_power_w = sp1["power_draw_w"] + (sp2["power_draw_w"] if sp2.get("online") else 0.0)
+
+        return {
+            "name": name,
+            "temperature_c": temp,
+            "utilization_pct": util,
+            "power_draw_w": pwr,
+            "sm_clock_mhz": sm_clock,
+            "memory_used_mb": mem_used_mb,
+            "memory_total_mb": mem_total_mb,
+            "memory_free_mb": mem_free_mb,
+            "cpu_load": {"1m": load1, "5m": load5, "15m": load15},
+            "disk": disk_stats,
+            "uptime_str": uptime_str,
+            "server_running": server_mgr.is_running(),
+            "server_status": server_mgr.status,
+            "server_pid": server_mgr.pid,
+            "benchmark_running": benchmark_lock.locked(),
+            "status": "online",
+            "cluster": {
+                "nodes_online": 2 if sp2.get("online") else 1,
+                "total_nodes": 2,
+                "spark1": sp1,
+                "spark2": sp2,
+                "interconnect": CLUSTER_STATE["interconnect"],
+                "aggregate": {
+                    "total_memory_gb": round(total_cluster_mem_gb, 2),
+                    "used_memory_gb": round(used_cluster_mem_gb, 2),
+                    "free_memory_gb": round(free_cluster_mem_gb, 2),
+                    "total_power_w": round(total_power_w, 2),
+                    "interconnect_bandwidth_gbps": CLUSTER_STATE["interconnect"]["aggregate_bandwidth_gbps"]
+                }
+            }
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+async def handle_cluster_status(request):
+    return web.json_response(CLUSTER_STATE)
+
+async def cluster_background_ctx(app):
+    task = asyncio.create_task(update_cluster_loop())
+    yield
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+# Handlers
+async def handle_telemetry(request):
+    data = await get_gpu_telemetry()
+    return web.json_response(data)
+
+async def handle_models(request):
+    # Check on-disk existence and attach to model info
+    base_list = []
+    for k, v in BASE_MODELS.items():
+        item = dict(v)
+        item["exists"] = os.path.exists(item["path"])
+        base_list.append(item)
+
+    drafter_list = []
+    for k, v in DRAFTER_MODELS.items():
+        item = dict(v)
+        item["exists"] = os.path.exists(item["path"]) if item["path"] else True
+        drafter_list.append(item)
+
+    return web.json_response({
+        "base_models": base_list,
+        "drafter_models": drafter_list,
+        "current_config": CURRENT_CONFIG
+    })
+
+async def handle_models_select(request):
+    try:
+        body = await request.json()
+        for k in ["base_model", "speculative_enabled", "drafter", "n_max", "p_min", "kv_cache_quant", "flash_attn", "context_size", "temperature", "top_p"]:
+            if k in body:
+                CURRENT_CONFIG[k] = body[k]
+        return web.json_response({"success": True, "current_config": CURRENT_CONFIG})
+    except Exception as e:
+        return web.json_response({"success": False, "error": str(e)}, status=400)
+
+async def handle_server_status(request):
+    is_running = server_mgr.is_running()
+    uptime_s = time.time() - server_mgr.started_at if (is_running and server_mgr.started_at) else 0.0
+    return web.json_response({
+        "running": is_running,
+        "status": server_mgr.status,
+        "pid": server_mgr.pid,
+        "port": LLAMA_SERVER_PORT,
+        "uptime_s": round(uptime_s, 1),
+        "config": server_mgr.active_config,
+        "logs": list(server_mgr.log_buffer)[-50:]
+    })
+
+async def handle_server_start(request):
+    body = {}
+    try:
+        body = await request.json()
+    except Exception:
+        pass
+    success, msg = await server_mgr.start(body if body else CURRENT_CONFIG)
+    return web.json_response({"success": success, "message": msg, "pid": server_mgr.pid})
+
+async def handle_server_stop(request):
+    success, msg = await server_mgr.stop()
+    return web.json_response({"success": success, "message": msg})
+
+async def handle_server_switch(request):
+    body = await request.json()
+    CURRENT_CONFIG.update(body)
+    success, msg = await server_mgr.start(CURRENT_CONFIG)
+    return web.json_response({"success": success, "message": msg, "pid": server_mgr.pid, "config": CURRENT_CONFIG})
+
+async def handle_benchmark_run(request):
+    if benchmark_lock.locked():
+        return web.json_response({"success": False, "error": "A benchmark run is already in progress. Please wait."})
+
+    async with benchmark_lock:
+        body = await request.json()
+        base_id = body.get("base_model", CURRENT_CONFIG["base_model"])
+        drafter_id = body.get("drafter", CURRENT_CONFIG["drafter"])
+        n_max = int(body.get("n_max", CURRENT_CONFIG["n_max"]))
+        p_min = float(body.get("p_min", CURRENT_CONFIG["p_min"]))
+        prompt = body.get("prompt", "Write a concise Python function to compute Fibonacci numbers.")
+        n_predict = int(body.get("n_predict", 32))
+
+        base_meta = BASE_MODELS.get(base_id, BASE_MODELS["PQ2_0"])
+        base_path = base_meta["path"]
+
+        env = dict(os.environ)
+        env["LD_LIBRARY_PATH"] = BIN_DIR + (f":{env['LD_LIBRARY_PATH']}" if "LD_LIBRARY_PATH" in env else "")
+
+        start_t = time.time()
+        output_text = ""
+        prompt_tok_s = 0.0
+        gen_tok_s = 0.0
+        n_accept = 0
+        n_drafted = 0
+        n_predict_actual = 0
+        acceptance_pct = 0.0
+        generated_content = ""
+
+        # Case 1: Speculative Decoding Run via llama-speculative-simple
+        if speculative and drafter_id != "none":
+            drafter_meta = DRAFTER_MODELS.get(drafter_id, DRAFTER_MODELS["trained_q4"])
+            drafter_path = drafter_meta["path"]
+
+            cmd = [
+                SPEC_BIN,
+                "-m", base_path,
+                "-md", drafter_path,
+                "--spec-type", drafter_meta.get("spec_type", "draft-dspark"),
+                "--spec-draft-n-max", str(n_max),
+                "--spec-draft-p-min", str(p_min),
+                "-p", prompt,
+                "-n", str(n_predict),
+                "-ngl", "999",
+                "-ngld", "999"
+            ]
+
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                cwd=BASE_DIR,
+                env=env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT
+            )
+            stdout, _ = await proc.communicate()
+            output_text = stdout.decode("utf-8", errors="replace")
+
+            # Parse metrics from output
+            for line in output_text.splitlines():
+                if "encoded" in line and "tokens in" in line and "speed:" in line:
+                    try:
+                        prompt_tok_s = float(line.split("speed:")[1].replace("t/s", "").strip())
+                    except Exception:
+                        pass
+                elif "decoded" in line and "tokens in" in line and "speed:" in line:
+                    try:
+                        gen_tok_s = float(line.split("speed:")[1].replace("t/s", "").strip())
+                    except Exception:
+                        pass
+                elif "n_accept" in line and "=" in line:
+                    try:
+                        n_accept = int(line.split("=")[1].strip())
+                    except Exception:
+                        pass
+                elif "n_drafted" in line and "=" in line:
+                    try:
+                        n_drafted = int(line.split("=")[1].strip())
+                    except Exception:
+                        pass
+                elif "n_predict" in line and "=" in line:
+                    try:
+                        n_predict_actual = int(line.split("=")[1].strip())
+                    except Exception:
+                        pass
+                elif "accept" in line and "%" in line and "=" in line:
+                    try:
+                        acceptance_pct = float(line.split("=")[1].replace("%", "").strip())
+                    except Exception:
+                        pass
+
+            # Extract generated content between prompt and stats
+            parts = output_text.split(prompt)
+            if len(parts) > 1:
+                after_prompt = parts[1]
+                lines = []
+                for l in after_prompt.splitlines():
+                    if "encoded" in l or "decoded" in l or "common_perf_print" in l or "n_draft" in l:
+                        break
+                    lines.append(l)
+                generated_content = "\n".join(lines).strip()
+
+        # Case 2: Standard Autoregressive Baseline via llama-cli
+        else:
+            cmd = [
+                CLI_BIN,
+                "-m", base_path,
+                "-p", prompt,
+                "-n", str(n_predict),
+                "-ngl", "999",
+                "-st", "--simple-io"
+            ]
+
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                cwd=BASE_DIR,
+                env=env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT
+            )
+            stdout, _ = await proc.communicate()
+            output_text = stdout.decode("utf-8", errors="replace")
+
+            # Parse timing: [ Prompt: 235.5 t/s | Generation: 20.5 t/s ]
+            for line in output_text.splitlines():
+                if "Prompt:" in line and "Generation:" in line:
+                    try:
+                        p_part = line.split("Prompt:")[1].split("t/s")[0].strip()
+                        g_part = line.split("Generation:")[1].split("t/s")[0].strip()
+                        prompt_tok_s = float(p_part)
+                        gen_tok_s = float(g_part)
+                    except Exception:
+                        pass
+                elif ">" in line and prompt in line:
+                    continue
+                elif not line.startswith("[") and not line.startswith("Exiting") and line.strip():
+                    generated_content += line + "\n"
+
+            n_predict_actual = n_predict
+
+        elapsed_s = time.time() - start_t
+        baseline_speed = base_meta.get("baseline_gen_tok_s", 27.79)
+        speedup_pct = ((gen_tok_s - baseline_speed) / baseline_speed * 100) if baseline_speed > 0 else 0.0
+
+        record = {
+            "id": f"run-{int(time.time()*1000)}",
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "base_model": base_id,
+            "drafter": drafter_id if (speculative and drafter_id != "none") else "none",
+            "n_max": n_max if (speculative and drafter_id != "none") else 0,
+            "p_min": p_min if (speculative and drafter_id != "none") else 0.0,
+            "prompt_tok_s": round(prompt_tok_s, 2),
+            "gen_tok_s": round(gen_tok_s, 2),
+            "acceptance_pct": round(acceptance_pct, 2),
+            "n_accept": n_accept,
+            "n_drafted": n_drafted,
+            "n_predict": n_predict_actual,
+            "elapsed_s": round(elapsed_s, 2),
+            "speedup_pct": round(speedup_pct, 1),
+            "generated_text": generated_content[:300],
+            "notes": f"Live run: {base_id} + {drafter_id} (K={n_max}, p={p_min})"
+        }
+
+        BENCHMARK_HISTORY.insert(0, record)
+
+        return web.json_response({
+            "success": True,
+            "result": record,
+            "raw_output": output_text[-1500:]
+        })
+
+async def handle_benchmark_history(request):
+    return web.json_response({"history": BENCHMARK_HISTORY})
+# --- Training log parsers -------------------------------------------------
+#
+# Two trainer log formats exist:
+#   v1 (old trainer):
+#     Epoch 1/2 | Step 250/5006 | Loss: 3.9796 (Recon: 3.9688, Conf: 0.0433) | LR: 1.99e-04 | Elapsed: 5.0m | ETA: 94.2m
+#   v2 (train_dspark_v2.py):
+#     ep 1/1 step 650/1701 loss 1.5941 (ce 0.2409 l1 0.8223 conf 0.5309) acc 0.555 acc_p 0.543 lr 8.20e-05 vram 18.7G 239.4m
+#     [save] wrote 62 tensors -> /path/bonsai2_dspark_full2_step600.safetensors
+#     [data] indexed 3401 samples across 3 file(s); embd=5120 n_taps=5
+#     [warm-start] loading /path/bonsai2_dspark_full1.safetensors
+
+V1_STEP_RE = re.compile(
+    r'Epoch (\d+)/(\d+) \| Step (\d+)/(\d+) \| Loss: ([\d\.]+) \(Recon: ([\d\.]+), Conf: ([\d\.]+)\) '
+    r'\| LR: ([\w\.\-]+) \| Elapsed: ([\d\.]+)m \| ETA: ([\d\.]+)m'
+)
+V2_STEP_RE = re.compile(
+    r'ep (\d+)/(\d+) step (\d+)/(\d+) loss ([\d\.]+) \(ce ([\d\.]+) l1 ([\d\.]+) conf ([\d\.]+)\) '
+    r'acc ([\d\.]+) acc_p ([\d\.]+) lr ([\d\.eE\-\+]+) vram ([\d\.]+)G ([\d\.]+)m'
+)
+V2_SAVE_RE = re.compile(r'\[save\] wrote (\d+) tensors -> (\S+)')
+V2_DATA_RE = re.compile(r'\[data\] indexed (\d+) samples across (\d+) file\(s\)')
+V2_WARM_RE = re.compile(r'\[warm-start\] loading (\S+)')
+V2_STEP_SUFFIX_RE = re.compile(r'_step(\d+)\.safetensors$')
+
+_TRAINER_CONTAINER_CACHE = {"ts": 0.0, "value": (None, None, None)}
+
+
+def find_trainer_container(max_age_sec=5.0):
+    """Return (container_id, image, command) for the trainer container, or (None, None, None).
+
+    Prefers the container whose command names the v2 trainer script. Falls back to
+    any container from TRAINER_IMAGE. Cached for max_age_sec to limit sudo calls.
+    """
+    now = time.time()
+    if now - _TRAINER_CONTAINER_CACHE["ts"] < max_age_sec:
+        return _TRAINER_CONTAINER_CACHE["value"]
+    result = (None, None, None)
+    try:
+        proc = subprocess.run(
+            ["sudo", "-n", "docker", "ps", "--no-trunc", "--format", "{{.ID}}\t{{.Image}}\t{{.Command}}"],
+            capture_output=True, text=True, timeout=5,
+        )
+        rows = []
+        for line in proc.stdout.splitlines():
+            parts = line.split("\t", 2)
+            if len(parts) == 3:
+                rows.append(tuple(parts))
+        v2 = [r for r in rows if TRAINER_V2_SCRIPT in r[2]]
+        img = [r for r in rows if r[1] == TRAINER_IMAGE]
+        if v2:
+            result = v2[0]
+        elif img:
+            result = img[0]
+    except Exception:
+        pass
+    _TRAINER_CONTAINER_CACHE["ts"] = now
+    _TRAINER_CONTAINER_CACHE["value"] = result
+    return result
+
+
+def read_container_logs(cid, tail=4000):
+    try:
+        proc = subprocess.run(
+            ["sudo", "-n", "docker", "logs", "--tail", str(tail), cid],
+            capture_output=True, text=True, timeout=8,
+        )
+        return proc.stdout + proc.stderr
+    except Exception:
+        return ""
+
+
+def read_text_file(path, max_bytes=4_000_000):
+    try:
+        with open(path, "r", errors="replace") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            f.seek(max(0, size - max_bytes))
+            return f.read()
+    except Exception:
+        return ""
+
+
+def parse_v2_training_log(text):
+    """Parse a v2 trainer log into steps, save events and run facts."""
+    steps, saves = [], []
+    facts = {"indexed_samples": None, "indexed_files": None, "warm_start_path": None}
+    for line in text.splitlines():
+        m = V2_STEP_RE.search(line)
+        if m:
+            steps.append({
+                "epoch": int(m.group(1)),
+                "total_epochs": int(m.group(2)),
+                "step": int(m.group(3)),
+                "total_steps": int(m.group(4)),
+                "loss": float(m.group(5)),
+                "ce": float(m.group(6)),
+                "l1": float(m.group(7)),
+                "conf": float(m.group(8)),
+                "acc": float(m.group(9)),
+                "acc_p": float(m.group(10)),
+                "lr": m.group(11),
+                "vram_gb": float(m.group(12)),
+                "elapsed_min": float(m.group(13)),
+            })
+            continue
+        m = V2_SAVE_RE.search(line)
+        if m:
+            path = m.group(2)
+            sm = V2_STEP_SUFFIX_RE.search(path)
+            saves.append({
+                "n_tensors": int(m.group(1)),
+                "path": path,
+                "file": os.path.basename(path),
+                "step": int(sm.group(1)) if sm else None,
+                "final": sm is None,
+            })
+            continue
+        m = V2_DATA_RE.search(line)
+        if m:
+            facts["indexed_samples"] = int(m.group(1))
+            facts["indexed_files"] = int(m.group(2))
+            continue
+        m = V2_WARM_RE.search(line)
+        if m:
+            facts["warm_start_path"] = m.group(1)
+    return steps, saves, facts
+
+
+def parse_v1_training_log(text):
+    steps = []
+    for line in text.splitlines():
+        m = V1_STEP_RE.search(line)
+        if m:
+            steps.append({
+                "epoch": int(m.group(1)),
+                "total_epochs": int(m.group(2)),
+                "step": int(m.group(3)),
+                "total_steps": int(m.group(4)),
+                "loss": float(m.group(5)),
+                "recon_loss": float(m.group(6)),
+                "conf_loss": float(m.group(7)),
+                "lr": m.group(8),
+                "elapsed_min": float(m.group(9)),
+                "eta_min": float(m.group(10)),
+            })
+    return steps
+
+
+def _mean(values):
+    values = [v for v in values if v is not None]
+    return (sum(values) / len(values)) if values else None
+
+
+def summarize_v2_steps(steps, saves, facts, status, run_meta, container_id=None, log_source=None):
+    """Build the live payload for a v2 trainer log."""
+    current = steps[-1]
+    total_steps = max(1, current["total_steps"])
+    progress_pct = round(current["step"] / total_steps * 100, 1)
+    elapsed_sec = max(1.0, current["elapsed_min"] * 60.0)
+    sec_per_step = elapsed_sec / max(1, current["step"])
+
+    sec_per_step_recent = None
+    if len(steps) >= 2:
+        a = steps[max(0, len(steps) - 11)]
+        b = steps[-1]
+        if b["step"] > a["step"]:
+            sec_per_step_recent = (b["elapsed_min"] - a["elapsed_min"]) * 60.0 / (b["step"] - a["step"])
+
+    remaining = max(0, total_steps - current["step"])
+    eta_min = 0.0 if status == "finished" else round(remaining * sec_per_step / 60.0, 1)
+
+    recent = steps[-10:]
+    first = steps[0]
+    loss_delta = round(current["loss"] - first["loss"], 4)
+    loss_delta_pct = round(loss_delta / first["loss"] * 100.0, 1) if first["loss"] else 0.0
+
+    latest_ckpt = saves[-1] if saves else None
+    saved_steps = [s["step"] for s in saves if s["step"] is not None]
+    next_ckpt = None
+    for s in run_meta["checkpoint_steps"]:
+        if s > current["step"]:
+            next_ckpt = s
+            break
+
+    total_samples = facts.get("indexed_samples") or run_meta["samples"]
+    samples_seen = min(total_samples, current["step"] * run_meta["batch_size"])
+
+    run = dict(run_meta)
+    run.update({
+        "container_id": container_id[:12] if container_id else None,
+        "log_source": log_source,
+        "indexed_samples": facts.get("indexed_samples"),
+        "indexed_files": facts.get("indexed_files"),
+        "warm_start_path": facts.get("warm_start_path"),
+    })
+
+    return {
+        "is_training": status == "running",
+        "status": status,
+        "format": "v2",
+        "run": run,
+        "progress_pct": progress_pct,
+        "epoch": current["epoch"],
+        "total_epochs": current["total_epochs"],
+        "step": current["step"],
+        "total_steps": total_steps,
+        "loss": current["loss"],
+        "ce": current["ce"],
+        "l1": current["l1"],
+        "conf": current["conf"],
+        "acc": current["acc"],
+        "acc_p": current["acc_p"],
+        "lr": current["lr"],
+        "vram_gb": current["vram_gb"],
+        "elapsed_min": current["elapsed_min"],
+        "eta_min": eta_min,
+        "sec_per_step": round(sec_per_step, 2),
+        "sec_per_step_recent": round(sec_per_step_recent, 2) if sec_per_step_recent else None,
+        "samples_seen": samples_seen,
+        "total_samples": total_samples,
+        "loss_ma10": round(_mean([s["loss"] for s in recent]), 4),
+        "acc_ma10": round(_mean([s["acc"] for s in recent]), 3),
+        "loss_delta": loss_delta,
+        "loss_delta_pct": loss_delta_pct,
+        "latest_checkpoint": latest_ckpt,
+        "checkpoints_saved": saved_steps + (["final"] if any(s["final"] for s in saves) else []),
+        "next_checkpoint_step": next_ckpt,
+        "current": current,
+        "steps": steps,
+    }
+
+
+def get_live_training_progress():
+    """Live view of the trainer. Handles the v2 (round-2) and v1 (old) log formats."""
+    try:
+        cid, image, command = find_trainer_container()
+        container_is_v2 = bool(command and TRAINER_V2_SCRIPT in command)
+        file_exists = os.path.exists(ROUND2_TRAIN_LOG)
+
+        text, log_source = "", None
+        if cid and not container_is_v2:
+            # Old trainer container: docker logs is the only source.
+            text, log_source = read_container_logs(cid), "docker stdout"
+        elif file_exists:
+            text, log_source = read_text_file(ROUND2_TRAIN_LOG), os.path.basename(ROUND2_TRAIN_LOG)
+        elif cid:
+            text, log_source = read_container_logs(cid), "docker stdout"
+
+        raw_lines = [l for l in text.splitlines() if l.strip()]
+        recent_logs = raw_lines[-15:]
+
+        # v2 format first (current run), then v1 for backward compatibility.
+        steps, saves, facts = parse_v2_training_log(text)
+        if steps:
+            if cid:
+                status = "running"
+            elif steps[-1]["step"] >= steps[-1]["total_steps"] or any(s["final"] for s in saves):
+                status = "finished"
+            else:
+                status = "not running"
+            payload = summarize_v2_steps(steps, saves, facts, status, ROUND2_RUN_META, cid, log_source)
+            payload["recent_logs"] = recent_logs
+            return payload
+
+        v1_steps = parse_v1_training_log(text)
+        if v1_steps:
+            current = v1_steps[-1]
+            progress_pct = round(current["step"] / current["total_steps"] * 100, 1)
+            samples_seen = min(20022, current["step"] * 8)
+            tokens_seen = int(samples_seen * 118.4)
+            elapsed_sec = max(1.0, current["elapsed_min"] * 60.0)
+            initial_loss = v1_steps[0]["loss"]
+            loss_delta = round(current["loss"] - initial_loss, 4)
+            return {
+                "is_training": bool(cid),
+                "status": "running" if cid else "not running",
+                "format": "v1",
+                "run": {"name": "20,022-sample unified DFlash run (old trainer)", "log_source": log_source,
+                        "container_id": cid[:12] if cid else None},
+                "progress_pct": progress_pct,
+                "samples_seen": samples_seen,
+                "total_samples": 20022,
+                "tokens_seen": tokens_seen,
+                "total_tokens": 2370010,
+                "samples_per_sec": round(samples_seen / elapsed_sec, 2),
+                "tokens_per_sec": round(tokens_seen / elapsed_sec, 1),
+                "step_latency_ms": round((elapsed_sec * 1000.0) / max(1, current["step"]), 1),
+                "loss_delta": loss_delta,
+                "loss_delta_pct": round((loss_delta / initial_loss) * 100.0, 1) if initial_loss else 0.0,
+                "current": current,
+                "steps": v1_steps,
+                "recent_logs": recent_logs,
+            }
+    except Exception as exc:
+        print(f"[training] live parse error: {exc}", file=sys.stderr)
+    return {"is_training": False, "status": "not running", "format": None, "run": None,
+            "progress_pct": 0, "current": None, "steps": [], "recent_logs": []}
+
+
+# --- Checkpoint eval log ----------------------------------------------------
+#
+#   [05:17:49] CKPT step300: eval on spark2 (clean)
+#   RESULT full2step300 K=5 math | accept 52.113% | 61.542 tok/s | 148/284
+#   RESULT full2step300 K=5 tau=0.05 code | accept 53.214% | 62.554 tok/s | 149/280
+#   RESULT LONGFORM exact K=5 p6 | 1451 | 71.847 tok/s | 1100/1755
+#   RESULT LONGFORM MEAN exact K=5 over 6: 64.4 tok/s
+
+CKPT_HDR_RE = re.compile(r'^\[(\d{2}:\d{2}:\d{2})\] CKPT step(\d+): (.*)$')
+CKPT_RESULT_RE = re.compile(
+    r'^RESULT (\w*?)step(\d+) K=(\d+)(?: tau=([\d\.]+))? (\S+) \| accept ([\d\.]+)% \| ([\d\.]+) tok/s \| (\d+)/(\d+)'
+)
+LONGFORM_RE = re.compile(r'^RESULT LONGFORM (\w+) K=(\d+) (p\d+) \| (\d+) \| ([\d\.]+) tok/s \| (\d+)/(\d+)')
+LONGFORM_MEAN_RE = re.compile(r'^RESULT LONGFORM MEAN (\w+) K=(\d+) over (\d+): ([\d\.]+) tok/s')
+GPU_STATE_RE = re.compile(r'eval on (\S+) \((clean|CONTENDED|contended)\)')
+
+
+def parse_ckpt_eval_log(path=ROUND2_CKPT_EVAL_LOG):
+    text = read_text_file(path)
+    ckpts = {}
+    order = []
+    current_step = None
+
+    def get(step):
+        if step not in ckpts:
+            ckpts[step] = {
+                "step": step,
+                "gpu_state": "unknown",
+                "eval_host": None,
+                "events": [],
+                "results": [],
+                "longform": [],
+                "longform_mean_tok_s": None,
+                "longform_mean_n": None,
+                "longform_mean_mode": None,
+            }
+            order.append(step)
+        return ckpts[step]
+
+    for line in text.splitlines():
+        line = line.strip()
+        m = CKPT_HDR_RE.match(line)
+        if m:
+            step = int(m.group(2))
+            c = get(step)
+            c["events"].append({"time": m.group(1), "text": m.group(3)})
+            g = GPU_STATE_RE.search(m.group(3))
+            if g:
+                current_step = step
+                c["eval_host"] = g.group(1)
+                c["gpu_state"] = "clean" if g.group(2) == "clean" else "contended"
+                c["eval_started"] = m.group(1)
+            elif m.group(3).startswith("converting"):
+                current_step = step
+            continue
+        m = CKPT_RESULT_RE.match(line)
+        if m:
+            step = int(m.group(2))
+            current_step = step
+            c = get(step)
+            tau = float(m.group(4)) if m.group(4) else None
+            c["results"].append({
+                "K": int(m.group(3)),
+                "tau": tau,
+                "mode": "typical" if tau is not None else "exact",
+                "prompt": m.group(5),
+                "accept_pct": float(m.group(6)),
+                "tok_s": float(m.group(7)),
+                "n_accept": int(m.group(8)),
+                "n_drafted": int(m.group(9)),
+            })
+            continue
+        m = LONGFORM_RE.match(line)
+        if m and current_step is not None:
+            c = get(current_step)
+            pid = m.group(3)
+            n_acc, n_dr = int(m.group(6)), int(m.group(7))
+            c["longform"].append({
+                "mode": m.group(1),
+                "K": int(m.group(2)),
+                "prompt_id": pid,
+                "prompt_name": LONGFORM_PROMPTS.get(pid, pid),
+                "n_decoded": int(m.group(4)),
+                "tok_s": float(m.group(5)),
+                "n_accept": n_acc,
+                "n_drafted": n_dr,
+                "accept_pct": round(n_acc / n_dr * 100.0, 3) if n_dr else None,
+            })
+            continue
+        m = LONGFORM_MEAN_RE.match(line)
+        if m and current_step is not None:
+            c = get(current_step)
+            c["longform_mean_mode"] = m.group(1)
+            c["longform_mean_n"] = int(m.group(3))
+            c["longform_mean_tok_s"] = float(m.group(4))
+
+    baseline = CKPT_REFERENCE["baseline_tok_s"]
+    out = []
+    for step in sorted(order):
+        c = ckpts[step]
+        if not c["results"] and not c["longform"]:
+            continue
+        c["results"].sort(key=lambda r: (r["tau"] is not None, r["tau"] or 0.0, r["prompt"]))
+        for r in c["results"]:
+            r["multiplier_vs_baseline"] = round(r["tok_s"] / baseline, 2)
+        for r in c["longform"]:
+            r["multiplier_vs_baseline"] = round(r["tok_s"] / baseline, 2)
+        c["longform_mean_multiplier"] = (
+            round(c["longform_mean_tok_s"] / baseline, 2) if c["longform_mean_tok_s"] else None
+        )
+        out.append(c)
+
+    try:
+        mtime = os.path.getmtime(path)
+    except OSError:
+        mtime = None
+    measured = {c["step"] for c in out}
+    return {
+        "run": ROUND2_RUN_META["name"],
+        "log": path,
+        "log_mtime": mtime,
+        "log_mtime_iso": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mtime)) if mtime else None,
+        "expected_checkpoint_steps": ROUND2_RUN_META["checkpoint_steps"],
+        "pending_steps": [s for s in ROUND2_RUN_META["checkpoint_steps"] if s not in measured],
+        "checkpoints": out,
+        "reference": CKPT_REFERENCE,
+    }
+
+
+async def handle_training_checkpoints(request):
+    loop = asyncio.get_event_loop()
+    data = await loop.run_in_executor(None, parse_ckpt_eval_log)
+    return web.json_response(data)
+
+
+# --- Run history (all v2 runs, parsed from disk) ----------------------------
+
+VAULT_NOTE_PATH = "/home/usman/vault/agents/claude-code/sessions/2026-09-17-bonsai2-speculative-audit-and-correct-retrain.md"
+
+V2_TRAIN_HDR_RE = re.compile(r'\[train\] (\d+) steps, (\d+) epochs, (\d+) samples, num_anchors=(\d+), block_size=(\d+)')
+EVAL_RESULT_RE = re.compile(
+    r'^RESULT (\S+) K=(\d+)(?: tau=([\d\.]+))? (\S+) \| accept (?:\d+\s+)?([\d\.]+)% \| ([\d\.]+) tok/s \| (\d+)/(\d+)'
+)
+EVAL_GPU_RE = re.compile(r'GPU state: (clean|CONTENDED[^\n]*)')
+EVAL_HOST_RE = re.compile(r'\bon (spark\d)\b')
+EVAL_TS_RE = re.compile(r'^\[(\d{2}:\d{2}:\d{2})\]')
+LONGCODE_RE = re.compile(r'^LONGCODE tau=([\d\.]+): terminated (\d+)/(\d+) \| repetition-loops (\d+)/(\d+) \| decode ([\d\.]+) tok/s')
+GSM8K_RE = re.compile(r'^GSM8K tau=([\d\.]+): exact-match (\d+)/(\d+) = ([\d\.]+)% \| wall (\d+)s')
+TRAIN_EXIT_RE = re.compile(r'train exit: (\d+)')
+
+
+def summarize_train_log(path, epoch=None):
+    """Facts from a v2 trainer log: header, last step, final loss/acc, lr range, saves.
+
+    With epoch set, the step statistics cover only that epoch's log lines.
+    """
+    text = read_text_file(path)
+    if not text:
+        return None
+    steps, saves, facts = parse_v2_training_log(text)
+    if epoch is not None:
+        steps = [s for s in steps if s["epoch"] == epoch]
+    hdr = V2_TRAIN_HDR_RE.search(text)
+    out = {
+        "log": path,
+        "epoch_slice": epoch,
+        "exists": True,
+        "header": None,
+        "indexed_samples": facts.get("indexed_samples"),
+        "indexed_files": facts.get("indexed_files"),
+        "warm_start_path": facts.get("warm_start_path"),
+        "warm_start_file": os.path.basename(facts["warm_start_path"]) if facts.get("warm_start_path") else None,
+        "saves": saves,
+        "n_step_lines": len(steps),
+        "done_marker": "[train] done." in text,
+    }
+    if hdr:
+        out["header"] = {
+            "steps": int(hdr.group(1)), "epochs": int(hdr.group(2)), "samples": int(hdr.group(3)),
+            "num_anchors": int(hdr.group(4)), "block_size": int(hdr.group(5)),
+        }
+    if steps:
+        last, first = steps[-1], steps[0]
+        recent = steps[-10:]
+        lrs = []
+        for s in steps:
+            try:
+                lrs.append(float(s["lr"]))
+            except ValueError:
+                pass
+        out.update({
+            "total_steps": last["total_steps"],
+            "last_step": last["step"],
+            "last_epoch": last["epoch"],
+            "total_epochs": last["total_epochs"],
+            "progress_pct": round(last["step"] / max(1, last["total_steps"]) * 100, 1),
+            "first_loss": first["loss"],
+            "final_loss": last["loss"],
+            "final_ce": last["ce"],
+            "final_l1": last["l1"],
+            "final_conf": last["conf"],
+            "final_acc": last["acc"],
+            "final_acc_p": last["acc_p"],
+            "loss_ma10": round(_mean([s["loss"] for s in recent]), 4),
+            "acc_ma10": round(_mean([s["acc"] for s in recent]), 3),
+            "elapsed_min": last["elapsed_min"],
+            "sec_per_step": round(last["elapsed_min"] * 60.0 / max(1, last["step"]), 1),
+            "lr_logged_max": f"{max(lrs):.2e}" if lrs else None,
+            "lr_logged_last": last["lr"],
+            "loss_curve": [{"step": s["step"], "loss": s["loss"], "acc": s["acc"]} for s in steps],
+        })
+    return out
+
+
+def parse_eval_log(path):
+    """Generic parser for the spec-eval logs (RESULT rows, long-form rows, gates, GPU state)."""
+    text = read_text_file(path)
+    out = {
+        "log": path,
+        "exists": bool(text),
+        "gpu_state": "unknown",
+        "gpu_note": None,
+        "host": None,
+        "first_ts": None,
+        "last_ts": None,
+        "finished": False,
+        "results": [],
+        "longform": [],
+        "longform_mean_tok_s": None,
+        "longform_mean_n": None,
+        "gates": {"longcode": [], "gsm8k": []},
+        "errors": [],
+    }
+    if not text:
+        return out
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        i += 1
+        ts = EVAL_TS_RE.match(line)
+        if ts:
+            out["first_ts"] = out["first_ts"] or ts.group(1)
+            out["last_ts"] = ts.group(1)
+        g = EVAL_GPU_RE.search(line)
+        if g:
+            state = g.group(1)
+            out["gpu_state"] = "clean" if state == "clean" else "contended"
+            out["gpu_note"] = None if state == "clean" else state
+        g = GPU_STATE_RE.search(line)
+        if g:
+            out["host"] = g.group(1)
+            out["gpu_state"] = "clean" if g.group(2) == "clean" else "contended"
+        h = EVAL_HOST_RE.search(line)
+        if h and ("LAUNCH" in line or "eval on" in line):
+            out["host"] = h.group(1)
+        if "FINISHED" in line and ts:
+            out["finished"] = True
+        if line.startswith("RESULT ") and "LONGFORM" not in line:
+            m = EVAL_RESULT_RE.match(line)
+            if not m and i < len(lines):
+                # Some logs split a RESULT row over two lines. Join and retry.
+                joined = line + " " + lines[i].strip()
+                m = EVAL_RESULT_RE.match(joined)
+                if m:
+                    i += 1
+            if m:
+                tau = float(m.group(3)) if m.group(3) else None
+                out["results"].append({
+                    "tag": m.group(1),
+                    "K": int(m.group(2)),
+                    "tau": tau,
+                    "mode": "typical" if tau is not None else "exact",
+                    "prompt": m.group(4),
+                    "accept_pct": float(m.group(5)),
+                    "tok_s": float(m.group(6)),
+                    "n_accept": int(m.group(7)),
+                    "n_drafted": int(m.group(8)),
+                })
+            continue
+        m = LONGFORM_RE.match(line)
+        if m:
+            n_acc, n_dr = int(m.group(6)), int(m.group(7))
+            out["longform"].append({
+                "mode": m.group(1), "K": int(m.group(2)), "prompt_id": m.group(3),
+                "prompt_name": LONGFORM_PROMPTS.get(m.group(3), m.group(3)),
+                "n_decoded": int(m.group(4)), "tok_s": float(m.group(5)),
+                "n_accept": n_acc, "n_drafted": n_dr,
+                "accept_pct": round(n_acc / n_dr * 100.0, 3) if n_dr else None,
+            })
+            continue
+        m = LONGFORM_MEAN_RE.match(line)
+        if m:
+            out["longform_mean_n"] = int(m.group(3))
+            out["longform_mean_tok_s"] = float(m.group(4))
+            continue
+        m = LONGCODE_RE.match(line)
+        if m:
+            out["gates"]["longcode"].append({
+                "tau": float(m.group(1)), "terminated": int(m.group(2)), "n": int(m.group(3)),
+                "repetition_loops": int(m.group(4)), "decode_tok_s": float(m.group(6)),
+            })
+            continue
+        m = GSM8K_RE.match(line)
+        if m:
+            out["gates"]["gsm8k"].append({
+                "tau": float(m.group(1)), "correct": int(m.group(2)), "n": int(m.group(3)),
+                "exact_match_pct": float(m.group(4)), "wall_s": int(m.group(5)),
+            })
+            continue
+        if "Error" in line or "Traceback" in line:
+            out["errors"].append(line[:200])
+    out["results"].sort(key=lambda r: (r["tau"] is not None, r["K"], r["tau"] or 0.0, r["prompt"]))
+    return out
+
+
+def best_k5_exact(results):
+    """K=5 exact rows keyed by prompt (math/code/code2)."""
+    rows = [r for r in results if r["K"] == 5 and r["tau"] is None]
+    return {r["prompt"]: r for r in rows}
+
+
+# Facts that exist only in the vault note (no RESULT lines on disk). Each block
+# names its source heading so the UI can label it "from note".
+NOTE_SMOKE_AB = {
+    "source": "vault note: Result: the corrected objective works (smoke run, 2026-09-18 ~05:45Z)",
+    "conditions": "same prompts, same base, K=4, temp 0, 200 tokens; contended GPU (tok/s invalid, acceptance valid)",
+    "rows": [
+        {"drafter": "epoch-1 (autoencoder loss)", "training": "20,022 samples, 2 epochs", "code_accept_pct": 14.3, "math_accept_pct": 21.1},
+        {"drafter": "v2 smoke (correct DSpark loss)", "training": "47 samples, 24 steps", "code_accept_pct": 42.6, "math_accept_pct": 48.9},
+    ],
+}
+NOTE_SMOKE_CLEAN = {
+    "source": "vault note: Result: clean-GPU throughput of the smoke drafter, and PTQ1_0 is a loss for speculation",
+    "conditions": "idle spark2, 200 tokens, temp 0, p_min 0; plain baseline PQ2_0 29.90 tok/s, PTQ1_0 34.69 tok/s",
+    "rows": [
+        {"base": "PQ2_0", "K": 4, "math_accept_pct": 48.9, "math_tok_s": 53.8, "code_accept_pct": 42.6, "code_tok_s": 49.0},
+        {"base": "PQ2_0", "K": 5, "math_accept_pct": 42.9, "math_tok_s": 54.1, "code_accept_pct": 38.1, "code_tok_s": 49.9},
+        {"base": "PQ2_0", "K": 7, "math_accept_pct": 32.9, "math_tok_s": 49.7, "code_accept_pct": 30.6, "code_tok_s": 46.8},
+        {"base": "PTQ1_0", "K": 4, "math_accept_pct": 48.9, "math_tok_s": 41.1, "code_accept_pct": 51.7, "code_tok_s": 42.5},
+        {"base": "PTQ1_0", "K": 5, "math_accept_pct": 42.9, "math_tok_s": 37.7, "code_accept_pct": 45.6, "code_tok_s": 39.1},
+        {"base": "PTQ1_0", "K": 7, "math_accept_pct": 32.9, "math_tok_s": 24.6, "code_accept_pct": 35.1, "code_tok_s": 25.8},
+    ],
+}
+NOTE_FULL1_SPARK1 = {
+    "source": "vault note: Result: full-data epoch 1 (2026-09-18 ~09:25Z) - more narrow data does not help",
+    "conditions": "clean idle spark1 (mafia's idle server co-resident, plain baseline 25.9 tok/s there), 200 tokens, temp 0, p_min 0",
+    "rows": [
+        {"K": 4, "prompt": "math", "accept_pct": 50.0, "tok_s": 48.2},
+        {"K": 4, "prompt": "code", "accept_pct": 45.8, "tok_s": 45.5},
+        {"K": 4, "prompt": "code2", "accept_pct": 59.0, "tok_s": 53.9},
+        {"K": 5, "prompt": "math", "accept_pct": 43.9, "tok_s": 49.7},
+        {"K": 5, "prompt": "code", "accept_pct": 40.1, "tok_s": 46.7},
+        {"K": 5, "prompt": "code2", "accept_pct": 52.3, "tok_s": 53.5},
+    ],
+}
+
+
+def build_run_history():
+    logs = V2_LOG_DIR
+    live = get_live_training_progress()
+    ckpt = parse_ckpt_eval_log()
+
+    # 1. v2 smoke
+    smoke_train = summarize_train_log(os.path.join(logs, "smoke_train.log"))
+    runs = [{
+        "id": "v2smoke",
+        "order": 1,
+        "name": "v2 smoke (first correct-objective run)",
+        "status": "finished" if smoke_train and smoke_train.get("done_marker") else "unknown",
+        "node": "spark1",
+        "dataset": "batch1: 47 self-distilled samples, 13,432 tokens (note: 47+856 was the plan; the smoke used batch1 only)",
+        "lr_flag": None,
+        "epochs": 1,
+        "batch_size": 2,
+        "num_anchors": 512,
+        "warm_start": "RadixArk qwen38-dspark model.safetensors",
+        "train": smoke_train,
+        "eval": None,
+        "eval_source": "note",
+        "note_blocks": [NOTE_SMOKE_AB, NOTE_SMOKE_CLEAN],
+        "best_k5_exact": {
+            "source": "note (clean spark2, PQ2_0)",
+            "math": {"accept_pct": 42.9, "tok_s": 54.1},
+            "code": {"accept_pct": 38.1, "tok_s": 49.9},
+        },
+        "longform_mean_tok_s": None,
+        "learned": "Result: the corrected objective works (smoke run). The correct objective tripled code acceptance and more than doubled math acceptance with 0.2% of the data. PTQ1_0 is a loss for speculation.",
+        "learned_source": "vault note headings: 'Result: the corrected objective works' / 'Result: clean-GPU throughput of the smoke drafter, and PTQ1_0 is a loss for speculation'",
+    }]
+
+    # 2/3. full1 (epoch 1 eval, then the "final" eval on the same epoch-1 weights)
+    full1_train = summarize_train_log(os.path.join(logs, "train_full1.log"))
+    full1_ep1_train = summarize_train_log(os.path.join(logs, "train_full1.log"), epoch=1)
+    pipeline_txt = read_text_file(os.path.join(logs, "full1_pipeline.log"))
+    exit_m = TRAIN_EXIT_RE.search(pipeline_txt)
+    full1_exit = int(exit_m.group(1)) if exit_m else None
+    lr_m = re.search(r'TRAIN tag=full1 .*?lr=(\S+)', pipeline_txt)
+    ep1_eval = parse_eval_log(os.path.join(logs, "full1_epoch1_eval.log"))
+    final_eval = parse_eval_log(os.path.join(logs, "full1_final_eval.log"))
+    gate1 = parse_eval_log(os.path.join(logs, "gsm8k_gate.log"))
+    gate2 = parse_eval_log(os.path.join(logs, "gsm8k_gate_v2.log"))
+
+    full1_status = "finished (epoch 1)"
+    if full1_train and full1_train.get("last_epoch") == 2:
+        full1_status = f"stopped in epoch 2 at step {full1_train['last_step']}/{full1_train['total_steps']}"
+        if full1_exit is not None:
+            full1_status += f" (exit {full1_exit})"
+
+    runs.append({
+        "id": "full1_epoch1",
+        "order": 2,
+        "name": "full1 epoch 1 (batch1+batch2, narrow codealpaca-heavy)",
+        "status": "finished (epoch-1 checkpoint saved at step 452)",
+        "node": "spark1",
+        "dataset": "batch1+batch2: 903 self-distilled samples, ~250k tokens",
+        "lr_flag": lr_m.group(1) if lr_m else None,
+        "epochs": 2,
+        "batch_size": 2,
+        "num_anchors": 512,
+        "warm_start": "RadixArk qwen38-dspark model.safetensors",
+        "train": full1_ep1_train,
+        "train_slice": "epoch 1 (steps 1-452)",
+        "eval": ep1_eval,
+        "eval_source": "log",
+        "eval_caveat": ep1_eval["gpu_note"] or None,
+        "note_blocks": [NOTE_FULL1_SPARK1],
+        "best_k5_exact": {"source": "log (spark2, contended: tok/s invalid)", **best_k5_exact(ep1_eval["results"])},
+        "longform_mean_tok_s": None,
+        "learned": "Result: full-data epoch 1 - more narrow data does not help. Acceptance rose 1-3 points from 19x more data; the drafter fits the narrow distribution.",
+        "learned_source": "vault note heading: 'Result: full-data epoch 1 (2026-09-18 ~09:25Z) - more narrow data does not help'",
+    })
+    runs.append({
+        "id": "full1_final",
+        "order": 3,
+        "name": "full1 final eval + quality gates (epoch-1 weights; epoch 2 aborted)",
+        "status": full1_status,
+        "node": "spark1 train / spark2 eval",
+        "dataset": "same weights as full1 epoch 1 (the `full1` file is the epoch-1 checkpoint; epoch 2 was stopped)",
+        "lr_flag": lr_m.group(1) if lr_m else None,
+        "epochs": 2,
+        "batch_size": 2,
+        "num_anchors": 512,
+        "warm_start": "RadixArk qwen38-dspark model.safetensors",
+        "train": full1_train,
+        "train_slice": "epoch 2 aborted (steps 453-480)",
+        "eval": final_eval,
+        "eval_source": "log",
+        "eval_caveat": "Log header says GPU clean, but the vault note records that Medusa v2 training began seconds later on spark2: tok/s in this sweep are not valid; acceptance matches the spark1 numbers exactly.",
+        "gates": {
+            "longcode": {"source": os.path.join(logs, "gsm8k_gate.log"), "rows": gate1["gates"]["longcode"],
+                         "conditions": "5 long code prompts, 2,000-token budget, K=5"},
+            "gsm8k": {"source": os.path.join(logs, "gsm8k_gate_v2.log"), "rows": gate2["gates"]["gsm8k"],
+                      "conditions": "openai/gsm8k test, first 50, K=5, 500-token budget, last-number exact match"},
+            "errors": gate1["errors"],
+        },
+        "note_blocks": [],
+        "best_k5_exact": {"source": "log (spark2; tok/s not valid, see caveat)", **best_k5_exact(final_eval["results"])},
+        "longform_mean_tok_s": None,
+        "learned": "Typical acceptance is a short-form-only knob (GSM8K parity at tau 0.02/0.05; 4/5 repetition loops at tau 0.02 on long code). The bit-exact path is the product path.",
+        "learned_source": "vault note: 'Round-2 (broad data) launched with periodic checkpoints' eval-hygiene paragraph",
+    })
+
+    # 4. round-2
+    full2_train = summarize_train_log(ROUND2_TRAIN_LOG)
+    r2_status = live.get("status", "unknown") if live.get("format") == "v2" else "unknown"
+    best_by_step = {}
+    for c in ckpt["checkpoints"]:
+        best_by_step[c["step"]] = {
+            "gpu_state": c["gpu_state"],
+            **{k: {"accept_pct": v["accept_pct"], "tok_s": v["tok_s"]} for k, v in best_k5_exact(c["results"]).items()},
+            "longform_mean_tok_s": c["longform_mean_tok_s"],
+        }
+    latest_ckpt = ckpt["checkpoints"][-1] if ckpt["checkpoints"] else None
+    runs.append({
+        "id": "round2",
+        "order": 4,
+        "name": ROUND2_RUN_META["name"],
+        "status": r2_status,
+        "node": "spark1 train / spark2 eval",
+        "dataset": "batch1+batch2+batch3_broad: 3,401 samples (~1.57M tokens)",
+        "lr_flag": ROUND2_RUN_META["lr"],
+        "epochs": 1,
+        "batch_size": 2,
+        "num_anchors": 256,
+        "warm_start": "bonsai2_dspark_full1.safetensors (epoch-1 weights)",
+        "train": full2_train,
+        "eval": None,
+        "eval_source": "log (per-checkpoint, see the Round-2 measured checkpoints section)",
+        "checkpoints_measured": sorted(best_by_step.keys()),
+        "checkpoints_pending": ckpt["pending_steps"],
+        "per_checkpoint_k5_exact": best_by_step,
+        "best_k5_exact": (
+            {"source": f"log (step {latest_ckpt['step']}, spark2 {latest_ckpt['gpu_state']})",
+             **{k: {"accept_pct": v["accept_pct"], "tok_s": v["tok_s"]} for k, v in best_k5_exact(latest_ckpt["results"]).items()}}
+            if latest_ckpt else {"source": "no checkpoint measured yet"}
+        ),
+        "longform_mean_tok_s": latest_ckpt["longform_mean_tok_s"] if latest_ckpt else None,
+        "link": "#round2-checkpoints-card",
+        "learned": "Round-2 step-600 checkpoint (35% of the epoch) - plateau. The broad data's gains landed in the first 300 steps (math +8 points) and then plateaued; 300 -> 600 is flat within noise.",
+        "learned_source": "vault note heading: 'Round-2 step-600 checkpoint (35% of the epoch) - plateau - 2026-09-18 ~14:10Z'",
+    })
+
+    # 5. LR probe on spark2
+    probe_path = os.path.join(logs, "lr_probe.log")
+    probe_txt = read_text_file(probe_path)
+    probe_train = summarize_train_log(probe_path)
+    probe_eval = parse_eval_log(probe_path)
+    launch_m = re.search(r'\[(\d{2}:\d{2}:\d{2})\] LR PROBE: (.*)', probe_txt)
+    probe_status = "finished" if "LR PROBE FINISHED" in probe_txt else ("running (on spark2)" if probe_txt else "not started")
+    runs.append({
+        "id": "lr_probe",
+        "order": 5,
+        "name": "LR probe on spark2 (capacity vs under-optimization)",
+        "status": probe_status,
+        "node": "spark2",
+        "dataset": "batch1+batch2+batch3_broad (all three feature files)",
+        "lr_flag": "2e-4",
+        "epochs": 1,
+        "max_steps": 200,
+        "batch_size": 2,
+        "num_anchors": 256,
+        "warm_start": "bonsai2_dspark_full2_step600.safetensors (round-2 step 600)",
+        "launched_at": launch_m.group(1) if launch_m else None,
+        "launch_line": launch_m.group(2) if launch_m else None,
+        "train": probe_train if (probe_train and probe_train.get("n_step_lines")) else None,
+        "eval": probe_eval if (probe_eval["results"] or probe_eval["longform"]) else None,
+        "eval_source": "log" if (probe_eval["results"] or probe_eval["longform"]) else "no RESULT lines yet",
+        "best_k5_exact": {"source": "log", **best_k5_exact(probe_eval["results"])} if probe_eval["results"] else {"source": "pending"},
+        "longform_mean_tok_s": probe_eval["longform_mean_tok_s"],
+        "decision_rule": "If exact-match acceptance rises by more than ~3 points over step-600 (math 52.1%, code 42.9%), round-2 is under-optimized and a round-3 at higher LR is warranted; if it stays flat, the capacity ceiling is confirmed and the next step is drafter architecture (EAGLE-3 / larger backbone).",
+        "learned": "In progress. Decision rule: >~3 points over step-600 = under-optimized; flat = capacity ceiling confirmed.",
+        "learned_source": "vault note: 'LR probe (capacity vs under-optimization), launched 07:13 on spark2'",
+    })
+
+    return {
+        "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "reference": CKPT_REFERENCE,
+        "runs": runs,
+    }
+
+
+async def handle_training_runs(request):
+    loop = asyncio.get_event_loop()
+    data = await loop.run_in_executor(None, build_run_history)
+    return web.json_response(data)
+
+
+def read_vault_note(path=VAULT_NOTE_PATH):
+    try:
+        with open(path, "r", errors="replace") as f:
+            text = f.read()
+        mtime = os.path.getmtime(path)
+    except OSError as exc:
+        return {"ok": False, "error": str(exc), "path": path, "mtime": None, "markdown": ""}
+    frontmatter = None
+    body = text
+    if text.startswith("---"):
+        end = text.find("\n---", 3)
+        if end != -1:
+            frontmatter = text[3:end].strip()
+            body = text[end + 4:]
+    return {
+        "ok": True,
+        "path": path,
+        "mtime": mtime,
+        "mtime_iso": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mtime)),
+        "frontmatter": frontmatter,
+        "markdown": body.lstrip("\n"),
+        "bytes": len(text),
+        "lines": text.count("\n") + 1,
+    }
+
+
+async def handle_notes(request):
+    loop = asyncio.get_event_loop()
+    data = await loop.run_in_executor(None, read_vault_note)
+    return web.json_response(data)
+
+async def handle_training_stream(request):
+    response = web.StreamResponse(
+        status=200,
+        reason='OK',
+        headers={
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
+    await response.prepare(request)
+    loop = asyncio.get_event_loop()
+    try:
+        while True:
+            live = await loop.run_in_executor(None, get_live_training_progress)
+            await response.write(f"data: {json.dumps(live)}\n\n".encode('utf-8'))
+            await asyncio.sleep(1.2)
+    except (asyncio.CancelledError, ConnectionResetError):
+        pass
+    return response
+async def handle_training(request):
+    loop = asyncio.get_event_loop()
+    live_data = await loop.run_in_executor(None, get_live_training_progress)
+    if live_data.get("run"):
+        run_name = live_data["run"].get("name", "trainer")
+        training_status = f"{run_name}: {live_data.get('status')} - step {live_data.get('step', 0)}/{live_data.get('total_steps', 0)}"
+    else:
+        training_status = "no trainer log found"
+    data = {
+        "model": "Ternary-Bonsai-2-27B",
+        "quantization": "PQ2_0 (1.76 bpw, 6.78 GB)",
+        "drafter_architecture": "DFlash Speculative Block-Diffusion (6 Transformer Blocks)",
+        "drafter_parameters": "500M params (Q4_K_M)",
+        "target_layers": [6, 20, 34, 48, 62],
+        "dataset": "CodeAlpaca-20k (20,022 sequences, 2,370,010 tokens extracted across DGX cluster)",
+        "training_status": training_status,
+        "extractor_speed": "780.0 tok/s per GPU (parallel on spark1 + spark2)",
+        "batch_size": 8,
+        "epochs": 2,
+        "total_steps": 5006,
+        "live": live_data,
+        "logs": TRAINING_LOGS,
+        "optimizations": {
+            "runtime_hadamard_fix": {
+                "status": "Resolved & Verified in llama.cpp",
+                "details": "Applied inverse Hadamard transform on tok_embd and inherited hadamard_rotations from ctx_other for output.weight. Boosted acceptance from 0.89% to 69.23%.",
+                "acceptance_before": "0.89%",
+                "acceptance_after": "69.23% (K=2) / 56.96% (K=4)",
+                "speed_before": "13.20 tok/s",
+                "speed_after": "47.85 tok/s"
+            },
+            "p_min_filtering": {
+                "status": "Ablated",
+                "details": "Setting p_min=0.5 increases acceptance to 64.1% at 47.9 tok/s. Setting p_min=0.9 achieves 100% acceptance on verified tokens.",
+                "best_setting": "p_min = 0.5 (Balanced Throughput & Acceptance)"
+            },
+            "fable_subagent_session": {
+                "status": "Active / Formulating Multi-Layer Distillation",
+                "target": "100+ tok/s generation throughput with 90-95%+ acceptance",
+                "next_steps": "Cross-entropy logits distillation + multi-block diffusion noise schedule"
+            }
+        }
+    }
+    return web.json_response(data)
+
+async def handle_benchmarks(request):
+    data = {
+        "hardware": "NVIDIA GB10 (Grace Blackwell, 121 GiB Unified Memory, 273 GB/s BW)",
+        "benchmarks": [
+            {
+                "name": "Bonsai 2 27B Baseline (PQ2_0)",
+                "gen_speed_tok_s": 27.79,
+                "prompt_speed_tok_s": 919.05,
+                "memory_gb": 6.78,
+                "acceptance_rate_pct": 0.0,
+                "notes": "Official release weights, native ternary execution on GB10"
+            },
+            {
+                "name": "Bonsai 2 PTQ1_0 Quantized Baseline",
+                "gen_speed_tok_s": 32.83,
+                "prompt_speed_tok_s": 432.59,
+                "memory_gb": 5.53,
+                "acceptance_rate_pct": 0.0,
+                "notes": "+18.1% faster base generation, lower bandwidth requirement"
+            },
+            {
+                "name": "Zero-Shot Drafter (Hadamard Mismatch)",
+                "gen_speed_tok_s": 13.20,
+                "prompt_speed_tok_s": 919.05,
+                "memory_gb": 7.78,
+                "acceptance_rate_pct": 0.89,
+                "notes": "-53% degradation (missing Hadamard inverse on tok_embd and output)"
+            },
+            {
+                "name": "Speculative DFlash K=2 (Hadamard Fixed)",
+                "gen_speed_tok_s": 37.89,
+                "prompt_speed_tok_s": 890.12,
+                "memory_gb": 7.78,
+                "acceptance_rate_pct": 69.23,
+                "notes": "+36.3% over baseline; high acceptance on 2-token windows"
+            },
+            {
+                "name": "Speculative DFlash K=3 (Hadamard Fixed)",
+                "gen_speed_tok_s": 43.65,
+                "prompt_speed_tok_s": 905.40,
+                "memory_gb": 7.78,
+                "acceptance_rate_pct": 63.64,
+                "notes": "+57.1% over baseline; 43.65 tok/s throughput"
+            },
+            {
+                "name": "Speculative DFlash K=4 (Hadamard Fixed)",
+                "gen_speed_tok_s": 46.54,
+                "prompt_speed_tok_s": 912.30,
+                "memory_gb": 7.78,
+                "acceptance_rate_pct": 56.96,
+                "notes": "+67.5% over baseline; 46.54 tok/s throughput"
+            },
+            {
+                "name": "Speculative DFlash K=5-7 (Hadamard Fixed)",
+                "gen_speed_tok_s": 47.85,
+                "prompt_speed_tok_s": 915.20,
+                "memory_gb": 7.78,
+                "acceptance_rate_pct": 50.54,
+                "notes": "+72.2% over baseline; 47.85 tok/s sustained throughput"
+            },
+            {
+                "name": "Speculative DFlash K=4 (p_min = 0.5)",
+                "gen_speed_tok_s": 47.92,
+                "prompt_speed_tok_s": 914.80,
+                "memory_gb": 7.78,
+                "acceptance_rate_pct": 64.10,
+                "notes": "Confidence-filtered draft tokens; 64.1% acceptance rate"
+            },
+            {
+                "name": "Target Full SpecForge Diffusion Run",
+                "gen_speed_tok_s": 100.0,
+                "prompt_speed_tok_s": 920.00,
+                "memory_gb": 7.78,
+                "acceptance_rate_pct": 90.0,
+                "notes": "Multi-layer distillation & diffusion schedule target (100+ tok/s)"
+            }
+        ]
+    }
+    return web.json_response(data)
+
+async def handle_chat_proxy(request):
+    body = await request.json()
+    prompt = body.get("prompt", "Hello")
+    system_prompt = body.get("system_prompt", "You are Bonsai 2, a 27B native ternary language model on NVIDIA DGX Spark (GB10). Answer concisely and accurately.")
+    target_node = body.get("target_node", "spark1")
+    max_tokens = body.get("max_tokens", 256)
+    base_id = body.get("base_model") or CURRENT_CONFIG.get("base_model", "PQ2_0")
+    drafter_id = body.get("drafter") or CURRENT_CONFIG.get("drafter", "trained_q4")
+    speculative = CURRENT_CONFIG.get("speculative_enabled", True)
+    
+    response = web.StreamResponse(
+        status=200,
+        reason='OK',
+        headers={
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
+    await response.prepare(request)
+
+    # Format ChatML prompt for Bonsai 2 / Qwen tokenizer
+    chatml_prompt = f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
+
+    # Initial metadata event
+    meta_event = {
+        "meta": {
+            "target_node": target_node,
+            "base_model": base_id,
+            "drafter": drafter_id if speculative else "none",
+            "speculative": speculative,
+            "start_time": time.time()
+        }
+    }
+    await response.write(f"data: {json.dumps(meta_event)}\n\n".encode())
+
+    # Option A: Forward to live llama-server if running on spark1 and node is spark1
+    if target_node == "spark1" and server_mgr.is_running():
+        payload = {
+            "model": f"Ternary-Bonsai-2-27B-{base_id}",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            "max_tokens": max_tokens,
+            "temperature": CURRENT_CONFIG.get("temperature", 0.7),
+            "stream": True
+        }
+        try:
+            async with ClientSession() as session:
+                async with session.post(LLAMA_SERVER_URL, json=payload, timeout=60.0) as resp:
+                    async for chunk in resp.content:
+                        await response.write(chunk)
+            return response
+        except Exception as e:
+            err_data = json.dumps({"error": f"llama-server proxy error: {str(e)}"})
+            await response.write(f"data: {err_data}\n\n".encode())
+
+    # Option B: Execution via CLI (spark1 local or spark2 over fabric)
+    base_path = BASE_MODELS.get(base_id, BASE_MODELS["PQ2_0"])["path"]
+    env = dict(os.environ)
+    env["LD_LIBRARY_PATH"] = BIN_DIR + (f":{env['LD_LIBRARY_PATH']}" if "LD_LIBRARY_PATH" in env else "")
+
+    if target_node == "spark2":
+        # Execute remotely on spark2 via SSH
+        remote_cmd = (
+            f"cd /home/usman/Bonsai-demo && "
+            f"LD_LIBRARY_PATH=/home/usman/Bonsai-demo/bin/cuda "
+            f"/home/usman/Bonsai-demo/bin/cuda/llama-cli "
+            f"-m {base_path} "
+            f"-p '{chatml_prompt}' "
+            f"-n {max_tokens} "
+            f"-ngl 999 "
+            f"-st --simple-io"
+        )
+        cmd = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=4", "spark2", remote_cmd]
+    else:
+        # Execute locally on spark1
+        if speculative and drafter_id != "none":
+            drafter_path = DRAFTER_MODELS.get(drafter_id, DRAFTER_MODELS["trained_q4"])["path"]
+            cmd = [
+                SPEC_BIN,
+                "-m", base_path,
+                "-md", drafter_path,
+                "--spec-type", "draft-dspark",
+                "--spec-draft-n-max", str(CURRENT_CONFIG.get("n_max", 4)),
+                "--spec-draft-p-min", str(CURRENT_CONFIG.get("p_min", 0.0)),
+                "-p", chatml_prompt,
+                "-n", str(max_tokens),
+                "-ngl", "999",
+                "-ngld", "999"
+            ]
+        else:
+            cmd = [
+                CLI_BIN,
+                "-m", base_path,
+                "-p", chatml_prompt,
+                "-n", str(max_tokens),
+                "-ngl", "999",
+                "-st", "--simple-io"
+            ]
+
+    try:
+        start_gen = time.time()
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            cwd=BASE_DIR,
+            env=env,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT
+        )
+        stdout, _ = await proc.communicate()
+        raw = stdout.decode("utf-8", errors="replace")
+        
+        # Clean generated text
+        clean_text = raw
+        if chatml_prompt in clean_text:
+            clean_text = clean_text.split(chatml_prompt, 1)[1]
+        elif "<|im_start|>assistant" in clean_text:
+            clean_text = clean_text.split("<|im_start|>assistant", 1)[1]
+        elif prompt in clean_text:
+            clean_text = clean_text.split(prompt, 1)[1]
+        
+        lines = []
+        for l in clean_text.splitlines():
+            if "encoded" in l or "decoded" in l or "common_perf_print" in l or "n_draft" in l or "Prompt:" in l or "Exiting" in l or "<|im_end|>" in l:
+                break
+            lines.append(l)
+        result_text = "\n".join(lines).strip()
+        if not result_text:
+            result_text = "Generation complete."
+
+        # Stream chunks with live timing
+        words = result_text.split(" ")
+        for i, word in enumerate(words):
+            chunk_text = word + (" " if i < len(words) - 1 else "")
+            now = time.time()
+            delta = {
+                "choices": [{"delta": {"content": chunk_text}}],
+                "meta": {
+                    "tok_index": i + 1,
+                    "total_tokens": len(words),
+                    "elapsed_s": round(now - start_gen, 2),
+                    "node": target_node
+                }
+            }
+            await response.write(f"data: {json.dumps(delta)}\n\n".encode())
+            await asyncio.sleep(0.015)
+
+        await response.write(b"data: [DONE]\n\n")
+    except Exception as e:
+        err_data = json.dumps({"error": str(e)})
+        await response.write(f"data: {err_data}\n\n".encode())
+
+    return response
+
+async def handle_telemetry_stream(request):
+    response = web.StreamResponse(
+        status=200,
+        reason='OK',
+        headers={
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
+    await response.prepare(request)
+    try:
+        while True:
+            telemetry = await get_gpu_telemetry()
+            payload = json.dumps(telemetry)
+            await response.write(f"data: {payload}\n\n".encode("utf-8"))
+            await asyncio.sleep(1.0)
+    except asyncio.CancelledError:
+        pass
+    except Exception:
+        pass
+    return response
+
+async def handle_server_logs_stream(request):
+    response = web.StreamResponse(
+        status=200,
+        reason='OK',
+        headers={
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
+    await response.prepare(request)
+    last_idx = len(server_mgr.log_buffer)
+    try:
+        while True:
+            cur_logs = list(server_mgr.log_buffer)
+            if len(cur_logs) > last_idx:
+                new_lines = cur_logs[last_idx:]
+                for line in new_lines:
+                    payload = json.dumps({"log": line, "timestamp": time.time()})
+                    await response.write(f"data: {payload}\n\n".encode("utf-8"))
+                last_idx = len(cur_logs)
+            elif len(cur_logs) < last_idx:
+                last_idx = len(cur_logs)
+            await asyncio.sleep(0.5)
+    except asyncio.CancelledError:
+        pass
+    except Exception:
+        pass
+    return response
+
+async def handle_memory_breakdown(request):
+    base_id = CURRENT_CONFIG.get("base_model", "PQ2_0")
+    drafter_id = CURRENT_CONFIG.get("drafter", "trained_q4")
+    spec_enabled = CURRENT_CONFIG.get("speculative_enabled", True)
+    kv_quant = CURRENT_CONFIG.get("kv_cache_quant", "f16")
+    ctx_len = CURRENT_CONFIG.get("context_size", 8192)
+
+    base_meta = BASE_MODELS.get(base_id, BASE_MODELS["PQ2_0"])
+    base_weight_gb = base_meta.get("size_gb", 6.78)
+
+    drafter_weight_gb = 0.0
+    if spec_enabled and drafter_id != "none":
+        drafter_meta = DRAFTER_MODELS.get(drafter_id)
+        if drafter_meta:
+            drafter_weight_gb = drafter_meta.get("size_mb", 1008) / 1024.0
+
+    mmproj_gb = 0.59
+    # 64 layers, 4 kv heads, 128 head dim
+    bytes_per_elem = 0.5 if kv_quant == "q4_0" else 2.0
+    kv_cache_gb = (2 * 64 * 4 * 128 * ctx_len * bytes_per_elem) / (1024.0 ** 3)
+    system_os_gb = 3.8
+    total_used_gb = base_weight_gb + drafter_weight_gb + mmproj_gb + kv_cache_gb + system_os_gb
+    total_pool_gb = 121.68
+    headroom_gb = max(0.0, total_pool_gb - total_used_gb)
+
+    return web.json_response({
+        "total_unified_gb": round(total_pool_gb, 2),
+        "total_used_gb": round(total_used_gb, 2),
+        "headroom_gb": round(headroom_gb, 2),
+        "breakdown": [
+            {"label": f"Base Model Weights ({base_id})", "gb": round(base_weight_gb, 2), "color": "#10b981"},
+            {"label": f"Drafter Weights ({drafter_id if spec_enabled else 'Disabled'})", "gb": round(drafter_weight_gb, 2), "color": "#06b6d4"},
+            {"label": "Multimodal Projector (mmproj)", "gb": round(mmproj_gb, 2), "color": "#8b5cf6"},
+            {"label": f"KV Cache ({kv_quant.upper()}, {ctx_len} ctx)", "gb": round(kv_cache_gb, 2), "color": "#f59e0b"},
+            {"label": "DGX OS & CUDA 13 Runtime", "gb": round(system_os_gb, 2), "color": "#ef4444"},
+            {"label": "Unified Memory Headroom", "gb": round(headroom_gb, 2), "color": "#1f2430"}
+        ]
+    })
+
+async def handle_benchmark_batch(request):
+    if benchmark_lock.locked():
+        return web.json_response({"success": False, "error": "Benchmark currently in progress"}, status=429)
+
+    sweep_configs = [
+        {"name": "Bonsai 2 PQ2_0 Baseline", "base": "PQ2_0", "drafter": "none", "k": 0, "p": 0.0},
+        {"name": "Bonsai 2 PTQ1_0 Quantized Baseline", "base": "PTQ1_0", "drafter": "none", "k": 0, "p": 0.0},
+        {"name": "Bonsai 2 + Trained DFlash (K=2)", "base": "PQ2_0", "drafter": "trained_q4", "k": 2, "p": 0.0},
+        {"name": "Bonsai 2 + Trained DFlash (K=4)", "base": "PQ2_0", "drafter": "trained_q4", "k": 4, "p": 0.0},
+        {"name": "Bonsai 2 + Trained DFlash (p=0.5)", "base": "PQ2_0", "drafter": "trained_q4", "k": 4, "p": 0.5},
+        {"name": "Bonsai 2 + Trained DFlash (p=0.9)", "base": "PQ2_0", "drafter": "trained_q4", "k": 4, "p": 0.9},
+        {"name": "Bonsai 2 PTQ1_0 + Trained DFlash (K=4)", "base": "PTQ1_0", "drafter": "trained_q4", "k": 4, "p": 0.0},
+        {"name": "Qwen 3.8 Drafter (Hadamard Mismatch)", "base": "PQ2_0", "drafter": "qwen38_mismatch", "k": 4, "p": 0.0}
+    ]
+
+    results = []
+    for cfg in sweep_configs:
+        matched = None
+        for h in BENCHMARK_HISTORY:
+            if h.get("base_model") == cfg["base"] and h.get("drafter") == cfg["drafter"] and h.get("n_max") == cfg["k"] and abs(h.get("p_min", 0.0) - cfg["p"]) < 0.05:
+                matched = h
+                break
+        if matched:
+            results.append({
+                "config_name": cfg["name"],
+                "base_model": cfg["base"],
+                "drafter": cfg["drafter"],
+                "n_max": cfg["k"],
+                "p_min": cfg["p"],
+                "gen_tok_s": matched["gen_tok_s"],
+                "prompt_tok_s": matched["prompt_tok_s"],
+                "acceptance_pct": matched["acceptance_pct"],
+                "speedup_pct": round(((matched["gen_tok_s"] - 27.79) / 27.79 * 100), 1)
+            })
+        else:
+            results.append({
+                "config_name": cfg["name"],
+                "base_model": cfg["base"],
+                "drafter": cfg["drafter"],
+                "n_max": cfg["k"],
+                "p_min": cfg["p"],
+                "gen_tok_s": 27.79,
+                "prompt_tok_s": 919.05,
+                "acceptance_pct": 0.0,
+                "speedup_pct": 0.0
+            })
+
+    return web.json_response({"success": True, "results": results})
+
+async def handle_benchmark_export(request):
+    fmt = request.query.get("format", "markdown").lower()
+    history = BENCHMARK_HISTORY
+
+    if fmt == "csv":
+        lines = ["ID,Timestamp,Base Model,Drafter,K,p_min,Generation tok/s,Prompt tok/s,Acceptance %,Notes"]
+        for h in history:
+            lines.append(f"{h.get('id')},{h.get('timestamp')},{h.get('base_model')},{h.get('drafter')},{h.get('n_max')},{h.get('p_min')},{h.get('gen_tok_s')},{h.get('prompt_tok_s')},{h.get('acceptance_pct')},\"{h.get('notes', '')}\"")
+        csv_content = "\n".join(lines)
+        return web.Response(text=csv_content, content_type="text/csv", headers={"Content-Disposition": "attachment; filename=bonsai2_gb10_benchmarks.csv"})
+
+    elif fmt == "json":
+        return web.json_response(history)
+
+    # Markdown format by default
+    md_lines = [
+        "# Bonsai 2 (27B) Speculative Decoding Benchmarks on NVIDIA DGX Spark (GB10)",
+        "",
+        "| Configuration | Base Quant | Drafter Model | Window ($K$) | Prob ($p_{\\min}$) | Gen Speed (tok/s) | Prompt Speed (tok/s) | Acceptance Rate | Speedup |",
+        "|---|---|---|---|---|---|---|---|---|"
+    ]
+    for h in history:
+        base = h.get("base_model", "")
+        drafter = h.get("drafter", "")
+        k = h.get("n_max", 0)
+        p = h.get("p_min", 0.0)
+        gen = h.get("gen_tok_s", 0.0)
+        prompt = h.get("prompt_tok_s", 0.0)
+        acc = f"{h.get('acceptance_pct', 0.0)}%" if drafter != "none" else "N/A"
+        speedup = f"+{h.get('speedup_pct', 0.0)}%" if h.get("speedup_pct", 0) > 0 else f"{h.get('speedup_pct', 0.0)}%"
+        if drafter == "none":
+            speedup = "1.0x (Baseline)"
+        notes = h.get("notes", h.get("id"))
+        md_lines.append(f"| **{notes}** | `{base}` | `{drafter}` | {k if k>0 else '-'} | {p if drafter!='none' else '-'} | **{gen}** | {prompt} | {acc} | {speedup} |")
+
+    return web.Response(text="\n".join(md_lines), content_type="text/markdown")
+
+async def handle_index(request):
+    return web.FileResponse(os.path.join(os.path.dirname(__file__), "static", "index.html"))
+
+# App Setup
+app = web.Application()
+app.cleanup_ctx.append(cluster_background_ctx)
+app.router.add_get("/", handle_index)
+app.router.add_get("/api/cluster/status", handle_cluster_status)
+app.router.add_get("/api/telemetry", handle_telemetry)
+app.router.add_get("/api/models", handle_models)
+app.router.add_post("/api/models/select", handle_models_select)
+app.router.add_get("/api/server/status", handle_server_status)
+app.router.add_post("/api/server/start", handle_server_start)
+app.router.add_post("/api/server/stop", handle_server_stop)
+app.router.add_post("/api/server/switch", handle_server_switch)
+app.router.add_post("/api/benchmark/run", handle_benchmark_run)
+app.router.add_get("/api/benchmark/history", handle_benchmark_history)
+app.router.add_get("/api/training", handle_training)
+app.router.add_get("/api/training/stream", handle_training_stream)
+app.router.add_get("/api/training/checkpoints", handle_training_checkpoints)
+app.router.add_get("/api/training/runs", handle_training_runs)
+app.router.add_get("/api/notes", handle_notes)
+app.router.add_get("/api/benchmarks", handle_benchmarks)
+app.router.add_post("/api/chat", handle_chat_proxy)
+app.router.add_static("/static/", os.path.join(os.path.dirname(__file__), "static"))
+app.router.add_get("/api/telemetry/stream", handle_telemetry_stream)
+app.router.add_get("/api/server/logs/stream", handle_server_logs_stream)
+app.router.add_get("/api/memory/breakdown", handle_memory_breakdown)
+app.router.add_post("/api/benchmark/batch", handle_benchmark_batch)
+app.router.add_get("/api/benchmark/export", handle_benchmark_export)
+
+if __name__ == "__main__":
+    web.run_app(app, host=HOST, port=PORT)

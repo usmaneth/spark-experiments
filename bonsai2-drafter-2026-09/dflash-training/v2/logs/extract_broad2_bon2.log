@@ -1,0 +1,6 @@
+[04:44:26] records: a=10000 b=10000; free 2240174837760 bytes
+[04:44:26] BON2 extraction of half a (n_ctx 2048)
+[06:28:14] half a exit 0 size 661941720292; === done === samples=10000 skip=0 tokens=5386676 gen=4453831 time=6226.4s (865.1 tok/s); free 1578218856448
+[06:28:14] BON2 extraction of half b (n_ctx 2048)
+[08:11:22] half b exit 0 size 660758706397; === done === samples=10000 skip=0 tokens=5377049 gen=4458920 time=6185.4s (869.3 tok/s); free 917449469952
+[08:11:22] BROAD2 BON2 EXTRACTION DONE

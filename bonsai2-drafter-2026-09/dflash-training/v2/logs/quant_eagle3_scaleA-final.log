@@ -1,0 +1,62 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 124608 MiB):
+  Device 0: NVIDIA GB10, compute capability 12.1, VMM: yes, VRAM: 124608 MiB
+version: 0.2.0-dev (build 10687, commit 5d80cff0b)
+built with GNU 13.3.0 for Linux aarch64
+llama_quantize: quantizing '/home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-scaleA-final-conv.gguf' to '/home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-scaleA-final-Q4_K_M.gguf' as Q4_K_M
+llama_model_loader: loaded meta data with 29 key-value pairs and 16 tensors from /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-scaleA-final-conv.gguf (version GGUF V3 (latest))
+llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+llama_model_loader: - kv   0:                       general.architecture str              = eagle3
+llama_model_loader: - kv   1:                               general.name str              = Bonsai-2-27B-EAGLE3
+llama_model_loader: - kv   2:                          general.file_type u32              = 1
+llama_model_loader: - kv   3:                         eagle3.block_count u32              = 1
+llama_model_loader: - kv   4:                      eagle3.context_length u32              = 8192
+llama_model_loader: - kv   5:                    eagle3.embedding_length u32              = 5120
+llama_model_loader: - kv   6:                 eagle3.feed_forward_length u32              = 17408
+llama_model_loader: - kv   7:                eagle3.attention.head_count u32              = 32
+llama_model_loader: - kv   8:             eagle3.attention.head_count_kv u32              = 8
+llama_model_loader: - kv   9:                eagle3.attention.key_length u32              = 128
+llama_model_loader: - kv  10:              eagle3.attention.value_length u32              = 128
+llama_model_loader: - kv  11:                eagle3.rope.dimension_count u32              = 128
+llama_model_loader: - kv  12:                      eagle3.rope.freq_base f32              = 10000000.000000
+llama_model_loader: - kv  13:    eagle3.attention.layer_norm_rms_epsilon f32              = 0.000001
+llama_model_loader: - kv  14:                          eagle3.vocab_size u32              = 248320
+llama_model_loader: - kv  15:                       eagle3.target_layers arr[i32,3]       = [6, 34, 62]
+llama_model_loader: - kv  16:                  eagle3.target_hidden_size u32              = 5120
+llama_model_loader: - kv  17:                      eagle3.norm_before_fc bool             = true
+llama_model_loader: - kv  18:                eagle3.norm_before_residual bool             = false
+llama_model_loader: - kv  19:                       tokenizer.ggml.model str              = gpt2
+llama_model_loader: - kv  20:                         tokenizer.ggml.pre str              = qwen35
+llama_model_loader: - kv  21:                      tokenizer.ggml.tokens arr[str,248320]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+llama_model_loader: - kv  22:                  tokenizer.ggml.token_type arr[i32,248320]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+llama_model_loader: - kv  23:                      tokenizer.ggml.merges arr[str,247587]  = ["Ġ Ġ", "ĠĠ ĠĠ", "i n", "Ġ t",...
+llama_model_loader: - kv  24:                tokenizer.ggml.eos_token_id u32              = 248046
+llama_model_loader: - kv  25:            tokenizer.ggml.padding_token_id u32              = 248044
+llama_model_loader: - kv  26:                tokenizer.ggml.bos_token_id u32              = 248044
+llama_model_loader: - kv  27:               tokenizer.ggml.add_bos_token bool             = false
+llama_model_loader: - kv  28:                    tokenizer.chat_template str              = {%- set image_count = namespace(value...
+llama_model_loader: - type  f32:    5 tensors
+llama_model_loader: - type  f16:   10 tensors
+llama_model_loader: - type  i64:    1 tensors
+load_arch_hparams: EAGLE3 extract_layers = [6, 34, 62]
+load_arch_hparams: EAGLE3 n_embd_tgt = 5120 (draft n_embd = 5120)
+[   1/  16] d2t                                  - [ 32768,      1,      1,      1], type =    i64, size =    0.250 MiB
+[   2/  16] enc.output_norm.weight               - [ 15360,      1,      1,      1], type =    f32, size =    0.059 MiB
+[   3/  16] fc.weight                            - [ 15360,   5120,      1,      1], type =    f16, converting to q4_K .. size =   150.00 MiB ->    42.19 MiB
+[   4/  16] output.weight                        - [  5120,  32768,      1,      1], type =    f16, converting to q6_K .. size =   320.00 MiB ->   131.25 MiB
+[   5/  16] output_norm.weight                   - [  5120,      1,      1,      1], type =    f32, size =    0.020 MiB
+[   6/  16] token_embd.weight                    - [  5120, 248320,      1,      1], type =    f16, converting to q4_K .. size =  2425.00 MiB ->   682.03 MiB
+[   7/  16] blk.0.attn_k.weight                  - [ 10240,   1024,      1,      1], type =    f16, converting to q4_K .. size =    20.00 MiB ->     5.62 MiB
+[   8/  16] blk.0.attn_norm.weight               - [  5120,      1,      1,      1], type =    f32, size =    0.020 MiB
+[   9/  16] blk.0.attn_norm_2.weight             - [  5120,      1,      1,      1], type =    f32, size =    0.020 MiB
+[  10/  16] blk.0.attn_output.weight             - [  4096,   5120,      1,      1], type =    f16, converting to q4_K .. size =    40.00 MiB ->    11.25 MiB
+[  11/  16] blk.0.attn_q.weight                  - [ 10240,   4096,      1,      1], type =    f16, converting to q4_K .. size =    80.00 MiB ->    22.50 MiB
+[  12/  16] blk.0.attn_v.weight                  - [ 10240,   1024,      1,      1], type =    f16, converting to q6_K .. size =    20.00 MiB ->     8.20 MiB
+[  13/  16] blk.0.ffn_down.weight                - [ 17408,   5120,      1,      1], type =    f16, converting to q6_K .. size =   170.00 MiB ->    69.73 MiB
+[  14/  16] blk.0.ffn_gate.weight                - [  5120,  17408,      1,      1], type =    f16, converting to q4_K .. size =   170.00 MiB ->    47.81 MiB
+[  15/  16] blk.0.ffn_norm.weight                - [  5120,      1,      1,      1], type =    f32, size =    0.020 MiB
+[  16/  16] blk.0.ffn_up.weight                  - [  5120,  17408,      1,      1], type =    f16, converting to q4_K .. size =   170.00 MiB ->    47.81 MiB
+llama_model_quantize_impl: model size  =  3565.39 MiB (16.00 BPW)
+llama_model_quantize_impl: quant size  =  1068.79 MiB (4.80 BPW)
+
+llama_quantize: quantize time =  9494.29 ms
+llama_quantize:    total time =  9494.29 ms

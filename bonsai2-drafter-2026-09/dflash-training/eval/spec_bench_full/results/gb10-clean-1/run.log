@@ -1,0 +1,357 @@
+spec_bench: configs baseline, dspark-v1, dspark-v2; 40 matrix prompts x 512 tokens, 6 long prompts x 2000 tokens, 8 tool prompts x 512 tokens, 8 agent prompts x 512 tokens
+spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
+  baseline     slots 1:  62 prompts (full prompt set + single prompt x 3 passes), 65 requests, at most  41440 tokens, ETA 28 min
+  baseline     slots 2:   8 prompts (concurrency subset in waves of 2),  8 requests, at most   4096 tokens, ETA 4 min
+  baseline     slots 4:   8 prompts (concurrency subset in waves of 4),  8 requests, at most   4096 tokens, ETA 4 min
+  dspark-v1    slots 1:  62 prompts (full prompt set + single prompt x 3 passes), 65 requests, at most  41440 tokens, ETA 17 min
+  dspark-v1    slots 2:   8 prompts (concurrency subset in waves of 2),  8 requests, at most   4096 tokens, ETA 3 min
+  dspark-v1    slots 4:   8 prompts (concurrency subset in waves of 4),  8 requests, at most   4096 tokens, ETA 3 min
+  dspark-v2    slots 1:  62 prompts (full prompt set + single prompt x 3 passes), 65 requests, at most  41440 tokens, ETA 17 min
+  dspark-v2    slots 2:   8 prompts (concurrency subset in waves of 2),  8 requests, at most   4096 tokens, ETA 3 min
+  dspark-v2    slots 4:   8 prompts (concurrency subset in waves of 4),  8 requests, at most   4096 tokens, ETA 3 min
+  total ETA about 78 min (assumes 30 tok/s plain, 60 tok/s with a drafter, 250 tok/s prefill, 60 s per model load, 10 s idle power window; prompts that stop early finish sooner)
+  output: dflash-training/eval/spec_bench_full/results/gb10-clean-1
+
+=== baseline, slots 1 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja
+  started llama-server pid 1020001, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-baseline-np1.log
+  healthy after 3.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    29.66 tok/s
+  code-02          pass 1   353 tok    29.75 tok/s
+  code-03          pass 1   512 tok    29.63 tok/s
+  code-04          pass 1   512 tok    29.70 tok/s
+  code-05          pass 1   512 tok    29.63 tok/s
+  code-06          pass 1   512 tok    29.67 tok/s
+  code-07          pass 1   512 tok    29.69 tok/s
+  code-08          pass 1   512 tok    29.64 tok/s
+  math-01          pass 1   512 tok    29.56 tok/s
+  math-02          pass 1   469 tok    29.66 tok/s
+  math-03          pass 1   473 tok    29.69 tok/s
+  math-04          pass 1   486 tok    29.66 tok/s
+  math-05          pass 1   512 tok    29.72 tok/s
+  math-06          pass 1   374 tok    29.63 tok/s
+  math-07          pass 1   512 tok    29.68 tok/s
+  math-08          pass 1   438 tok    29.68 tok/s
+  reasoning-01     pass 1   512 tok    29.70 tok/s
+  reasoning-02     pass 1   512 tok    29.61 tok/s
+  reasoning-03     pass 1   512 tok    29.57 tok/s
+  reasoning-04     pass 1   353 tok    29.70 tok/s
+  reasoning-05     pass 1   512 tok    29.67 tok/s
+  reasoning-06     pass 1   135 tok    29.71 tok/s
+  reasoning-07     pass 1   512 tok    29.67 tok/s
+  reasoning-08     pass 1   512 tok    29.70 tok/s
+  chat-01          pass 1   512 tok    29.70 tok/s
+  chat-02          pass 1   512 tok    29.67 tok/s
+  chat-03          pass 1   512 tok    29.69 tok/s
+  chat-04          pass 1   512 tok    29.55 tok/s
+  chat-05          pass 1   241 tok    29.69 tok/s
+  chat-06          pass 1   512 tok    29.72 tok/s
+  chat-07          pass 1   283 tok    29.68 tok/s
+  chat-08          pass 1   366 tok    29.68 tok/s
+  long-form-01     pass 1   512 tok    29.68 tok/s
+  long-form-02     pass 1   512 tok    29.64 tok/s
+  long-form-03     pass 1   512 tok    29.66 tok/s
+  long-form-04     pass 1   512 tok    29.68 tok/s
+  long-form-05     pass 1   512 tok    29.66 tok/s
+  long-form-06     pass 1   512 tok    29.69 tok/s
+  long-form-07     pass 1   512 tok    29.66 tok/s
+  long-form-08     pass 1   512 tok    29.70 tok/s
+  long-01          pass 1  1470 tok    29.58 tok/s
+  long-02          pass 1  2000 tok    29.48 tok/s
+  long-03          pass 1  2000 tok    29.52 tok/s
+  long-04          pass 1  2000 tok    29.52 tok/s
+  long-05          pass 1  2000 tok    29.53 tok/s
+  long-06          pass 1  1453 tok    29.57 tok/s
+  tool-01          pass 1    58 tok    29.68 tok/s  tool_calls  tool call valid
+  tool-02          pass 1    82 tok    29.61 tok/s  tool_calls  tool call valid
+  tool-03          pass 1    88 tok    29.51 tok/s  tool_calls  tool call valid
+  tool-04          pass 1    92 tok    29.49 tok/s  tool_calls  tool call valid
+  tool-05          pass 1   512 tok    29.43 tok/s  length  tool call INVALID
+  tool-06          pass 1   512 tok    29.40 tok/s  length  tool call INVALID
+  tool-07          pass 1   439 tok    29.47 tok/s  tool_calls  tool call valid
+  tool-08          pass 1   221 tok    29.49 tok/s  tool_calls  tool call valid
+  agent-01         pass 1   353 tok    28.94 tok/s  tool_calls
+  agent-02         pass 1    77 tok    28.97 tok/s  tool_calls
+  agent-03         pass 1   422 tok    28.96 tok/s  tool_calls
+  agent-04         pass 1    93 tok    28.95 tok/s  tool_calls
+  agent-05         pass 1    74 tok    28.91 tok/s  tool_calls
+  agent-06         pass 1   512 tok    28.93 tok/s  length
+  agent-07         pass 1   229 tok    28.97 tok/s  tool_calls
+  agent-08         pass 1    58 tok    28.17 tok/s  tool_calls
+  single-quicksort pass 1   256 tok    29.72 tok/s
+  single-quicksort pass 2   256 tok    29.61 tok/s
+  single-quicksort pass 3   256 tok    29.52 tok/s
+  power: idle 14.5 W, generation mean 60.9 W, max 86.5 W, 2135.1 mJ/token
+  stopped llama-server pid 1020001 (exit 0)
+
+=== baseline, slots 2 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja
+  started llama-server pid 1188511, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-baseline-np2.log
+  healthy after 3.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    26.34 tok/s
+  code-02          pass 1   353 tok    25.09 tok/s
+  wave 1: 2 requests, 865 tokens in 19.7 s -> 43.83 tok/s aggregate
+  reasoning-01     pass 1   512 tok    24.99 tok/s
+  reasoning-02     pass 1   512 tok    24.99 tok/s
+  wave 2: 2 requests, 1024 tokens in 20.9 s -> 49.06 tok/s aggregate
+  chat-01          pass 1   512 tok    25.03 tok/s
+  chat-02          pass 1   512 tok    25.03 tok/s
+  wave 3: 2 requests, 1024 tokens in 20.8 s -> 49.15 tok/s aggregate
+  tool-01          pass 1    58 tok    24.79 tok/s  tool_calls  tool call valid
+  tool-02          pass 1    82 tok    25.96 tok/s  tool_calls  tool call valid
+  wave 4: 2 requests, 140 tokens in 5.4 s -> 25.96 tok/s aggregate
+  power: idle 15.4 W, generation mean 59.9 W, max 79.5 W, 1312.2 mJ/token
+  stopped llama-server pid 1188511 (exit 0)
+
+=== baseline, slots 4 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja
+  started llama-server pid 1199998, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-baseline-np4.log
+  healthy after 3.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    17.60 tok/s
+  code-02          pass 1   353 tok    21.03 tok/s
+  reasoning-01     pass 1   512 tok    17.60 tok/s
+  reasoning-02     pass 1   512 tok    17.60 tok/s
+  wave 1: 4 requests, 1889 tokens in 29.6 s -> 63.79 tok/s aggregate
+  chat-01          pass 1   512 tok    23.51 tok/s
+  chat-02          pass 1   512 tok    23.51 tok/s
+  tool-01          pass 1    58 tok    20.72 tok/s  tool_calls  tool call valid
+  tool-02          pass 1    82 tok    21.10 tok/s  tool_calls  tool call valid
+  wave 2: 4 requests, 1164 tokens in 24.1 s -> 48.33 tok/s aggregate
+  power: idle 15.9 W, generation mean 65.4 W, max 75.6 W, 1150.2 mJ/token
+  stopped llama-server pid 1199998 (exit 0)
+
+=== dspark-v1, slots 1 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999
+  started llama-server pid 1210312, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v1-np1.log
+  healthy after 4.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    66.16 tok/s  accept 0.603 (361/599)  3.39 tok/step  identical
+  code-02          pass 1   353 tok    67.23 tok/s  accept 0.618 (252/408)  3.50 tok/step  identical
+  code-03          pass 1   512 tok    59.00 tok/s  accept 0.506 (342/676)  3.01 tok/step  identical
+  code-04          pass 1   512 tok    50.94 tok/s  accept 0.404 (315/779)  2.60 tok/step  differs at token 136
+  code-05          pass 1   512 tok    66.61 tok/s  accept 0.609 (362/594)  3.41 tok/step  identical
+  code-06          pass 1   512 tok    65.09 tok/s  accept 0.592 (358/605)  3.32 tok/step  differs at token 59
+  code-07          pass 1   512 tok    63.07 tok/s  accept 0.560 (353/630)  3.22 tok/step  identical
+  code-08          pass 1   512 tok    65.29 tok/s  accept 0.594 (359/604)  3.35 tok/step  identical
+  math-01          pass 1   512 tok    77.23 tok/s  accept 0.754 (383/508)  3.97 tok/step  differs at token 255
+  math-02          pass 1   469 tok    75.20 tok/s  accept 0.717 (347/484)  3.84 tok/step  identical
+  math-03          pass 1   473 tok    74.63 tok/s  accept 0.715 (352/492)  3.91 tok/step  identical
+  math-04          pass 1   486 tok    76.87 tok/s  accept 0.744 (363/488)  3.95 tok/step  identical
+  math-05          pass 1   512 tok    77.04 tok/s  accept 0.746 (382/512)  3.94 tok/step  differs at token 139
+  math-06          pass 1   374 tok    66.57 tok/s  accept 0.610 (266/436)  3.46 tok/step  identical
+  math-07          pass 1   512 tok    70.68 tok/s  accept 0.661 (370/560)  3.61 tok/step  identical
+  math-08          pass 1   434 tok    79.33 tok/s  accept 0.778 (330/424)  4.17 tok/step  differs at token 372
+  reasoning-01     pass 1   512 tok    60.81 tok/s  accept 0.530 (347/655)  3.10 tok/step  differs at token 181
+  reasoning-02     pass 1   512 tok    63.81 tok/s  accept 0.569 (355/624)  3.26 tok/step  differs at token 59
+  reasoning-03     pass 1   512 tok    74.12 tok/s  accept 0.703 (377/536)  3.79 tok/step  identical
+  reasoning-04     pass 1   353 tok    67.96 tok/s  accept 0.621 (251/404)  3.46 tok/step  identical
+  reasoning-05     pass 1   512 tok    63.94 tok/s  accept 0.575 (355/617)  3.26 tok/step  differs at token 61
+  reasoning-06     pass 1   512 tok    53.13 tok/s  accept 0.432 (323/748)  2.71 tok/step  differs at token 1
+  reasoning-07     pass 1   512 tok    53.21 tok/s  accept 0.431 (323/750)  2.71 tok/step  identical
+  reasoning-08     pass 1   512 tok    50.27 tok/s  accept 0.392 (312/795)  2.56 tok/step  differs at token 77
+  chat-01          pass 1   512 tok    43.76 tok/s  accept 0.309 (282/913)  2.23 tok/step  differs at token 380
+  chat-02          pass 1   512 tok    67.02 tok/s  accept 0.610 (362/593)  3.41 tok/step  identical
+  chat-03          pass 1   512 tok    37.62 tok/s  accept 0.229 (244/1064)  1.91 tok/step  identical
+  chat-04          pass 1   512 tok    35.56 tok/s  accept 0.203 (229/1126)  1.81 tok/step  differs at token 32
+  chat-05          pass 1   241 tok    42.46 tok/s  accept 0.291 (129/444)  2.15 tok/step  identical
+  chat-06          pass 1   512 tok    42.10 tok/s  accept 0.288 (273/949)  2.14 tok/step  differs at token 29
+  chat-07          pass 1   283 tok    46.79 tok/s  accept 0.354 (167/472)  2.44 tok/step  identical
+  chat-08          pass 1   366 tok    39.83 tok/s  accept 0.257 (185/720)  2.02 tok/step  identical
+  long-form-01     pass 1   512 tok    45.26 tok/s  accept 0.332 (291/877)  2.32 tok/step  differs at token 41
+  long-form-02     pass 1   512 tok    47.48 tok/s  accept 0.361 (301/833)  2.43 tok/step  differs at token 112
+  long-form-03     pass 1   512 tok    41.33 tok/s  accept 0.278 (269/966)  2.11 tok/step  differs at token 9
+  long-form-04     pass 1   512 tok    43.32 tok/s  accept 0.303 (279/921)  2.20 tok/step  identical
+  long-form-05     pass 1   512 tok    47.46 tok/s  accept 0.357 (300/840)  2.42 tok/step  differs at token 483
+  long-form-06     pass 1   512 tok    43.43 tok/s  accept 0.305 (280/918)  2.21 tok/step  differs at token 219
+  long-form-07     pass 1   512 tok    53.67 tok/s  accept 0.440 (325/739)  2.74 tok/step  differs at token 141
+  long-form-08     pass 1   512 tok    41.70 tok/s  accept 0.281 (270/961)  2.12 tok/step  differs at token 227
+  long-01          pass 1  1421 tok    59.80 tok/s  accept 0.522 (960/1840)  3.08 tok/step  differs at token 372
+  long-02          pass 1  2000 tok    59.22 tok/s  accept 0.516 (1347/2608)  3.06 tok/step  differs at token 113
+  long-03          pass 1  2000 tok    62.57 tok/s  accept 0.561 (1382/2465)  3.24 tok/step  differs at token 87
+  long-04          pass 1  2000 tok    62.76 tok/s  accept 0.563 (1384/2457)  3.25 tok/step  differs at token 831
+  long-05          pass 1  2000 tok    74.86 tok/s  accept 0.721 (1484/2059)  3.88 tok/step  differs at token 40
+  long-06          pass 1  1453 tok    72.23 tok/s  accept 0.686 (1064/1552)  3.74 tok/step  identical
+  tool-01          pass 1    58 tok    66.70 tok/s  accept 0.672 (43/64)  3.87 tok/step  tool_calls  tool call valid  identical
+  tool-02          pass 1    82 tok    63.61 tok/s  accept 0.615 (59/96)  3.57 tok/step  tool_calls  tool call valid  identical
+  tool-03          pass 1    88 tok    58.77 tok/s  accept 0.545 (61/112)  3.26 tok/step  tool_calls  tool call valid  identical
+  tool-04          pass 1    92 tok    61.47 tok/s  accept 0.580 (65/112)  3.41 tok/step  tool_calls  tool call valid  identical
+  tool-05          pass 1   512 tok    52.09 tok/s  accept 0.426 (322/756)  2.69 tok/step  length  tool call INVALID  differs at char 1773
+  tool-06          pass 1   512 tok    50.45 tok/s  accept 0.404 (315/779)  2.60 tok/step  length  tool call INVALID  identical
+  tool-07          pass 1   439 tok    52.67 tok/s  accept 0.438 (280/640)  2.76 tok/step  tool_calls  tool call valid  identical
+  tool-08          pass 1   221 tok    59.71 tok/s  accept 0.543 (152/280)  3.20 tok/step  tool_calls  tool call valid  identical
+  agent-01         pass 1   353 tok    66.48 tok/s  accept 0.644 (255/396)  3.60 tok/step  tool_calls  identical
+  agent-02         pass 1    77 tok    53.95 tok/s  accept 0.500 (52/104)  3.08 tok/step  tool_calls  identical
+  agent-03         pass 1   326 tok    61.38 tok/s  accept 0.562 (225/400)  3.23 tok/step  tool_calls  differs at char 862
+  agent-04         pass 1    93 tok    41.96 tok/s  accept 0.323 (53/164)  2.33 tok/step  tool_calls  identical
+  agent-05         pass 1    74 tok    54.38 tok/s  accept 0.500 (50/100)  3.08 tok/step  tool_calls  identical
+  agent-06         pass 1   512 tok    64.67 tok/s  accept 0.607 (362/596)  3.41 tok/step  length  differs at char 26
+  agent-07         pass 1   229 tok    45.78 tok/s  accept 0.362 (136/376)  2.46 tok/step  tool_calls  identical
+  agent-08         pass 1    58 tok    38.03 tok/s  accept 0.296 (32/108)  2.23 tok/step  tool_calls  identical
+  single-quicksort pass 1   256 tok    51.18 tok/s  accept 0.407 (157/386)  2.59 tok/step  identical
+  single-quicksort pass 2   256 tok    51.19 tok/s  accept 0.407 (157/386)  2.59 tok/step  identical
+  single-quicksort pass 3   256 tok    51.29 tok/s  accept 0.407 (157/386)  2.59 tok/step  identical
+  power: idle 16.0 W, generation mean 77.0 W, max 85.1 W, 1457.5 mJ/token
+  stopped llama-server pid 1210312 (exit 0)
+
+=== dspark-v1, slots 2 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999
+  started llama-server pid 1303159, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v1-np2.log
+  healthy after 4.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    48.36 tok/s  accept 0.586 (358/611)  3.32 tok/step
+  code-02          pass 1   353 tok    44.43 tok/s  accept 0.618 (252/408)  3.50 tok/step
+  wave 1: 2 requests, 865 tokens in 11.1 s -> 78.15 tok/s aggregate
+  reasoning-01     pass 1   512 tok    45.05 tok/s  accept 0.613 (363/592)  3.44 tok/step
+  reasoning-02     pass 1   512 tok    42.70 tok/s  accept 0.552 (351/636)  3.18 tok/step
+  wave 2: 2 requests, 1024 tokens in 12.5 s -> 81.81 tok/s aggregate
+  chat-01          pass 1   512 tok    33.80 tok/s  accept 0.326 (289/886)  2.30 tok/step
+  chat-02          pass 1   512 tok    44.84 tok/s  accept 0.610 (362/593)  3.41 tok/step
+  wave 3: 2 requests, 1024 tokens in 15.6 s -> 65.73 tok/s aggregate
+  tool-01          pass 1    58 tok    41.98 tok/s  accept 0.618 (42/68)  3.62 tok/step  tool_calls  tool call valid
+  tool-02          pass 1    82 tok    44.65 tok/s  accept 0.580 (58/100)  3.42 tok/step  tool_calls  tool call valid
+  wave 4: 2 requests, 140 tokens in 6.3 s -> 22.22 tok/s aggregate
+  power: idle 16.2 W, generation mean 60.4 W, max 77.2 W, 899.1 mJ/token
+  stopped llama-server pid 1303159 (exit 0)
+
+=== dspark-v1, slots 4 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999
+  started llama-server pid 1311621, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v1-np4.log
+  healthy after 4.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    29.72 tok/s  accept 0.597 (360/603)  3.37 tok/step
+  code-02          pass 1   353 tok    33.05 tok/s  accept 0.609 (251/412)  3.46 tok/step
+  reasoning-01     pass 1   512 tok    28.23 tok/s  accept 0.523 (345/660)  3.07 tok/step
+  reasoning-02     pass 1   512 tok    29.34 tok/s  accept 0.588 (358/609)  3.32 tok/step
+  wave 1: 4 requests, 1889 tokens in 19.0 s -> 99.54 tok/s aggregate
+  chat-01          pass 1   512 tok    30.60 tok/s  accept 0.313 (283/904)  2.24 tok/step
+  chat-02          pass 1   512 tok    39.75 tok/s  accept 0.589 (358/608)  3.32 tok/step
+  tool-01          pass 1    58 tok    31.84 tok/s  accept 0.618 (42/68)  3.62 tok/step  tool_calls  tool call valid
+  tool-02          pass 1    82 tok    30.69 tok/s  accept 0.548 (57/104)  3.28 tok/step  tool_calls  tool call valid
+  wave 2: 4 requests, 1164 tokens in 21.8 s -> 53.35 tok/s aggregate
+  power: idle 15.3 W, generation mean 59.0 W, max 77.0 W, 788.1 mJ/token
+  stopped llama-server pid 1311621 (exit 0)
+
+=== dspark-v2, slots 1 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999
+  started llama-server pid 1320360, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v2-np1.log
+  healthy after 3.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    70.63 tok/s  accept 0.610 (384/630)  4.00 tok/step  identical
+  code-02          pass 1   353 tok    67.92 tok/s  accept 0.578 (263/455)  3.92 tok/step  identical
+  code-03          pass 1   512 tok    58.16 tok/s  accept 0.464 (357/770)  3.30 tok/step  identical
+  code-04          pass 1   512 tok    56.07 tok/s  accept 0.441 (351/796)  3.18 tok/step  differs at token 136
+  code-05          pass 1   512 tok    72.04 tok/s  accept 0.626 (387/618)  4.10 tok/step  identical
+  code-06          pass 1   512 tok    71.36 tok/s  accept 0.628 (386/615)  4.06 tok/step  differs at token 59
+  code-07          pass 1   512 tok    62.68 tok/s  accept 0.522 (369/707)  3.58 tok/step  identical
+  code-08          pass 1   512 tok    66.94 tok/s  accept 0.574 (378/658)  3.82 tok/step  identical
+  math-01          pass 1   512 tok    71.29 tok/s  accept 0.623 (386/620)  4.06 tok/step  differs at token 255
+  math-02          pass 1   469 tok    77.07 tok/s  accept 0.687 (364/530)  4.47 tok/step  identical
+  math-03          pass 1   473 tok    73.60 tok/s  accept 0.646 (362/560)  4.26 tok/step  identical
+  math-04          pass 1   486 tok    75.39 tok/s  accept 0.670 (375/560)  4.38 tok/step  identical
+  math-05          pass 1   512 tok    76.71 tok/s  accept 0.691 (396/573)  4.41 tok/step  differs at token 139
+  math-06          pass 1   374 tok    68.06 tok/s  accept 0.581 (279/480)  3.94 tok/step  identical
+  math-07          pass 1   512 tok    73.05 tok/s  accept 0.640 (389/608)  4.16 tok/step  identical
+  math-08          pass 1   434 tok    82.15 tok/s  accept 0.743 (342/460)  4.72 tok/step  differs at token 372
+  reasoning-01     pass 1   512 tok    53.51 tok/s  accept 0.414 (344/831)  3.05 tok/step  differs at token 181
+  reasoning-02     pass 1   512 tok    59.10 tok/s  accept 0.479 (360/752)  3.37 tok/step  differs at token 59
+  reasoning-03     pass 1   512 tok    79.33 tok/s  accept 0.714 (399/559)  4.53 tok/step  identical
+  reasoning-04     pass 1   353 tok    64.65 tok/s  accept 0.543 (258/475)  3.72 tok/step  identical
+  reasoning-05     pass 1   512 tok    58.31 tok/s  accept 0.474 (358/755)  3.32 tok/step  differs at token 61
+  reasoning-06     pass 1   512 tok    51.95 tok/s  accept 0.396 (339/857)  2.96 tok/step  differs at token 1
+  reasoning-07     pass 1   512 tok    49.40 tok/s  accept 0.365 (330/904)  2.81 tok/step  identical
+  reasoning-08     pass 1   512 tok    46.54 tok/s  accept 0.334 (319/955)  2.65 tok/step  differs at token 77
+  chat-01          pass 1   512 tok    47.13 tok/s  accept 0.339 (321/946)  2.68 tok/step  differs at token 380
+  chat-02          pass 1   512 tok    68.45 tok/s  accept 0.585 (380/650)  3.88 tok/step  identical
+  chat-03          pass 1   512 tok    37.90 tok/s  accept 0.231 (274/1185)  2.15 tok/step  identical
+  chat-04          pass 1   512 tok    37.08 tok/s  accept 0.223 (269/1205)  2.11 tok/step  differs at token 32
+  chat-05          pass 1   241 tok    41.65 tok/s  accept 0.279 (141/505)  2.41 tok/step  identical
+  chat-06          pass 1   512 tok    44.11 tok/s  accept 0.305 (308/1009)  2.51 tok/step  differs at token 29
+  chat-07          pass 1   283 tok    43.89 tok/s  accept 0.303 (171/565)  2.53 tok/step  identical
+  chat-08          pass 1   366 tok    37.98 tok/s  accept 0.234 (198/845)  2.18 tok/step  identical
+  long-form-01     pass 1   512 tok    44.09 tok/s  accept 0.304 (308/1012)  2.51 tok/step  differs at token 41
+  long-form-02     pass 1   512 tok    45.55 tok/s  accept 0.322 (314/975)  2.59 tok/step  differs at token 112
+  long-form-03     pass 1   512 tok    38.15 tok/s  accept 0.236 (276/1169)  2.17 tok/step  differs at token 9
+  long-form-04     pass 1   512 tok    41.41 tok/s  accept 0.273 (294/1077)  2.35 tok/step  identical
+  long-form-05     pass 1   512 tok    44.10 tok/s  accept 0.304 (308/1014)  2.51 tok/step  differs at token 483
+  long-form-06     pass 1   512 tok    39.00 tok/s  accept 0.246 (281/1142)  2.22 tok/step  differs at token 219
+  long-form-07     pass 1   512 tok    57.16 tok/s  accept 0.457 (355/776)  3.26 tok/step  differs at token 141
+  long-form-08     pass 1   512 tok    41.42 tok/s  accept 0.274 (295/1077)  2.36 tok/step  differs at token 227
+  long-01          pass 1  1475 tok    59.63 tok/s  accept 0.490 (1048/2140)  3.45 tok/step  differs at token 372
+  long-02          pass 1  2000 tok    60.28 tok/s  accept 0.499 (1427/2859)  3.49 tok/step  differs at token 113
+  long-03          pass 1  2000 tok    67.81 tok/s  accept 0.586 (1490/2541)  3.92 tok/step  differs at token 87
+  long-04          pass 1  2000 tok    66.19 tok/s  accept 0.568 (1478/2601)  3.83 tok/step  differs at token 831
+  long-05          pass 1  2000 tok    75.12 tok/s  accept 0.672 (1540/2292)  4.35 tok/step  differs at token 40
+  long-06          pass 1  1453 tok    71.58 tok/s  accept 0.631 (1104/1750)  4.16 tok/step  identical
+  tool-01          pass 1    58 tok    44.17 tok/s  accept 0.336 (37/110)  2.76 tok/step  tool_calls  tool call valid  identical
+  tool-02          pass 1    82 tok    55.21 tok/s  accept 0.464 (58/125)  3.42 tok/step  tool_calls  tool call valid  identical
+  tool-03          pass 1    88 tok    47.69 tok/s  accept 0.374 (58/155)  2.93 tok/step  tool_calls  tool call valid  identical
+  tool-04          pass 1    92 tok    53.26 tok/s  accept 0.441 (64/145)  3.29 tok/step  tool_calls  tool call valid  identical
+  tool-05          pass 1   512 tok    50.02 tok/s  accept 0.382 (334/874)  2.88 tok/step  length  tool call INVALID  differs at char 1773
+  tool-06          pass 1   512 tok    49.09 tok/s  accept 0.369 (331/898)  2.83 tok/step  length  tool call INVALID  identical
+  tool-07          pass 1   439 tok    45.61 tok/s  accept 0.333 (275/825)  2.68 tok/step  tool_calls  tool call valid  identical
+  tool-08          pass 1   221 tok    51.72 tok/s  accept 0.408 (149/365)  3.07 tok/step  tool_calls  tool call valid  identical
+  agent-01         pass 1   353 tok    59.68 tok/s  accept 0.515 (255/495)  3.60 tok/step  tool_calls  identical
+  agent-02         pass 1    77 tok    48.05 tok/s  accept 0.400 (52/130)  3.08 tok/step  tool_calls  identical
+  agent-03         pass 1   326 tok    55.99 tok/s  accept 0.463 (227/490)  3.29 tok/step  tool_calls  differs at char 862
+  agent-04         pass 1    93 tok    37.79 tok/s  accept 0.259 (53/205)  2.33 tok/step  tool_calls  identical
+  agent-05         pass 1    74 tok    43.52 tok/s  accept 0.336 (47/140)  2.74 tok/step  tool_calls  identical
+  agent-06         pass 1   512 tok    57.66 tok/s  accept 0.491 (362/738)  3.41 tok/step  length  differs at char 26
+  agent-07         pass 1   229 tok    38.80 tok/s  accept 0.265 (131/495)  2.34 tok/step  tool_calls  identical
+  agent-08         pass 1    58 tok    31.70 tok/s  accept 0.207 (30/145)  2.07 tok/step  tool_calls  identical
+  single-quicksort pass 1   256 tok    52.10 tok/s  accept 0.396 (169/427)  2.94 tok/step  identical
+  single-quicksort pass 2   256 tok    51.97 tok/s  accept 0.396 (169/427)  2.94 tok/step  identical
+  single-quicksort pass 3   256 tok    51.95 tok/s  accept 0.396 (169/427)  2.94 tok/step  identical
+  power: idle 15.8 W, generation mean 78.1 W, max 85.0 W, 1494.6 mJ/token
+  stopped llama-server pid 1320360 (exit 0)
+
+=== dspark-v2, slots 2 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999
+  started llama-server pid 1415076, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v2-np2.log
+  healthy after 4.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    47.86 tok/s  accept 0.538 (372/691)  3.66 tok/step
+  code-02          pass 1   353 tok    43.78 tok/s  accept 0.553 (260/470)  3.80 tok/step
+  wave 1: 2 requests, 865 tokens in 11.1 s -> 77.73 tok/s aggregate
+  reasoning-01     pass 1   512 tok    42.34 tok/s  accept 0.516 (368/713)  3.56 tok/step
+  reasoning-02     pass 1   512 tok    43.03 tok/s  accept 0.531 (371/699)  3.63 tok/step
+  wave 2: 2 requests, 1024 tokens in 12.6 s -> 81.06 tok/s aggregate
+  chat-01          pass 1   512 tok    34.49 tok/s  accept 0.323 (315/974)  2.60 tok/step
+  chat-02          pass 1   512 tok    46.30 tok/s  accept 0.585 (380/650)  3.88 tok/step
+  wave 3: 2 requests, 1024 tokens in 15.3 s -> 67.01 tok/s aggregate
+  tool-01          pass 1    58 tok    28.65 tok/s  accept 0.313 (36/115)  2.64 tok/step  tool_calls  tool call valid
+  tool-02          pass 1    82 tok    35.71 tok/s  accept 0.415 (56/135)  3.15 tok/step  tool_calls  tool call valid
+  wave 4: 2 requests, 140 tokens in 7.0 s -> 19.89 tok/s aggregate
+  power: idle 16.3 W, generation mean 59.4 W, max 82.2 W, 896.8 mJ/token
+  stopped llama-server pid 1415076 (exit 0)
+
+=== dspark-v2, slots 4 (launched) ===
+  command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999
+  started llama-server pid 1424696, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v2-np4.log
+  healthy after 4.0 s
+  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
+  sampling idle power for 10 s
+  code-01          pass 1   512 tok    32.41 tok/s  accept 0.616 (385/625)  4.03 tok/step
+  code-02          pass 1   353 tok    32.77 tok/s  accept 0.561 (261/465)  3.84 tok/step
+  reasoning-01     pass 1   512 tok    26.08 tok/s  accept 0.413 (344/833)  3.05 tok/step
+  reasoning-02     pass 1   512 tok    27.58 tok/s  accept 0.489 (362/741)  3.41 tok/step
+  wave 1: 4 requests, 1889 tokens in 20.5 s -> 92.21 tok/s aggregate
+  chat-01          pass 1   512 tok    32.01 tok/s  accept 0.326 (316/969)  2.61 tok/step
+  chat-02          pass 1   512 tok    41.67 tok/s  accept 0.585 (380/650)  3.88 tok/step
+  tool-01          pass 1    58 tok    22.57 tok/s  accept 0.336 (37/110)  2.76 tok/step  tool_calls  tool call valid
+  tool-02          pass 1    82 tok    25.62 tok/s  accept 0.393 (55/140)  3.04 tok/step  tool_calls  tool call valid
+  wave 2: 4 requests, 1164 tokens in 20.5 s -> 56.69 tok/s aggregate
+  power: idle 15.3 W, generation mean 61.3 W, max 82.2 W, 823.1 mJ/token
+  stopped llama-server pid 1424696 (exit 0)
+
+done in 49.2 min; results in dflash-training/eval/spec_bench_full/results/gb10-clean-1

@@ -1,0 +1,28 @@
+[22:48:02] gate waiter started (batch2 stable>=90s AND >=100k tokens; 3h cap)
+[23:26:44] GATE MET: 856 samples / 237426 tokens, stable 93s
+batch2 snapshot bytes 29176097466
+total 30104208
+drwxrwsr-x  2 usman p-usman        4096 Sep 17 23:26 .
+drwxrwsr-x 10 usman p-usman        4096 Sep 17 23:26 ..
+-rw-rw-r--  1 usman p-usman  1650591540 Sep 17 23:26 batch1.bin
+-rw-rw-r--  1 usman p-usman 29176097466 Sep 17 23:27 batch2.bin
+[23:27:03] LAUNCH full retrain: 2 epochs on batch1+batch2
+== [1/5] TRAIN tag=full1 feats=/home/usman/Bonsai-demo/dflash-training/v2/feats_full epochs=2 bs=2 lr=1e-4  (log: /home/usman/Bonsai-demo/dflash-training/v2/logs/train_full1.log)
+train exit: 137
+ep 2/2 step 460/904 loss 0.8691 (ce 0.0838 l1 0.4010 conf 0.3843) acc 0.801 acc_p 0.777 lr 9.77e-05 vram 18.7G 166.1m
+ep 2/2 step 470/904 loss 0.9965 (ce 0.1143 l1 0.4714 conf 0.4107) acc 0.765 acc_p 0.738 lr 9.43e-05 vram 18.7G 169.7m
+ep 2/2 step 480/904 loss 0.7005 (ce 0.0589 l1 0.3070 conf 0.3346) acc 0.855 acc_p 0.829 lr 9.08e-05 vram 18.7G 173.5m
+== [2/5] CONVERT step 1: safetensors -> dspark raw GGUF
+step1 exit: 0
+== [3/5] CONVERT step 2: dspark -> dflash (+donor tokenizer, drop shared tensors)
+step2 exit: 0
+== [4/5] QUANTIZE -> Q4_K_M
+quantize exit: 0
+== [5/5] SANITY
+gguf_ex_read_0: kv[0]: key = general.architecture
+gguf_ex_read_0: kv[14]: key = dflash.block_size
+gguf_ex_read_0: kv[15]: key = dflash.target_layers
+gguf_ex_read_0: kv[30]: key = tokenizer.ggml.mask_token_id
+DONE: /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf (1104605632 bytes)
+Eval (idle GPU): /home/usman/Bonsai-demo/dflash-training/v2/../eval/spec_eval.sh /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf /tmp/eval_full1.json 200 '4 5 7' '0.0'
+[02:24:16] PIPELINE FINISHED exit=0

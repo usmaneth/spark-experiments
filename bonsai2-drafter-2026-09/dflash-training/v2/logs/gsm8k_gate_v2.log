@@ -1,0 +1,8 @@
+[03:23:53] gsm8k v2 waiter (chained after LONGCODE GATE DONE; cap 8h)
+Generating test split:   0%|          | 0/1319 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 1319/1319 [00:00<00:00, 413628.93 examples/s]
+wrote 50 gsm8k test problems
+GSM8K tau=0: exact-match 43/50 = 86.0% | wall 1187s
+GSM8K tau=0.02: exact-match 44/50 = 88.0% | wall 1071s
+GSM8K tau=0.05: exact-match 43/50 = 86.0% | wall 728s
+GSM8K V2 DONE
+[04:21:17] GSM8K V2 FINISHED

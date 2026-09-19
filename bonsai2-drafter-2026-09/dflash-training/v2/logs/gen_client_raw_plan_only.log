@@ -1,0 +1,23 @@
+loaded 3000 candidate prompts (3000 raw_prompt, 0 chat) (skip_lines=0) max_prompt_tokens=3600 server=http://10.99.0.2:8096
+plan-only: server model=models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf build=b10687-5d80cff0b n_ctx(default slot)=8192 slots=1
+  [  0] t_tool_0       tool   kind=raw  n_prompt= 1082 ends_with="tart|>assistant\n<think>\n"
+  [  1] t_agent_1      agent  kind=raw  n_prompt= 2631 ends_with="tart|>assistant\n<think>\n"
+  [  2] t_mixed_2      mixed  kind=raw  n_prompt=  758 ends_with="tart|>assistant\n<think>\n"
+  [  3] t_mixed_3      mixed  kind=raw  n_prompt=  852 ends_with="tart|>assistant\n<think>\n"
+  [  4] t_tool_4       tool   kind=raw  n_prompt=  923 ends_with="tart|>assistant\n<think>\n"
+  [  5] t_mixed_5      mixed  kind=raw  n_prompt=  784 ends_with="tart|>assistant\n<think>\n"
+  [  6] t_agent_6      agent  kind=raw  n_prompt= 2626 ends_with="tart|>assistant\n<think>\n"
+  [  7] t_mixed_7      mixed  kind=raw  n_prompt=  817 ends_with="tart|>assistant\n<think>\n"
+  [  8] t_tool_8       tool   kind=raw  n_prompt= 1120 ends_with="tart|>assistant\n<think>\n"
+  [  9] t_tool_9       tool   kind=raw  n_prompt= 1035 ends_with="tart|>assistant\n<think>\n"
+  [ 10] t_agent_10     agent  kind=raw  n_prompt= 2525 ends_with="tart|>assistant\n<think>\n"
+  [ 11] t_tool_11      tool   kind=raw  n_prompt=  697 ends_with="tart|>assistant\n<think>\n"
+  [ 12] t_tool_12      tool   kind=raw  n_prompt=  853 ends_with="tart|>assistant\n<think>\n"
+  [ 13] t_mixed_13     mixed  kind=raw  n_prompt=  647 ends_with="tart|>assistant\n<think>\n"
+  [ 14] t_tool_14      tool   kind=raw  n_prompt= 1018 ends_with="tart|>assistant\n<think>\n"
+  [ 15] t_agent_15     agent  kind=raw  n_prompt= 2708 ends_with="tart|>assistant\n<think>\n"
+  [ 16] t_mixed_16     mixed  kind=raw  n_prompt=  816 ends_with="tart|>assistant\n<think>\n"
+  [ 17] t_mixed_17     mixed  kind=raw  n_prompt= 1112 ends_with="tart|>assistant\n<think>\n"
+  [ 18] t_mixed_18     mixed  kind=raw  n_prompt=  811 ends_with="tart|>assistant\n<think>\n"
+  [ 19] t_tool_19      tool   kind=raw  n_prompt=  644 ends_with="tart|>assistant\n<think>\n"
+plan-only done: 20 records tokenized, total prompt tokens=24459, mean=1223.0, roundtrip_fail=0, too_long=0; would request n_predict=512 per record with 24 workers -> up to 10240 generated tokens for these 20. No /completion sent.

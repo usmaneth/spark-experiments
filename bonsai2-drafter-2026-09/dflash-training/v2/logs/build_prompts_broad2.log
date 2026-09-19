@@ -1,0 +1,124 @@
+[dedupe] prompts_batch1.jsonl: text=2000 tokens=0 (cumulative)
+[dedupe] prompts_gen_batch2.jsonl: text=2000 tokens=856 (cumulative)
+[dedupe] prompts_gen_broad.jsonl: text=2000 tokens=3354 (cumulative)
+[dedupe] prompts_broad.jsonl: text=4500 tokens=3354 (cumulative)
+[dedupe] 4500 text prompts and 3354 token-id prompts loaded from ['prompts_batch1.jsonl', 'prompts_gen_batch2.jsonl', 'prompts_gen_broad.jsonl', 'prompts_broad.jsonl']
+[target] {'math': 5000, 'reasoning': 5000, 'chat': 4000, 'code': 3000, 'longform': 3000}
+[optional] {'meta-math/MetaMathQA': 'used only when cached locally; not in the HF cache', 'Open-Orca/OpenOrca': 'used only when cached locally; not in the HF cache'}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[load] openai/gsm8k ('main',) train: ok (1s)
+[load] EleutherAI/hendrycks_math ('algebra',) train: ok (1s)
+[load] EleutherAI/hendrycks_math ('counting_and_probability',) train: ok (1s)
+[load] EleutherAI/hendrycks_math ('geometry',) train: ok (1s)
+[load] EleutherAI/hendrycks_math ('intermediate_algebra',) train: ok (1s)
+[load] EleutherAI/hendrycks_math ('number_theory',) train: ok (1s)
+[load] EleutherAI/hendrycks_math ('prealgebra',) train: ok (1s)
+[load] EleutherAI/hendrycks_math ('precalculus',) train: ok (1s)
+[load] garage-bAInd/Open-Platypus () train: ok (1s)
+[platypus] data_source histogram (scanned rows): {'MATH/PRM-800K': 3170, 'airoboros': 678, 'scibench': 162, 'reclor': 1286, 'ARB': 202, 'scienceqa': 336, 'leetcode_ne': 279, 'theoremqa': 162, 'guanaco': 217, 'tigerbot-kaggle': 104}
+[load] allenai/ai2_arc ('ARC-Challenge',) train: ok (1s)
+[load] allenai/ai2_arc ('ARC-Challenge',) validation: ok (1s)
+[load] allenai/ai2_arc ('ARC-Easy',) train: ok (1s)
+Using the latest cached version of the dataset since lucasmccabe/logiqa couldn't be found on the Hugging Face Hub
+Found the latest cached dataset configuration 'default' at /home/usman/.cache/huggingface/datasets/lucasmccabe___logiqa/default/0.0.0/fa9f9918fa81eca088805c1395d7f592f7755ae0 (last modified on Fri Sep 18 09:16:18 2026).
+[load] lucasmccabe/logiqa () train: ok (0s)
+[load] ChilleD/StrategyQA () train: ok (1s)
+[load] ChilleD/StrategyQA () test: ok (1s)
+[load] HuggingFaceH4/no_robots () train: ok (1s)
+[load] HuggingFaceH4/no_robots () test: ok (1s)
+[load] databricks/databricks-dolly-15k () train: ok (1s)
+[load] ultrachat_200k train_sft streaming: ok scanned=3625 chat=1300 long=1170 (11s)
+[load] sahil2801/CodeAlpaca-20k () train: ok (1s)
+[load] nickrosh/Evol-Instruct-Code-80k-v1 () train: ok (1s)
+[collected] {"chat/dolly": 1820, "chat/no_robots": 2080, "chat/ultrachat": 1300, "code/codealpaca_fresh": 2535, "code/evol_code": 1365, "longform/dolly_creative": 780, "longform/no_robots_gen": 1560, "longform/template_longform": 330, "longform/ultrachat_long": 1170, "math/gsm8k": 3250, "math/hendrycks_math": 2275, "math/platypus_math": 975, "reasoning/arc_challenge": 1300, "reasoning/logiqa": 650, "reasoning/platypus_reason": 2925, "reasoning/strategyqa": 650, "reasoning/template_reasoning": 550}
+[collected] rejected: {'short_or_long': 703, 'dup_text': 1014, 'special_tokens': 0}
+[tokenize] 25515 prompts in 5.1s
+[after-token-filter] {"chat/dolly": 1819, "chat/no_robots": 2078, "chat/ultrachat": 1299, "code/codealpaca_fresh": 2535, "code/evol_code": 1364, "longform/dolly_creative": 780, "longform/no_robots_gen": 1560, "longform/template_longform": 330, "longform/ultrachat_long": 1170, "math/gsm8k": 3250, "math/hendrycks_math": 2269, "math/platypus_math": 971, "reasoning/arc_challenge": 1300, "reasoning/logiqa": 650, "reasoning/platypus_reason": 2925, "reasoning/strategyqa": 650, "reasoning/template_reasoning": 550}
+[after-token-filter] drops: {"too_long": {"math/hendrycks_math": 6, "math/platypus_math": 4, "chat/no_robots": 2, "chat/dolly": 1, "chat/ultrachat": 1, "code/evol_code": 1}, "too_short": {}, "dup_tokens": {}, "tok_fail": {}}
+{
+  "total": 20000,
+  "target": {
+    "math": 5000,
+    "reasoning": 5000,
+    "chat": 4000,
+    "code": 3000,
+    "longform": 3000
+  },
+  "per_category": {
+    "math": 5000,
+    "reasoning": 5000,
+    "chat": 4000,
+    "code": 3000,
+    "longform": 3000
+  },
+  "per_source": {
+    "math": {
+      "gsm8k": 2500,
+      "hendrycks_math": 1750,
+      "platypus_math": 750
+    },
+    "reasoning": {
+      "platypus_reason": 2388,
+      "arc_challenge": 788,
+      "logiqa": 637,
+      "strategyqa": 637,
+      "template_reasoning": 550
+    },
+    "chat": {
+      "no_robots": 1600,
+      "dolly": 1400,
+      "ultrachat": 1000
+    },
+    "code": {
+      "codealpaca_fresh": 1950,
+      "evol_code": 1050
+    },
+    "longform": {
+      "no_robots_gen": 1200,
+      "dolly_creative": 600,
+      "ultrachat_long": 900,
+      "template_longform": 300
+    }
+  },
+  "dedupe_against": {
+    "files": [
+      "prompts_batch1.jsonl",
+      "prompts_gen_batch2.jsonl",
+      "prompts_gen_broad.jsonl",
+      "prompts_broad.jsonl"
+    ],
+    "text_prompts": 4500,
+    "token_prompts": 3354
+  },
+  "rejected_at_collect": {
+    "short_or_long": 703,
+    "dup_text": 1014,
+    "special_tokens": 0
+  },
+  "dropped_at_token_filter": {
+    "too_long": {
+      "math/hendrycks_math": 6,
+      "math/platypus_math": 4,
+      "chat/no_robots": 2,
+      "chat/dolly": 1,
+      "chat/ultrachat": 1,
+      "code/evol_code": 1
+    },
+    "too_short": {},
+    "dup_tokens": {},
+    "tok_fail": {}
+  },
+  "avg_chars": 365.42375,
+  "avg_tokens": 92.5487,
+  "max_tokens": 742,
+  "max_tokens_limit": 768,
+  "max_chars_limit": 2600,
+  "seed": 1,
+  "optional_sources_skipped": {
+    "meta-math/MetaMathQA": "used only when cached locally; not in the HF cache",
+    "Open-Orca/OpenOrca": "used only when cached locally; not in the HF cache"
+  },
+  "ids_file": "prompts_broad2_ids.jsonl"
+}
+[done] wrote 20000 prompts -> prompts_broad2.jsonl and prompts_broad2_ids.jsonl
+build rc=0

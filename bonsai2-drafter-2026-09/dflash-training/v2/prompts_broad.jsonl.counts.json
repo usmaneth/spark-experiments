@@ -1,0 +1,47 @@
+{
+  "total": 2500,
+  "target": {
+    "math": 625,
+    "reasoning": 625,
+    "chat": 500,
+    "code": 375,
+    "longform": 375
+  },
+  "per_category": {
+    "math": 625,
+    "reasoning": 625,
+    "chat": 500,
+    "code": 375,
+    "longform": 375
+  },
+  "per_source": {
+    "math": {
+      "gsm8k": 339,
+      "hendrycks_math": 215,
+      "platypus_math": 71
+    },
+    "reasoning": {
+      "platypus_reason": 323,
+      "arc_challenge": 107,
+      "strategyqa": 71,
+      "template_reasoning": 124
+    },
+    "chat": {
+      "no_robots": 185,
+      "dolly": 172,
+      "ultrachat": 143
+    },
+    "code": {
+      "codealpaca_fresh": 246,
+      "evol_code": 129
+    },
+    "longform": {
+      "no_robots_gen": 107,
+      "dolly_creative": 64,
+      "ultrachat_long": 148,
+      "template_longform": 56
+    }
+  },
+  "dedupe_against": 2000,
+  "avg_chars": 322.6104
+}

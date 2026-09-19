@@ -1,0 +1,36 @@
+=== restart 2026-09-18T07:53:59-07:00 ===
+======== Running on http://0.0.0.0:8090 ========
+(Press CTRL+C to quit)
+Exception ignored in: <function BaseSubprocessTransport.__del__ at 0xf34492ecb4c0>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/base_subprocess.py", line 126, in __del__
+    self.close()
+  File "/usr/lib/python3.12/asyncio/base_subprocess.py", line 104, in close
+    proto.pipe.close()
+  File "/usr/lib/python3.12/asyncio/unix_events.py", line 568, in close
+    self._close(None)
+  File "/usr/lib/python3.12/asyncio/unix_events.py", line 592, in _close
+    self._loop.call_soon(self._call_connection_lost, exc)
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 795, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 541, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Traceback (most recent call last):
+  File "/home/usman/Bonsai-demo/dflash-training/dashboard/server.py", line 2673, in <module>
+    web.run_app(app, host=HOST, port=PORT)
+  File "/opt/sparkpool/venv/lib/python3.12/site-packages/aiohttp/web.py", line 502, in run_app
+    loop.run_until_complete(main_task)
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/opt/sparkpool/venv/lib/python3.12/site-packages/aiohttp/web.py", line 404, in _run_app
+    await site.start()
+  File "/opt/sparkpool/venv/lib/python3.12/site-packages/aiohttp/web_runner.py", line 138, in start
+    self._server = await loop.create_server(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 1572, in create_server
+    raise OSError(err.errno, msg) from None
+OSError: [Errno 98] error while attempting to bind on address ('0.0.0.0', 8090): address already in use
+======== Running on http://0.0.0.0:8090 ========
+(Press CTRL+C to quit)

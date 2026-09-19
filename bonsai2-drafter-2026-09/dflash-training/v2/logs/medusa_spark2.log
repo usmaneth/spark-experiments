@@ -1,0 +1,88 @@
+[23:01:37] medusa/spark2 waiter started
+[23:22:12] medusa/spark2 waiter started
+[23:26:43] GATE MET: 856 samples / 237426 tokens -> rsync to spark2
+[23:27:39] batch2 on spark2: 29176097466 bytes
+[23:27:40] LAUNCH medusa training on spark2
+  ep 2 step 120/297 loss=5.9919 [h1=0.748 h2=1.982 h3=2.911 h4=3.507] lr=7.17e-04
+  ep 2 step 130/297 loss=5.9463 [h1=0.790 h2=1.918 h3=2.871 h4=3.485] lr=6.64e-04
+  ep 2 step 140/297 loss=5.9795 [h1=0.773 h2=1.968 h3=2.919 h4=3.445] lr=6.10e-04
+  ep 2 step 150/297 loss=5.7173 [h1=0.761 h2=1.862 h3=2.720 h4=3.370] lr=5.54e-04
+  ep 2 step 160/297 loss=5.7736 [h1=0.748 h2=1.840 h3=2.800 h4=3.441] lr=4.97e-04
+  ep 2 step 170/297 loss=5.7603 [h1=0.696 h2=1.887 h3=2.824 h4=3.412] lr=4.41e-04
+  ep 2 step 180/297 loss=5.6138 [h1=0.686 h2=1.808 h3=2.808 h4=3.290] lr=3.85e-04
+  ep 2 step 190/297 loss=5.8154 [h1=0.719 h2=1.975 h3=2.797 h4=3.370] lr=3.30e-04
+[epoch 2] mean loss=5.8246 (126.0s)
+[eval] epoch 2 held-out:
+  base LM head (t+1, sanity): top1=0.9942 n=21852
+  head 1 (t+2): top1=0.7026 top5=0.8842 ce=1.4110 n=21942
+  head 2 (t+3): top1=0.4495 top5=0.6820 ce=3.0077 n=21942
+  head 3 (t+4): top1=0.3043 top5=0.5332 ce=4.0999 n=21942
+  head 4 (t+5): top1=0.2279 top5=0.4435 ce=4.7541 n=21942
+  ep 3 step 200/297 loss=3.6446 [h1=0.355 h2=1.083 h3=1.880 h4=2.382] lr=2.78e-04
+  ep 3 step 210/297 loss=3.6768 [h1=0.352 h2=1.111 h3=1.876 h4=2.413] lr=2.29e-04
+  ep 3 step 220/297 loss=3.6201 [h1=0.309 h2=1.083 h3=1.887 h4=2.416] lr=1.83e-04
+  ep 3 step 230/297 loss=3.4884 [h1=0.315 h2=1.036 h3=1.800 h4=2.328] lr=1.41e-04
+  ep 3 step 240/297 loss=3.4524 [h1=0.306 h2=1.080 h3=1.797 h4=2.211] lr=1.04e-04
+  ep 3 step 250/297 loss=3.5571 [h1=0.342 h2=1.042 h3=1.828 h4=2.366] lr=7.23e-05
+  ep 3 step 260/297 loss=3.5345 [h1=0.305 h2=1.087 h3=1.790 h4=2.371] lr=4.57e-05
+  ep 3 step 270/297 loss=3.4936 [h1=0.306 h2=1.054 h3=1.799 h4=2.330] lr=2.50e-05
+  ep 3 step 280/297 loss=3.4443 [h1=0.291 h2=1.019 h3=1.793 h4=2.325] lr=1.04e-05
+  ep 3 step 290/297 loss=3.4327 [h1=0.303 h2=1.065 h3=1.757 h4=2.252] lr=2.06e-06
+[epoch 3] mean loss=3.5387 (141.1s)
+[eval] epoch 3 held-out:
+  base LM head (t+1, sanity): top1=0.9942 n=21852
+  head 1 (t+2): top1=0.7178 top5=0.8899 ce=1.3486 n=21942
+  head 2 (t+3): top1=0.4671 top5=0.6962 ce=2.9206 n=21942
+  head 3 (t+4): top1=0.3242 top5=0.5498 ce=4.0039 n=21942
+  head 4 (t+5): top1=0.2440 top5=0.4571 ce=4.6675 n=21942
+=== FINAL held-out per-head accuracy ===
+  base LM head (t+1, sanity): top1=0.9942 n=21852
+  head 1 (t+2): top1=0.7178 top5=0.8899 ce=1.3486 n=21942
+  head 2 (t+3): top1=0.4671 top5=0.6962 ce=2.9206 n=21942
+  head 3 (t+4): top1=0.3242 top5=0.5498 ce=4.0039 n=21942
+  head 4 (t+5): top1=0.2440 top5=0.4571 ce=4.6675 n=21942
+loss first=47.4015 last=3.7211 decreased=yes
+[save] wrote 8 tensors -> /home/usman/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.safetensors
+[23:35:39] MEDUSA FINISHED exit=0
+-rw-r--r-- 1 usman p-usman      1578 Sep 17 23:35 /home/usman/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.json
+-rw-r----- 1 usman p-usman 419514336 Sep 17 23:35 /home/usman/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.safetensors
+{
+  "format": "medusa_heads_v1",
+  "num_heads": 4,
+  "embd": 5120,
+  "vocab": 248320,
+  "head_layers": 1,
+  "block": "ResBlock: x + silu(linear(x))",
+  "lm_head": "frozen shared W_lm (teacher/W_lm.bin); logits_k = head_k(h) @ W_lm.T",
+  "head_k_predicts": "token[t + k + 1], k = 1..num_heads (1-indexed)",
+  "decay": 0.8,
+  "loss_weight": "decay^(k-1)",
+  "train_samples": 813,
+  "holdout_samples": 90,
+  "train_positions": 201259,
+  "epochs": 3,
+  "lr": 0.001,
+  "batch_tokens": 2048,
+  "synthetic": false,
+  "feats": "/home/usman/Bonsai-demo/dflash-training/v2/feats/*.bin",
+  "teacher": "/home/usman/Bonsai-demo/dflash-training/v2/teacher/W_lm.bin",
+  "final_eval": {
+    "per_head": [
+      {
+        "head": 1,
+        "predicts": "t+2",
+        "n": 21942,
+        "top1": 0.7178470513171087,
+        "top5": 0.8898915322213107,
+        "ce": 1.3486156538380125
+      },
+      {
+        "head": 2,
+        "predicts": "t+3",
+        "n": 21942,
+        "top1": 0.46709506881779234,
+        "top5": 0.6961990702761827,
+        "ce": 2.9205517315536413
+      },
+      {
+        "head": 3,

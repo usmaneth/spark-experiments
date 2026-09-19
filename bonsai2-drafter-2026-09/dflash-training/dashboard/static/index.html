@@ -1,0 +1,4040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bonsai 2 & DFlash Speculative Mission Control | Dual DGX Spark Cluster</title>
+
+  <!-- Open Source Libraries: Lucide Icons, Chart.js, KaTeX, Prism.js -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+
+  <!-- Typography: Inter + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-surface: #0a0a0a;
+      --card-bg: rgba(10, 10, 10, 0.7);
+      --card-hover: rgba(18, 18, 18, 0.9);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-subtle: rgba(255, 255, 255, 0.03);
+      --accent: #00e599;
+      --accent-glow: rgba(0, 229, 153, 0.35);
+      --accent-cyan: #00ccff;
+      --accent-cyan-glow: rgba(0, 204, 255, 0.35);
+      --accent-purple: #9d4edd;
+      --text: #ffffff;
+      --text-muted: #a1a1aa;
+      --text-dim: #52525b;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(0, 229, 153, 0.05), transparent 40%),
+        radial-gradient(circle at 85% 15%, rgba(0, 204, 255, 0.05), transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(157, 78, 221, 0.04), transparent 50%),
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      padding: 1.5rem 2.5rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Lucide Icon adjustments */
+    .lucide {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2px;
+      vertical-align: middle;
+      display: inline-block;
+    }
+
+    .lucide-lg { width: 18px; height: 18px; }
+    .lucide-xl { width: 22px; height: 22px; stroke-width: 2.5px; }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-cyan));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      box-shadow: 0 0 30px var(--accent-glow), inset 0 0 10px rgba(255,255,255,0.5);
+      position: relative;
+    }
+
+    .brand-logo::before {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent);
+      border-radius: 11px;
+      z-index: 0;
+    }
+    .brand-logo > * { position: relative; z-index: 1; }
+
+    .brand-title h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(90deg, #fff 30%, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+    }
+
+    .brand-title p {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0;
+      margin-top: 0.15rem;
+    }
+
+    .header-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      background: rgba(20, 24, 38, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 9999px;
+      font-size: 0.74rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      backdrop-filter: blur(12px);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+      font-size: 0.74rem;
+
+    .pill-badge:hover {
+      border-color: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .pill-badge strong { color: var(--text); font-weight: 500; }
+
+    .header-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.75rem;
+      background: rgba(17, 21, 34, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 9999px;
+      font-size: 0.73rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .pill-badge strong { color: var(--text); font-weight: 600; }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    .pulse-cyan {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-cyan);
+      animation: pulse-cyan 2s infinite;
+    }
+
+    .pulse-amber {
+      width: 8px;
+      height: 8px;
+      background-color: var(--warning);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--warning);
+      animation: pulse-amber 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    @keyframes pulse-cyan {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(6, 182, 212, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+    }
+
+    @keyframes pulse-amber {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(245, 158, 11, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    /* Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .tab-btn.active {
+      background: rgba(19, 24, 38, 0.95);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.08);
+      font-weight: 600;
+    }
+
+    .tab-badge {
+      font-size: 0.67rem;
+      padding: 0.12rem 0.4rem;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .tab-content.active { display: flex; }
+
+    /* Grids */
+    .grid-12 {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.25rem;
+    }
+
+    .col-2 { grid-column: span 2; }
+    .col-3 { grid-column: span 3; }
+    .col-4 { grid-column: span 4; }
+    .col-5 { grid-column: span 5; }
+    .col-6 { grid-column: span 6; }
+    .col-7 { grid-column: span 7; }
+    .col-8 { grid-column: span 8; }
+    .col-12 { grid-column: span 12; }
+
+    @media (max-width: 1200px) {
+      .col-5, .col-6, .col-7 { grid-column: span 12; }
+      .col-3, .col-4 { grid-column: span 6; }
+    }
+
+    @media (max-width: 800px) {
+      .col-2, .col-3, .col-4, .col-6, .col-8 { grid-column: span 12; }
+    }
+
+    /* Animated Glow Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s;
+      overflow: hidden;
+    }
+
+    .card::before, .cluster-kpi-card::after {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: conic-gradient(from 0deg, transparent 60%, var(--accent) 80%, var(--accent-cyan) 100%);
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: border-spin 4s linear infinite;
+    }
+
+    @keyframes border-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .card:hover::before, .cluster-kpi-card:hover::after {
+      opacity: 0.8;
+    }
+
+    .card::after, .cluster-kpi-card::before {
+      /* Keep the original background inside the glowing border */
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: var(--card-bg);
+      border-radius: 11px;
+      z-index: -1;
+    }
+
+    .card:hover {
+      border-color: transparent;
+      box-shadow: 0 16px 48px -4px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .card > * { position: relative; z-index: 1; }
+
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-val {
+      font-size: 2.1rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      background: linear-gradient(180deg, #fff 20%, #71717a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+      letter-spacing: -0.05em;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+    }
+
+
+    .stat-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Executive Cluster Stat Bar (5 Cards) */
+    .cluster-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cluster-kpi-card {
+      background: rgba(14, 18, 28, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cluster-kpi-card:hover {
+      border-color: transparent;
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 12px 40px -4px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .cluster-kpi-card > * { position: relative; z-index: 1; }
+
+    .cluster-kpi-card.cyan::before {
+      background: linear-gradient(90deg, var(--accent-cyan), transparent);
+    }
+
+    .cluster-kpi-card.purple::before {
+      background: linear-gradient(90deg, var(--accent-purple), transparent);
+    }
+
+    .cluster-kpi-card.warning::before {
+      background: linear-gradient(90deg, var(--warning), transparent);
+    }
+
+    .cluster-kpi-card .label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Select Cards */
+    .selection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .select-card {
+      background: rgba(14, 18, 28, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .select-card:hover {
+      background: rgba(20, 26, 42, 0.9);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .select-card.selected {
+      border-color: var(--accent);
+      background: rgba(16, 26, 38, 0.9);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .select-card .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .select-card h3 {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .select-card p {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .select-card .metrics-row {
+      display: flex;
+      gap: 0.45rem;
+      margin-top: 0.2rem;
+      flex-wrap: wrap;
+    }
+
+    .metric-pill {
+      font-size: 0.67rem;
+      font-family: var(--font-mono);
+      padding: 0.16rem 0.42rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--accent-cyan);
+    }
+
+    /* Switch / Toggles */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .toggle-row:last-child { border-bottom: none; }
+
+    .toggle-label span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .toggle-label small {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 0.1rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #1e2436;
+      transition: .3s;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background-color: #fff;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, var(--accent), var(--accent-cyan));
+      border-color: transparent;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(18px);
+      background-color: #000;
+    }
+
+    /* Range Sliders */
+    .range-control {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin: 0.65rem 0;
+    }
+
+    .range-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .range-val {
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      background: #1e2436;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .preset-chips {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-chip {
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      padding: 0.18rem 0.45rem;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s ease;
+    }
+
+    .preset-chip:hover, .preset-chip.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-cyan));
+      border: none;
+      color: #000;
+      font-weight: 700;
+      padding: 0.55rem 1.15rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.15); }
+
+    .btn-danger {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: var(--danger);
+    }
+
+    .btn-danger:hover { background: rgba(244, 63, 94, 0.22); }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+
+    th {
+      text-align: left;
+      padding: 0.65rem 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.65rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+      vertical-align: middle;
+    }
+
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 0.16rem 0.42rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 500;
+    }
+
+    .tag-green {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .tag-cyan {
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+    }
+
+    .tag-purple {
+      background: rgba(139, 92, 246, 0.12);
+      color: var(--accent-purple);
+      border: 1px solid rgba(139, 92, 246, 0.25);
+    }
+
+    .tag-red {
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+    }
+
+    .tag-amber {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    /* Live trainer panel (Training Studio) */
+    .live-run-meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .live-run-meta:empty { display: none; }
+    .live-run-meta .tag { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.7rem; }
+    .live-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
+    @media (max-width: 1100px) { .live-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .live-grid { grid-template-columns: 1fr; } }
+    .live-cell { background: rgba(0,0,0,0.35); padding: 0.85rem; border-radius: 8px; border: 1px solid var(--card-border); min-width: 0; }
+    .live-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; }
+    .live-val { font-size: 1.5rem; font-weight: 700; color: var(--text); font-family: var(--font-mono); overflow-wrap: anywhere; }
+    .live-sub { font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem; }
+    .tag-muted { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
+
+    /* Round-2 measured checkpoints */
+    .r2-ref { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 1rem; padding: 0.7rem 0.85rem; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 8px; }
+    .r2-ref strong { color: var(--text); font-family: var(--font-mono); font-weight: 600; }
+    .r2-ref .r2-ref-note { flex-basis: 100%; }
+    .r2-ckpt { border: 1px solid var(--card-border); border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 0.9rem; background: rgba(0,0,0,0.25); }
+    .r2-ckpt-head { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+    .r2-ckpt-step { font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: var(--text); }
+    .r2-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 1100px) { .r2-tables { grid-template-columns: 1fr; } }
+    .r2-sub { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; font-family: var(--font-mono); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .r2-pending { font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.25rem; }
+    .r2-mean-row td { border-top: 1px solid var(--card-border); font-weight: 700; color: var(--text); }
+    .r2-empty { font-size: 0.76rem; color: var(--text-dim); font-style: italic; padding: 0.4rem 0; }
+
+    /* Run history */
+    .runs-intro { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem; }
+    .runs-intro .tag { vertical-align: middle; }
+    .run-card { border: 1px solid var(--card-border); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1rem; background: rgba(0,0,0,0.25); position: relative; }
+    .run-card.run-running { border-color: rgba(16, 185, 129, 0.45); }
+    .run-head { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .run-order { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); border: 1px solid var(--card-border); border-radius: 6px; padding: 0.15rem 0.45rem; }
+    .run-name { font-size: 0.98rem; font-weight: 700; color: var(--text); }
+    .run-facts { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+    .run-facts .tag { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.7rem; }
+    .run-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6rem; margin-bottom: 0.8rem; }
+    .run-cell { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.6rem 0.7rem; min-width: 0; }
+    .run-cell .live-val { font-size: 1.15rem; }
+    .run-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 1100px) { .run-sections { grid-template-columns: 1fr; } }
+    .run-section { min-width: 0; }
+    .run-learned { margin-top: 0.8rem; padding: 0.7rem 0.85rem; border-left: 3px solid var(--accent-purple); background: rgba(157, 78, 221, 0.06); border-radius: 0 8px 8px 0; font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+    .run-learned small { display: block; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.68rem; margin-top: 0.3rem; }
+    .run-paths { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim); margin-top: 0.6rem; overflow-wrap: anywhere; }
+    .run-caveat { font-size: 0.74rem; color: var(--warning); margin: 0.3rem 0 0.5rem; line-height: 1.45; }
+    .run-link { color: var(--accent-cyan); cursor: pointer; text-decoration: underline dotted; font-size: 0.78rem; }
+
+    /* Learnings (markdown note) */
+    .notes-layout { display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 1000px) { .notes-layout { grid-template-columns: 1fr; } .notes-toc { position: static !important; max-height: none !important; } }
+    .notes-toc { position: sticky; top: 1rem; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: 0.76rem; border-right: 1px solid var(--card-border); padding-right: 0.75rem; }
+    .notes-toc a { display: block; color: var(--text-muted); text-decoration: none; padding: 0.3rem 0.5rem; border-radius: 6px; line-height: 1.35; cursor: pointer; }
+    .notes-toc a:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .notes-toc a.active { color: var(--accent); background: rgba(0, 229, 153, 0.08); }
+    .notes-toc .toc-title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); font-family: var(--font-mono); margin: 0 0 0.4rem 0.5rem; }
+    .notes-body { min-width: 0; font-size: 0.86rem; line-height: 1.65; color: var(--text-muted); }
+    .md h1 { font-size: 1.35rem; color: var(--text); letter-spacing: -0.02em; margin: 0 0 1rem; }
+    .md h2 { font-size: 1.05rem; color: var(--text); margin: 1.8rem 0 0.6rem; padding-top: 1rem; border-top: 1px solid var(--card-border); scroll-margin-top: 1rem; }
+    .md h3 { font-size: 0.92rem; color: var(--text); margin: 1.2rem 0 0.4rem; }
+    .md h4, .md h5, .md h6 { font-size: 0.85rem; color: var(--text); margin: 1rem 0 0.3rem; }
+    .md p { margin: 0 0 0.75rem; }
+    .md strong { color: var(--text); font-weight: 600; }
+    .md em { color: var(--text); }
+    .md code { font-family: var(--font-mono); font-size: 0.78em; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 0.05rem 0.3rem; color: var(--accent-cyan); }
+    .md pre { background: #05070a; border: 1px solid #141721; border-radius: 8px; padding: 0.85rem; overflow-x: auto; margin: 0 0 0.9rem; }
+    .md pre code { background: none; border: 0; padding: 0; color: #a1a1aa; font-size: 0.74rem; line-height: 1.5; }
+    .md ul, .md ol { margin: 0 0 0.8rem 1.4rem; }
+    .md li { margin-bottom: 0.3rem; }
+    .md li > ul, .md li > ol { margin-top: 0.3rem; margin-bottom: 0.3rem; }
+    .md table { margin: 0.4rem 0 1rem; font-size: 0.78rem; }
+    .md th { white-space: nowrap; }
+    .md td.num { color: var(--text); }
+    .md blockquote { border-left: 3px solid var(--accent-purple); margin: 0 0 0.8rem; padding: 0.4rem 0.8rem; color: var(--text-muted); background: rgba(157, 78, 221, 0.06); border-radius: 0 6px 6px 0; }
+    .md hr { border: 0; border-top: 1px solid var(--card-border); margin: 1.2rem 0; }
+    .md a { color: var(--accent-cyan); }
+
+    /* Interconnect Topology Box */
+    .topology-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      background: rgba(9, 12, 20, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .node-box {
+      flex: 1;
+      min-width: 260px;
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node-box::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.3) 80%, rgba(255,255,255,0.6) 100%);
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0.5;
+      animation: border-spin 4s linear infinite;
+    }
+
+    .node-box.active-primary::before {
+      background: conic-gradient(from 0deg, transparent 60%, var(--accent) 80%, var(--accent-cyan) 100%);
+      opacity: 1;
+    }
+
+    .node-box.active-worker::before {
+      background: conic-gradient(from 0deg, transparent 60%, var(--accent-cyan) 80%, #fff 100%);
+      opacity: 1;
+    }
+
+    .node-box::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: linear-gradient(180deg, rgba(20, 24, 38, 0.95), rgba(12, 14, 22, 0.98));
+      border-radius: 11px;
+      z-index: -1;
+    }
+
+    .node-box > * { position: relative; z-index: 1; }
+
+    .fabric-bridge {
+      flex: 1.2;
+      min-width: 290px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      padding: 0.5rem;
+    }
+
+    .fabric-pipe {
+      width: 100%;
+      height: 14px;
+      background: #050505;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.9), 0 0 20px rgba(0,255,255,0.1);
+    }
+
+    .fabric-pipe-inner {
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(6, 182, 212, 0.2) 20%, 
+        var(--accent-cyan) 50%, 
+        #fff 55%,
+        var(--accent) 60%, 
+        transparent 100%
+      );
+      background-size: 200% 100%;
+      animation: data-race 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      border-radius: 999px;
+      opacity: 0.9;
+    }
+
+    @keyframes data-race {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Subsystem Metric Rows */
+    .subsystem-meter {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.4rem;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .meter-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .meter-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
+      border-radius: 999px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Speculative Token Tree */
+    .token-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1.1rem;
+      background: rgba(14, 18, 28, 0.6);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .token-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .token-pill {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .token-pill.verified {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+      box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.1);
+    }
+
+    .token-pill.rejected {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+      text-decoration: line-through;
+    }
+
+    .token-pill.recovered {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+    }
+
+    /* Segmented Memory Bar */
+    .memory-segmented-bar {
+      width: 100%;
+      height: 24px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      background: rgba(0, 0, 0, 0.5);
+      margin: 0.75rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+    }
+
+    .memory-segment {
+      height: 100%;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .memory-segment:hover { opacity: 0.85; filter: brightness(1.2); }
+
+    /* Chat Playground */
+    .chat-container { display: flex; flex-direction: column; height: 620px; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem;
+      background: rgba(5, 7, 12, 0.8);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+    }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 0.85rem 1.1rem;
+      border-radius: 8px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .chat-bubble.user { align-self: flex-end; background: rgba(24, 30, 48, 0.95); color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); }
+    .chat-bubble.assistant { align-self: flex-start; background: rgba(14, 18, 30, 0.9); border: 1px solid var(--card-border); color: var(--text); }
+
+    .chat-bubble .bubble-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.69rem;
+      margin-bottom: 0.45rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+    }
+
+    .streaming-cursor {
+      display: inline-block;
+      width: 7px;
+      height: 14px;
+      background: var(--accent);
+      margin-left: 3px;
+      vertical-align: middle;
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .chat-input-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(10, 13, 22, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus { border-color: var(--accent); }
+
+    .bench-result-box {
+      background: rgba(9, 12, 22, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 0.85rem;
+      display: none;
+    }
+
+    .bench-result-box.active { display: block; }
+
+    .terminal-window {
+      background: rgba(5, 7, 12, 0.95);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      height: 480px;
+      overflow-y: auto;
+      color: #a7f3d0;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(17, 21, 34, 0.95);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast -->
+  <div id="toast"><span id="toast-msg">Action completed</span></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">
+        <i data-lucide="cpu" class="lucide-xl" style="stroke: #000;"></i>
+      </div>
+      <div class="brand-title">
+        <h1>Bonsai 2 & DFlash Speculative Mission Control</h1>
+        <p>Dual DGX Spark Cluster (spark1 + spark2) · 243.4 GiB Unified Pool · 400 Gbps Interconnect</p>
+      </div>
+    </div>
+    <div class="header-telemetry">
+      <!-- SPARK 1 Primary Pill -->
+      <div class="pill-badge" id="hdr-sp1-pill">
+        <span class="pulse"></span>
+        <i data-lucide="server"></i>
+        <span>SPARK1:</span>
+        <strong id="hdr-sp1-summary">GB10 · --% · --W · --GB</strong>
+      </div>
+
+      <!-- INTERCONNECT Fabric Pill -->
+      <div class="pill-badge" id="hdr-fabric-pill">
+        <span class="pulse-cyan"></span>
+        <i data-lucide="network" style="color: var(--accent-cyan);"></i>
+        <span>FABRIC:</span>
+        <strong id="hdr-fabric-summary" style="color: var(--accent-cyan);">400G DAC · 0.14ms</strong>
+      </div>
+
+      <!-- SPARK 2 Worker Pill -->
+      <div class="pill-badge" id="hdr-sp2-pill">
+        <span class="pulse-cyan" id="hdr-sp2-dot"></span>
+        <i data-lucide="server"></i>
+        <span>SPARK2:</span>
+        <strong id="hdr-sp2-summary">GB10 · --% · --W · --GB</strong>
+      </div>
+
+      <!-- SERVER DAEMON Pill -->
+      <div class="pill-badge" id="server-status-pill">
+        <i data-lucide="activity"></i>
+        <span>Server:</span>
+        <strong id="header-server-state" style="color: var(--warning);">STOPPED</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-unified')">
+      <i data-lucide="sliders"></i>
+      <span>Dual-Spark Mission Control</span>
+      <span class="tab-badge" id="active-quant-badge">PQ2_0 · 47.9 tok/s</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-chat')">
+      <i data-lucide="message-square"></i>
+      <span>Interactive Playground & Chat</span>
+      <span class="tab-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);" id="active-chat-node-badge">spark1</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-training')">
+      <i data-lucide="trending-up"></i>
+      <span>Training & Distillation Studio</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-runs')" id="tab-btn-runs">
+      <i data-lucide="history"></i>
+      <span>Run history</span>
+      <span class="tab-badge" id="runs-tab-badge">v2 runs</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-learnings')" id="tab-btn-learnings">
+      <i data-lucide="book-open"></i>
+      <span>Learnings</span>
+      <span class="tab-badge" id="learnings-tab-badge" style="background: rgba(139, 92, 246, 0.15); color: var(--accent-purple);">vault note</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-logs')">
+      <i data-lucide="terminal"></i>
+      <span>Live Console & Logs</span>
+    </button>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 1: UNIFIED DUAL-SPARK MISSION CONTROL (ALL DASHBOARDS IN ONE PAGE)    -->
+  <!-- ========================================================================= -->
+  <div id="tab-unified" class="tab-content active">
+
+    <!-- Row 1: 5 Executive Cluster Stat Cards -->
+    <div class="cluster-kpi-row">
+      <!-- Node Status -->
+      <div class="cluster-kpi-card">
+        <div class="label">
+          <span><i data-lucide="server"></i> Cluster Architecture</span>
+          <span class="tag tag-green" id="kpi-nodes-tag">2/2 Online</span>
+        </div>
+        <div class="stat-val" id="kpi-nodes-val">spark1 + spark2</div>
+        <div class="stat-sub">Dual NVIDIA GB10 Blackwell Nodes</div>
+      </div>
+
+      <!-- Aggregate Unified Memory -->
+      <div class="cluster-kpi-card cyan">
+        <div class="label">
+          <span><i data-lucide="memory-stick"></i> Aggregate Unified Memory</span>
+          <span class="tag tag-cyan">243.4 GiB Total</span>
+        </div>
+        <div class="stat-val" id="kpi-cluster-used-mem" style="color: var(--accent-cyan);">-- GB Used</div>
+        <div class="stat-sub" id="kpi-cluster-free-mem">-- GB Free Headroom (Zero-Copy)</div>
+      </div>
+
+      <!-- Interconnect Fabric -->
+      <div class="cluster-kpi-card purple">
+        <div class="label">
+          <span><i data-lucide="network"></i> Interconnect Fabric</span>
+          <span class="tag tag-purple">400 Gbps DAC</span>
+        </div>
+        <div class="stat-val" id="kpi-interconnect-rtt" style="color: var(--accent-purple);">0.14 ms</div>
+        <div class="stat-sub">Dual 200G Direct Attach Copper (MTU 9000)</div>
+      </div>
+
+      <!-- Inference Throughput -->
+      <div class="cluster-kpi-card">
+        <div class="label">
+          <span><i data-lucide="zap"></i> Speculative Inference</span>
+          <span class="tag tag-green">+72.2% Speedup</span>
+        </div>
+        <div class="stat-val" id="kpi-speed-val" style="color: var(--accent);">47.85 tok/s</div>
+        <div class="stat-sub">Bonsai 2 (27B) + DFlash Q4_0 (69.2% Acc)</div>
+      </div>
+
+      <!-- Cluster Power Draw -->
+      <div class="cluster-kpi-card warning">
+        <div class="label">
+          <span><i data-lucide="gauge"></i> Cluster Power Draw</span>
+          <span class="tag tag-warning">Dual-Node Total</span>
+        </div>
+        <div class="stat-val" id="kpi-cluster-power" style="color: var(--warning);">-- W</div>
+        <div class="stat-sub" id="kpi-power-sub">spark1: --W · spark2: --W</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Interactive High-Speed Cluster Interconnect & Topology Diagram -->
+    <div class="card">
+      <div class="card-title">
+        <span><i data-lucide="network"></i> Dual DGX Spark Cluster Interconnect Topology & Hardware Links</span>
+        <span class="tag tag-cyan">400 Gbps Aggregate · Sub-Millisecond Fabric</span>
+      </div>
+
+      <div class="topology-container">
+        <!-- Node 1: spark1 (Primary) -->
+        <div class="node-box active-primary" id="topo-sp1-box">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 0.95rem; color: var(--accent);">Node 1: spark1</strong>
+            <span class="tag tag-green"><i data-lucide="shield-check"></i> PRIMARY HOST</span>
+          </div>
+          <p style="font-size: 0.74rem; color: var(--text-muted);">
+            Fabric IPs: <code>10.99.0.1</code> / <code>10.99.1.1</code> (MTU 9000)
+          </p>
+          <div style="margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">GPU Architecture:</span>
+              <strong>NVIDIA GB10 Blackwell (121.7 GiB)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Workload:</span>
+              <span class="tag tag-green">Bonsai 2 (27B) + DFlash + Mission Control</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Telemetry:</span>
+              <strong id="topo-sp1-telemetry">Util: 94% · Temp: 68°C · Power: 41W</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Memory Footprint:</span>
+              <strong id="topo-sp1-mem">36.5 / 121.7 GB</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center Interconnect Bridge -->
+        <div class="fabric-bridge">
+          <div style="display: flex; align-items: center; gap: 0.45rem;">
+            <span class="pulse-cyan"></span>
+            <strong style="font-size: 0.85rem; color: var(--accent-cyan);">Dual Direct Attach Copper (DAC)</strong>
+          </div>
+
+          <!-- Pipe Link 0 -->
+          <div style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 0.2rem;">
+              <span>Link 0 (enp1s0f1np1 · 200 Gbps · 10.99.0.0/30)</span>
+              <strong id="topo-link0-rtt" style="color: var(--accent-cyan);">0.18 ms RTT · UP</strong>
+            </div>
+            <div class="fabric-pipe">
+              <div class="fabric-pipe-inner"></div>
+            </div>
+          </div>
+
+          <!-- Pipe Link 1 -->
+          <div style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 0.2rem;">
+              <span>Link 1 (enP2p1s0f1np1 · 200 Gbps · 10.99.1.0/30)</span>
+              <strong id="topo-link1-rtt" style="color: var(--accent-cyan);">0.13 ms RTT · UP</strong>
+            </div>
+            <div class="fabric-pipe">
+              <div class="fabric-pipe-inner"></div>
+            </div>
+          </div>
+
+          <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 0.2rem;">
+            Aggregate 400 Gbps (50 GB/s) · SparkPool Gateway Mesh (Port 8080)
+          </div>
+        </div>
+
+        <!-- Node 2: spark2 (Worker) -->
+        <div class="node-box active-worker" id="topo-sp2-box">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 0.95rem; color: var(--accent-cyan);">Node 2: spark2</strong>
+            <span class="tag tag-cyan" id="topo-sp2-role-badge"><i data-lucide="server"></i> CLUSTER WORKER</span>
+          </div>
+          <p style="font-size: 0.74rem; color: var(--text-muted);">
+            Fabric IPs: <code>10.99.0.2</code> / <code>10.99.1.2</code> (MTU 9000)
+          </p>
+          <div style="margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">GPU Architecture:</span>
+              <strong>NVIDIA GB10 Blackwell (121.7 GiB)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Workload:</span>
+              <span class="tag tag-purple">Active Cluster Node</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Telemetry:</span>
+              <strong id="topo-sp2-telemetry">Util: 88% · Temp: 80°C · Power: 80W</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Memory Footprint:</span>
+              <strong id="topo-sp2-mem">17.3 / 121.7 GB</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2.5: Deep Individual Spark Health & Subsystem Diagnostics -->
+    <div class="grid-12">
+      <!-- SPARK 1 Deep Health Card -->
+      <div class="card col-6" style="border-top: 3px solid var(--accent);">
+        <div class="card-title">
+          <span><i data-lucide="activity"></i> SPARK 1 Deep Subsystem Health & Diagnostics</span>
+          <span class="tag tag-green">PRIMARY HOST</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- GPU Subsystem -->
+          <div class="subsystem-meter">
+            <div class="meter-label">
+              <span><i data-lucide="cpu"></i> GB10 Tensor SM Clock Freq</span>
+              <strong id="h-sp1-sm-clock">2,437 MHz / 3,003 MHz (81%)</strong>
+            </div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill" id="h-sp1-sm-clock-fill" style="width: 81%;"></div></div>
+          </div>
+
+          <div class="subsystem-meter">
+            <div class="meter-label">
+              <span><i data-lucide="activity"></i> Compute SM Utilization</span>
+              <strong id="h-sp1-gpu-util">92% Active Core</strong>
+            </div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill" id="h-sp1-gpu-util-fill" style="width: 92%;"></div></div>
+          </div>
+
+          <div class="subsystem-meter">
+            <div class="meter-label">
+              <span><i data-lucide="hard-drive"></i> NVMe Storage Health (Root SSD)</span>
+              <strong id="h-sp1-disk">514 GB / 3.67 TB (13.7% Used)</strong>
+            </div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill" id="h-sp1-disk-fill" style="width: 14%; background: #06b6d4;"></div></div>
+          </div>
+
+          <table style="font-size: 0.76rem; margin-top: 0.4rem;">
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="thermometer"></i> Thermal & Power</td>
+              <td><span class="tag tag-amber" id="h-sp1-thermal">78°C (Normal Range)</span> &nbsp; <strong id="h-sp1-pwr">67.8 W</strong></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="memory-stick"></i> Unified LPDDR5X</td>
+              <td><strong id="h-sp1-mem-detail">35.2 GB Used</strong> · <span style="color: var(--accent);" id="h-sp1-mem-free">89.4 GB Headroom</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="cpu"></i> Grace CPU & System</td>
+              <td>Load: <strong id="h-sp1-load">5.06, 2.96, 1.93</strong> · Uptime: <span id="h-sp1-uptime">9h 8m</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="network"></i> Fabric Link 0 (200G DAC)</td>
+              <td>TX: <strong id="h-sp1-tx">136.28 GB</strong> · RX: <strong id="h-sp1-rx">0.41 GB</strong> (18.2M packets)</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- SPARK 2 Deep Health Card -->
+      <div class="card col-6" style="border-top: 3px solid var(--accent-cyan);">
+        <div class="card-title">
+          <span><i data-lucide="activity"></i> SPARK 2 Deep Subsystem Health & Diagnostics</span>
+          <span class="tag tag-cyan">CLUSTER WORKER</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- GPU Subsystem -->
+          <div class="subsystem-meter">
+            <div class="meter-label">
+              <span><i data-lucide="cpu"></i> GB10 Tensor SM Clock Freq</span>
+              <strong id="h-sp2-sm-clock">2,380 MHz / 3,003 MHz (79%)</strong>
+            </div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill" id="h-sp2-sm-clock-fill" style="width: 79%; background: var(--accent-cyan);"></div></div>
+          </div>
+
+          <div class="subsystem-meter">
+            <div class="meter-label">
+              <span><i data-lucide="activity"></i> Compute SM Utilization</span>
+              <strong id="h-sp2-gpu-util">88% Active Core</strong>
+            </div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill" id="h-sp2-gpu-util-fill" style="width: 88%; background: var(--accent-cyan);"></div></div>
+          </div>
+
+          <div class="subsystem-meter">
+            <div class="meter-label">
+              <span><i data-lucide="hard-drive"></i> NVMe Storage Health (Root SSD)</span>
+              <strong id="h-sp2-disk">534 GB / 3.67 TB (14.2% Used)</strong>
+            </div>
+            <div class="meter-bar-bg"><div class="meter-bar-fill" id="h-sp2-disk-fill" style="width: 14%; background: #8b5cf6;"></div></div>
+          </div>
+
+          <table style="font-size: 0.76rem; margin-top: 0.4rem;">
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="thermometer"></i> Thermal & Power</td>
+              <td><span class="tag tag-amber" id="h-sp2-thermal">80°C (Normal Range)</span> &nbsp; <strong id="h-sp2-pwr">80.0 W</strong></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="memory-stick"></i> Unified LPDDR5X</td>
+              <td><strong id="h-sp2-mem-detail">17.3 GB Used</strong> · <span style="color: var(--accent-cyan);" id="h-sp2-mem-free">107.3 GB Headroom</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="cpu"></i> Grace CPU & System</td>
+              <td>Load: <strong id="h-sp2-load">1.16, 1.42, 1.15</strong> · Uptime: <span id="h-sp2-uptime">15h 45m</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted);"><i data-lucide="network"></i> Fabric Link 0 (200G DAC)</td>
+              <td>Status: <strong style="color: var(--accent);">UP</strong> · Measured Latency: <strong id="h-sp2-rtt">0.15 ms RTT</strong></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Dual-Column Command Center (Left: Telemetry & Memory | Right: Quant & Speculative Dials) -->
+    <div class="grid-12">
+
+      <!-- LEFT COLUMN (7 COLS): Multi-Node Telemetry Comparison, Memory Map, Token-Tree -->
+      <div class="col-7" style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+        <!-- Multi-Node Rolling Hardware Telemetry Stream (Chart.js) -->
+        <div class="card">
+          <div class="card-title">
+            <span><i data-lucide="line-chart"></i> Dual-Spark Hardware Telemetry (1s SSE Comparison Stream)</span>
+            <div style="display: flex; gap: 0.6rem; font-size: 0.74rem;">
+              <span style="color: var(--accent);">● spark1 GPU</span>
+              <span style="color: var(--accent-cyan);">● spark2 GPU</span>
+            </div>
+          </div>
+          <div style="position: relative; height: 190px; width: 100%;">
+            <canvas id="clusterTelemetryChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Cluster Unified Memory Allocation Map -->
+        <div class="card">
+          <div class="card-title">
+            <span><i data-lucide="memory-stick"></i> Cluster Unified Memory Map (243.36 GiB Aggregate Pool)</span>
+            <span class="tag tag-cyan" id="mem-headroom-tag">201.6 GB Headroom</span>
+          </div>
+
+          <!-- Segmented Bar -->
+          <div class="memory-segmented-bar" id="memory-segmented-bar">
+            <div class="memory-segment" id="seg-base" style="width: 2.8%; background: #10b981;" title="Base Model Weights (spark1)"></div>
+            <div class="memory-segment" id="seg-draft" style="width: 0.4%; background: #06b6d4;" title="Drafter Model Weights (spark1)"></div>
+            <div class="memory-segment" id="seg-sp2-used" style="width: 2.2%; background: #8b5cf6;" title="spark2 Active Memory"></div>
+            <div class="memory-segment" id="seg-kv" style="width: 0.4%; background: #f59e0b;" title="KV Cache Buffer"></div>
+            <div class="memory-segment" id="seg-os" style="width: 1.5%; background: #ef4444;" title="spark1 OS & Runtime"></div>
+            <div class="memory-segment" id="seg-free" style="width: 92.7%; background: #161928;" title="Available Cluster Unified Headroom"></div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.72rem;" id="memory-legend">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Interactive Speculative Token-Tree & Verification Flow -->
+        <div class="card">
+          <div class="card-title">
+            <span><i data-lucide="git-branch"></i> Speculative Token-Tree Verification Flow</span>
+            <button class="btn btn-secondary" onclick="simulateTokenStep()" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">
+              <i data-lucide="refresh-cw"></i> Re-roll Step
+            </button>
+          </div>
+
+          <div class="token-tree">
+            <div class="token-row">
+              <span style="font-size: 0.72rem; color: var(--text-muted); width: 130px;">Anchor Context:</span>
+              <span class="token-pill" style="border-color: #3b4258;"><code>def</code></span>
+              <span class="token-pill" style="border-color: #3b4258;"><code>fibonacci</code></span>
+              <span class="token-pill" style="border-color: #3b4258;"><code>(n):</code></span>
+            </div>
+
+            <div class="token-row" id="tree-draft-row">
+              <span style="font-size: 0.72rem; color: var(--text-muted); width: 130px;">DFlash Drafter (K=4):</span>
+              <span class="token-pill verified"><code>if</code> ✓</span>
+              <span class="token-pill verified"><code>n</code> ✓</span>
+              <span class="token-pill verified"><code>&lt;=</code> ✓</span>
+              <span class="token-pill rejected"><code>1</code> ✗</span>
+            </div>
+
+            <div class="token-row" id="tree-target-row">
+              <span style="font-size: 0.72rem; color: var(--text-muted); width: 130px;">Target Verification:</span>
+              <span class="token-pill verified">P=0.98 Accept</span>
+              <span class="token-pill verified">P=0.94 Accept</span>
+              <span class="token-pill verified">P=0.88 Accept</span>
+              <span class="token-pill recovered"><code>0</code> (Target Corrected)</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #171a26; font-size: 0.75rem; color: var(--text-muted);">
+            <div>Acceptance Rule: <span id="math-inline-acceptance"></span></div>
+            <div>Hadamard Invariant: <span id="math-inline-hadamard"></span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN (5 COLS): Dynamic Quant & Speculative Switcher Panel -->
+      <div class="col-5" style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+        <!-- 1. Base Model Quantization Selector -->
+        <div class="card">
+          <div class="card-title">
+            <span><i data-lucide="layers"></i> 1. Base Model Quantization</span>
+            <span class="tag tag-cyan">Target Architecture</span>
+          </div>
+
+          <div class="selection-grid" style="grid-template-columns: 1fr 1fr;">
+            <!-- PQ2_0 -->
+            <div class="select-card selected" id="card-quant-PQ2_0" onclick="selectBaseModel('PQ2_0')">
+              <div class="card-head">
+                <h3>Bonsai 2 - PQ2_0</h3>
+                <span class="tag tag-green">Official</span>
+              </div>
+              <p>Official release. 1.76 bpw ternary matmul on GB10 Tensor Cores.</p>
+              <div class="metrics-row">
+                <span class="metric-pill">6.78 GB</span>
+                <span class="metric-pill">27.79 tok/s</span>
+              </div>
+            </div>
+
+            <!-- PTQ1_0 -->
+            <div class="select-card" id="card-quant-PTQ1_0" onclick="selectBaseModel('PTQ1_0')">
+              <div class="card-head">
+                <h3>Bonsai 2 - PTQ1_0</h3>
+                <span class="tag tag-cyan">+18.1%</span>
+              </div>
+              <p>Post-training quantized ternary. Saves 1.25 GB VRAM with faster decode.</p>
+              <div class="metrics-row">
+                <span class="metric-pill">5.53 GB</span>
+                <span class="metric-pill" style="color: var(--accent);">32.83 tok/s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Speculative Engine & Drafter Selector -->
+        <div class="card">
+          <div class="card-title">
+            <span><i data-lucide="zap"></i> 2. Speculative Decoding Engine</span>
+            <label class="switch">
+              <input type="checkbox" id="spec-toggle" checked onchange="toggleSpeculative(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div id="spec-controls-panel">
+            <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.4rem; text-transform: uppercase;">Drafter Checkpoint:</label>
+            <div class="selection-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0.6rem;">
+              <div class="select-card selected" id="card-drafter-trained_q4" onclick="selectDrafter('trained_q4')">
+                <div class="card-head">
+                  <h3 style="font-size: 0.82rem;">Trained DFlash (Q4_0)</h3>
+                  <span class="tag tag-green">Rec</span>
+                </div>
+                <p style="font-size: 0.72rem;">500M params, Hadamard adapted. 47.85 tok/s (+72.2%).</p>
+              </div>
+
+              <div class="select-card" id="card-drafter-trained_conv" onclick="selectDrafter('trained_conv')">
+                <div class="card-head">
+                  <h3 style="font-size: 0.82rem;">Trained DFlash (FP16)</h3>
+                  <span class="tag tag-purple">FP16</span>
+                </div>
+                <p style="font-size: 0.72rem;">Full precision 7.0 GB drafter weights.</p>
+              </div>
+
+              <div class="select-card" id="card-drafter-bonsai2_dspark_q4" onclick="selectDrafter('bonsai2_dspark_q4')">
+                <div class="card-head">
+                  <h3 style="font-size: 0.82rem;">Bonsai 2 DSpark</h3>
+                  <span class="tag">603 MB</span>
+                </div>
+                <p style="font-size: 0.72rem;">Compact converted drafter checkpoint.</p>
+              </div>
+
+              <div class="select-card" id="card-drafter-qwen38_mismatch" onclick="selectDrafter('qwen38_mismatch')">
+                <div class="card-head">
+                  <h3 style="font-size: 0.82rem;">Qwen 3.8 Drafter</h3>
+                  <span class="tag tag-red">Mismatch</span>
+                </div>
+                <p style="font-size: 0.72rem;">Missing rotation ablation: 0.89% acceptance (-53%).</p>
+              </div>
+            </div>
+
+            <!-- K Slider -->
+            <div class="range-control">
+              <div class="range-head">
+                <span>Draft Window Size ($K$):</span>
+                <span class="range-val" id="val-k">4 tokens</span>
+              </div>
+              <input type="range" id="slider-k" min="1" max="8" value="4" oninput="updateK(this.value)">
+              <div class="preset-chips">
+                <span class="preset-chip" onclick="updateK(2)">K=2 (69.2% Acc)</span>
+                <span class="preset-chip" onclick="updateK(3)">K=3 (63.6% Acc)</span>
+                <span class="preset-chip active" id="chip-k4" onclick="updateK(4)">K=4 (46.5 tok/s)</span>
+                <span class="preset-chip" onclick="updateK(5)">K=5 (47.9 tok/s peak)</span>
+              </div>
+            </div>
+
+            <!-- p_min Slider -->
+            <div class="range-control" style="margin-top: 0.5rem;">
+              <div class="range-head">
+                <span>Confidence Threshold ($p_{\min}$):</span>
+                <span class="range-val" id="val-pmin">0.00 (Greedy Draft)</span>
+              </div>
+              <input type="range" id="slider-pmin" min="0" max="1" step="0.05" value="0.0" oninput="updatePmin(this.value)">
+              <div class="preset-chips">
+                <span class="preset-chip active" id="chip-p0" onclick="updatePmin(0.0)">0.0 (Greedy)</span>
+                <span class="preset-chip" id="chip-p05" onclick="updatePmin(0.5)">0.5 (64.1% Acc)</span>
+                <span class="preset-chip" id="chip-p09" onclick="updatePmin(0.9)">0.9 (100% Acc)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Runtime & Daemon Manager -->
+        <div class="card">
+          <div class="card-title">
+            <span><i data-lucide="play-circle"></i> 3. Runtime & Daemon Manager</span>
+            <span id="server-badge" class="tag tag-red">Stopped</span>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>4-Bit KV Cache (Q4_0)</span>
+              <small>Reduces attention cache memory by 75%</small>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="kv4-toggle" onchange="updateKVQuant(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Flash Attention (-fa on)</span>
+              <small>Tensor Core hardware acceleration</small>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="fa-toggle" checked onchange="updateFlashAttn(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Server Launch Action -->
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+            <button class="btn" id="btn-start-server" onclick="startServer()" style="flex: 1;">
+              <i data-lucide="rocket"></i> Launch / Switch Server (Port 8085)
+            </button>
+            <button class="btn btn-danger" id="btn-stop-server" onclick="stopServer()" style="display: none;">
+              <i data-lucide="square"></i> Stop
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Row 4: Live Hardware Benchmark Runner & Calibration Matrix -->
+    <div class="card" style="margin-top: 0.5rem;">
+      <div class="card-title">
+        <span><i data-lucide="bar-chart-2"></i> Live Hardware Benchmarks & Empirical Calibration Matrix</span>
+        <div style="display: flex; gap: 0.4rem;">
+          <button class="btn btn-secondary" onclick="exportData('markdown')" style="padding: 0.25rem 0.6rem; font-size: 0.72rem;">
+            <i data-lucide="clipboard"></i> Copy Markdown
+          </button>
+          <button class="btn btn-secondary" onclick="exportData('csv')" style="padding: 0.25rem 0.6rem; font-size: 0.72rem;">
+            <i data-lucide="download"></i> CSV
+          </button>
+          <button class="btn btn-secondary" onclick="exportData('json')" style="padding: 0.25rem 0.6rem; font-size: 0.72rem;">
+            JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Benchmark Execution Bar -->
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.85rem; align-items: flex-end;">
+        <div style="flex: 2; min-width: 260px;">
+          <label style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.3rem;">Test Prompt:</label>
+          <input type="text" id="bench-prompt-input" class="chat-input" value="Write a concise Python function to compute Fibonacci numbers." style="width: 100%;">
+          <div class="preset-chips" style="margin-top: 0.35rem;">
+            <span class="preset-chip" onclick="setBenchPrompt('Write a concise Python function to compute Fibonacci numbers.')">Fibonacci (Code)</span>
+            <span class="preset-chip" onclick="setBenchPrompt('Implement a fast QuickSort algorithm in C++ with template parameters.')">QuickSort (C++)</span>
+            <span class="preset-chip" onclick="setBenchPrompt('Explain the architectural advantages of Grace Blackwell unified memory for LLMs.')">Unified Memory</span>
+          </div>
+        </div>
+
+        <div style="flex: 1; min-width: 140px;">
+          <label style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.3rem;">Tokens:</label>
+          <select id="bench-tokens-select" style="width: 100%; background: #0b0d14; border: 1px solid var(--card-border); color: #fff; padding: 0.6rem; border-radius: 6px; font-family: var(--font-mono); outline: none;">
+            <option value="16">16 tokens (Fast)</option>
+            <option value="32" selected>32 tokens (Standard)</option>
+            <option value="64">64 tokens (Deep)</option>
+            <option value="128">128 tokens (Stress)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.4rem;">
+          <button class="btn" id="btn-run-bench" onclick="runLiveBenchmark()" style="height: 42px; padding: 0 1.25rem;">
+            <i data-lucide="zap"></i> Run Benchmark
+          </button>
+          <button class="btn btn-secondary" id="btn-batch-bench" onclick="runBatchBenchmark()" style="height: 42px; padding: 0 1rem;">
+            <i data-lucide="list"></i> Sweep All
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Result Card -->
+      <div id="bench-live-result" class="bench-result-box">
+        <div class="grid-12" style="margin-bottom: 0.4rem;">
+          <div class="col-3">
+            <span style="font-size: 0.72rem; color: var(--text-muted);">Generation Throughput:</span>
+            <div class="stat-val" id="res-gen-speed" style="color: var(--accent); font-size: 1.4rem;">-- tok/s</div>
+            <span class="stat-sub" id="res-speedup-badge">+--% vs Baseline</span>
+          </div>
+          <div class="col-3">
+            <span style="font-size: 0.72rem; color: var(--text-muted);">Prompt Speed:</span>
+            <div class="stat-val" id="res-prompt-speed" style="font-size: 1.4rem;">-- tok/s</div>
+            <span class="stat-sub">Prefill Rate</span>
+          </div>
+          <div class="col-3">
+            <span style="font-size: 0.72rem; color: var(--text-muted);">Acceptance Rate:</span>
+            <div class="stat-val" id="res-acc-rate" style="color: var(--accent-cyan); font-size: 1.4rem;">--%</div>
+            <span class="stat-sub" id="res-tokens-detail">0 / 0 draft tokens</span>
+          </div>
+          <div class="col-3">
+            <span style="font-size: 0.72rem; color: var(--text-muted);">Elapsed Time:</span>
+            <div class="stat-val" id="res-elapsed" style="font-size: 1.4rem;">-- s</div>
+            <span class="stat-sub" id="res-tokens-count">-- total tokens</span>
+          </div>
+        </div>
+
+        <pre style="margin-top: 0.4rem; max-height: 140px; overflow-y: auto; border-radius: 6px;"><code id="res-code-highlight" class="language-python">Awaiting benchmark execution...</code></pre>
+      </div>
+
+      <!-- Side-by-Side Charts: Throughput & Pareto Frontier -->
+      <div class="grid-12" style="margin-top: 1rem; margin-bottom: 1rem;">
+        <div class="col-6">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">
+            Comparative Throughput (tok/s)
+          </div>
+          <div style="position: relative; height: 220px;">
+            <canvas id="benchChart"></canvas>
+          </div>
+        </div>
+        <div class="col-6">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">
+            Pareto Frontier: Speed (tok/s) vs VRAM (GB)
+          </div>
+          <div style="position: relative; height: 220px;">
+            <canvas id="paretoChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empirical Table -->
+      <div id="benchmark-history-caption" style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.4rem;">
+        prior session results (not re-verified)
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Configuration</th>
+            <th>Base Quant</th>
+            <th>Drafter Model</th>
+            <th>Window ($K$)</th>
+            <th>Prob ($p_{\min}$)</th>
+            <th>Gen Speed</th>
+            <th>Prompt Speed</th>
+            <th>Acceptance</th>
+            <th>Speedup</th>
+          </tr>
+        </thead>
+        <tbody id="benchmark-table-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 2: ADVANCED CHAT PLAYGROUND & MULTI-NODE INFERENCE                     -->
+  <!-- ========================================================================= -->
+  <div id="tab-chat" class="tab-content">
+    <div class="grid-12">
+      <!-- Main Chat Surface (8 cols) -->
+      <div class="card col-8">
+        <div class="card-title">
+          <span><i data-lucide="message-square"></i> Bonsai 2 Interactive Playground</span>
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <span class="tag tag-cyan" id="chat-active-node-tag">Node: spark1 (Local)</span>
+            <span id="chat-token-stats" class="tag tag-green">Ready for prompt</span>
+          </div>
+        </div>
+
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-box">
+            <div class="chat-bubble assistant">
+              <div class="bubble-header">
+                <span>Bonsai 2 (27B) · Node: spark1 (Primary)</span>
+                <span>System Initialized</span>
+              </div>
+              Bonsai 2 (27B) is loaded in Grace Blackwell unified memory. Ask a coding, CUDA, or reasoning question to test speculative generation!
+            </div>
+          </div>
+
+          <!-- Quick System Persona Chips -->
+          <div style="margin-top: 0.6rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); align-self: center;">System Persona:</span>
+            <span class="preset-chip active" id="persona-general" onclick="setSystemPersona('general')">General Assistant</span>
+            <span class="preset-chip" id="persona-cuda" onclick="setSystemPersona('cuda')">CUDA & Systems</span>
+            <span class="preset-chip" id="persona-code" onclick="setSystemPersona('code')">Concise Code</span>
+            <span class="preset-chip" id="persona-spec" onclick="setSystemPersona('spec')">Speculative Architect</span>
+          </div>
+
+          <!-- Prompt Input -->
+          <div class="chat-input-row">
+            <input type="text" id="user-input" class="chat-input" placeholder="Type a prompt to test Bonsai 2..." onkeydown="if(event.key==='Enter') sendPrompt()">
+            <button class="btn" id="send-btn" onclick="sendPrompt()">
+              <i data-lucide="send"></i> Send
+            </button>
+            <button class="btn btn-secondary" onclick="clearChat()" style="padding: 0 0.8rem;" title="Clear Conversation">
+              <i data-lucide="trash-2"></i>
+            </button>
+            <button class="btn btn-secondary" onclick="exportChatMarkdown()" style="padding: 0 0.8rem;" title="Export Chat Markdown">
+              <i data-lucide="download"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Configuration & Live HUD (4 cols) -->
+      <div class="card col-4">
+        <div class="card-title">
+          <span><i data-lucide="gauge"></i> Inference Control & Live HUD</span>
+          <span class="tag tag-purple">Real-Time</span>
+        </div>
+
+        <!-- Node Execution Selector -->
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.4rem;">
+            Execution Node Target:
+          </label>
+          <div style="display: flex; gap: 0.4rem;">
+            <button class="btn" id="btn-node-spark1" onclick="setChatTargetNode('spark1')" style="flex: 1; padding: 0.45rem; font-size: 0.76rem;">
+              <i data-lucide="server"></i> spark1 (Local)
+            </button>
+            <button class="btn btn-secondary" id="btn-node-spark2" onclick="setChatTargetNode('spark2')" style="flex: 1; padding: 0.45rem; font-size: 0.76rem;">
+              <i data-lucide="network"></i> spark2 (Fabric)
+            </button>
+          </div>
+          <small style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-top: 0.3rem;">
+            Run inference locally on spark1 or route across the 400 Gbps fabric to spark2.
+          </small>
+        </div>
+
+        <!-- Live Streaming HUD -->
+        <div style="background: rgba(8, 11, 19, 0.9); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+          <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+            <span>Stream Telemetry HUD</span>
+            <span class="pulse"></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.78rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Generation Speed:</span>
+              <strong id="hud-tok-s" style="color: var(--accent);">-- tok/s</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Time to First Token (TTFT):</span>
+              <strong id="hud-ttft">-- ms</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Total Tokens Emitted:</span>
+              <strong id="hud-tokens-count">0 tokens</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Elapsed Generation:</span>
+              <strong id="hud-elapsed">0.00 s</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Inference Configuration Table -->
+        <table style="font-size: 0.78rem; margin-bottom: 1rem;">
+          <tr>
+            <td style="color: var(--text-muted);">Target Quant</td>
+            <td><strong id="play-quant" style="color: var(--accent);">PQ2_0 (1.76 bpw)</strong></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Speculative Mode</td>
+            <td><strong id="play-spec">Enabled</strong></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Speculative Drafter</td>
+            <td><span class="tag tag-cyan" id="play-drafter">Trained DFlash Q4_0</span></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Draft Window (K)</td>
+            <td><strong id="play-k">4 tokens</strong></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Confidence ($p_{\min}$)</td>
+            <td><strong id="play-pmin">0.00</strong></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">KV Cache Precision</td>
+            <td><span class="tag" id="play-kv">FP16</span></td>
+          </tr>
+        </table>
+
+        <!-- Custom System Prompt Textarea -->
+        <div>
+          <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.3rem;">
+            Active System Prompt:
+          </label>
+          <textarea id="chat-system-prompt" style="width: 100%; height: 75px; background: rgba(9, 12, 22, 0.9); border: 1px solid var(--card-border); color: #e5e7eb; border-radius: 6px; font-family: var(--font-mono); font-size: 0.72rem; padding: 0.45rem; outline: none; resize: vertical;">You are Bonsai 2, a 27B native ternary language model running with DFlash speculative decoding on NVIDIA DGX Spark (GB10). Answer concisely and accurately.</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 3: SEPARATE TRAINING & DISTILLATION STUDIO                            -->
+  <!-- ========================================================================= -->
+  <div id="tab-training" class="tab-content">
+    <div class="grid-12">
+      <!-- Live Active Training Status Banner (handles the v2 round-2 trainer and the old v1 trainer format) -->
+      <div class="card col-12" id="live-training-card" style="border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.03);">
+        <div class="card-title">
+          <span style="display: flex; align-items: center; gap: 0.6rem;">
+            <span class="pulse" id="live-pulse"></span>
+            <strong><i data-lucide="activity"></i> <span id="live-run-title">DFlash drafter training run</span></strong>
+          </span>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+            <span class="tag" id="live-format-tag" style="font-family: var(--font-mono);">trainer --</span>
+            <span class="tag tag-cyan" id="live-sse-status">SSE STREAM CONNECTING</span>
+            <span class="tag" id="live-training-status">--</span>
+          </div>
+        </div>
+
+        <!-- Run metadata chips (filled from /api/training/stream -> live.run) -->
+        <div id="live-run-meta" class="live-run-meta"></div>
+
+        <!-- Live Progress Bar -->
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-family: var(--font-mono); margin-bottom: 0.4rem; gap: 1rem; flex-wrap: wrap;">
+            <span id="live-progress-text">waiting for the trainer log...</span>
+            <span style="display: flex; gap: 1rem; align-items: baseline;">
+              <span id="live-progress-eta" style="color: var(--warning);">ETA --</span>
+              <span id="live-progress-pct" style="color: var(--accent); font-weight: 700; font-size: 0.95rem;">0%</span>
+            </span>
+          </div>
+          <div class="progress-bar-bg" style="height: 12px; background: rgba(255,255,255,0.06); border-radius: 6px;">
+            <div class="progress-bar-fill" id="live-progress-bar" style="width: 0%; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #10b981, #06b6d4); transition: width 0.6s ease;"></div>
+          </div>
+        </div>
+
+        <!-- v2 trainer metrics (round-2): loss = ce + l1 + conf; acc = block-parallel next-token accuracy -->
+        <div id="live-v2-metrics">
+          <div class="live-grid" style="margin-bottom: 0.85rem;">
+            <div class="live-cell">
+              <div class="live-label">Total loss (ce + l1 + conf)</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                <span class="live-val" id="live-loss">--</span>
+                <span class="tag" id="live-loss-ma" style="font-size: 0.68rem;">10-entry mean --</span>
+              </div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">CE (next-token cross-entropy)</div>
+              <div class="live-val" id="live-ce" style="color: var(--accent-cyan);">--</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">L1 (distribution match)</div>
+              <div class="live-val" id="live-l1" style="color: var(--accent-cyan);">--</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Conf (confidence BCE)</div>
+              <div class="live-val" id="live-conf" style="color: var(--accent);">--</div>
+            </div>
+          </div>
+          <div class="live-grid">
+            <div class="live-cell">
+              <div class="live-label">Train-batch acc (acc / acc_p)</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                <span class="live-val" id="live-acc">--</span>
+                <span class="tag" id="live-acc-p" style="font-size: 0.68rem;">acc_p --</span>
+              </div>
+              <div class="live-sub" id="live-acc-ma">10-entry mean --</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Learning rate (logged)</div>
+              <div class="live-val" id="live-lr" style="font-size: 1.35rem;">--</div>
+              <div class="live-sub" id="live-lr-flag">flag --</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Step time (mean since start)</div>
+              <div class="live-val" id="live-step-time" style="font-size: 1.35rem;">-- s/step</div>
+              <div class="live-sub" id="live-step-time-recent">last 10 log entries: --</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Latest checkpoint saved</div>
+              <div class="live-val" id="live-checkpoint" style="font-size: 1.35rem; color: var(--warning);">--</div>
+              <div class="live-sub" id="live-checkpoint-next">next: --</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- v1 (old trainer) metrics; shown only when the stream reports format=v1 -->
+        <div id="live-v1-metrics" style="display: none;">
+          <div class="live-grid" style="margin-bottom: 0.85rem;">
+            <div class="live-cell">
+              <div class="live-label">Current Total Loss</div>
+              <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                <span class="live-val" id="live-loss-v1">--</span>
+                <span class="tag tag-green" id="live-loss-delta" style="font-size: 0.68rem;">--</span>
+              </div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Reconstruction Loss</div>
+              <div class="live-val" id="live-recon-loss" style="color: var(--accent-cyan);">--</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Calibrated Conf Loss</div>
+              <div class="live-val" id="live-conf-loss" style="color: var(--accent);">--</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Learning Rate (Cosine)</div>
+              <div class="live-val" id="live-lr-v1" style="font-size: 1.35rem;">--</div>
+            </div>
+          </div>
+          <div class="live-grid">
+            <div class="live-cell">
+              <div class="live-label">Tokens Seen / Total</div>
+              <div class="live-val" id="live-tokens-seen" style="font-size: 1.25rem;">-- / 2.37M</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Training Throughput</div>
+              <div class="live-val" id="live-throughput" style="font-size: 1.25rem; color: var(--accent);">-- tok/s</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Step Latency</div>
+              <div class="live-val" id="live-step-latency" style="font-size: 1.25rem;">-- ms/step</div>
+            </div>
+            <div class="live-cell">
+              <div class="live-label">Estimated Epoch ETA</div>
+              <div class="live-val" id="live-eta" style="font-size: 1.35rem; color: var(--warning);">-- min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Training Loss Chart -->
+      <div class="card col-7">
+        <div class="card-title">
+          <span><i data-lucide="trending-up"></i> Live DFlash Training Loss Curve</span>
+          <span class="tag tag-green" id="live-chart-tag">Auto-Updating Stream</span>
+        </div>
+        <div style="position: relative; height: 300px; width: 100%;">
+          <canvas id="lossChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Live Monospace Terminal Logs -->
+      <div class="card col-5">
+        <div class="card-title">
+          <span style="display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="terminal"></i> Live Training Console</span>
+          <span class="tag" style="font-size: 0.68rem; font-family: var(--font-mono);" id="live-console-source">docker stdout</span>
+        </div>
+        <div id="live-terminal-logs" style="height: 300px; overflow-y: auto; background: #05070a; border: 1px solid #141721; border-radius: 8px; padding: 0.85rem; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.5; color: #a1a1aa; white-space: pre-wrap;">
+          Connecting to container stream...
+        </div>
+      </div>
+
+      <!-- Round-2 measured checkpoints (parsed from full2_step_ckpt_eval.log; refreshes every 30 s) -->
+      <div class="card col-12" id="round2-checkpoints-card">
+        <div class="card-title">
+          <span><i data-lucide="flag"></i> Round-2 measured checkpoints</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+            <span class="tag tag-cyan" id="r2-ckpt-count">--</span>
+            <span class="tag" id="r2-ckpt-updated" style="font-family: var(--font-mono);">loading...</span>
+          </div>
+        </div>
+        <div id="r2-reference" class="r2-ref"></div>
+        <div id="r2-ckpt-list"></div>
+        <div id="r2-ckpt-pending" class="r2-pending"></div>
+      </div>
+
+      <!-- Exactly What We Are Training Card -->
+      <div class="card col-12">
+        <div class="card-title">
+          <span><i data-lucide="cpu"></i> What Exactly Is Being Trained: Weights, Layers & Loss Formulation</span>
+          <span class="tag tag-cyan">Full Gradient Optimization</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;">
+          <!-- Trained Tensors -->
+          <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 8px; border: 1px solid var(--card-border);">
+            <h4 style="font-size: 0.85rem; color: var(--accent); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+              <i data-lucide="layers"></i> 1. Trained Tensors & Parameters
+            </h4>
+            <ul style="font-size: 0.78rem; line-height: 1.6; color: var(--text-muted); list-style: none; padding: 0;">
+              <li>• <strong style="color: var(--text);"><code>fc.weight</code></strong>: <code>[25600, 5120]</code> (adapts 5 target layer inputs <code>[6, 20, 34, 48, 62]</code>)</li>
+              <li>• <strong style="color: var(--text);"><code>hidden_norm.weight</code></strong>: <code>[5120]</code> (RMSNorm after fusion)</li>
+              <li>• <strong style="color: var(--text);">5x Transformer Blocks</strong>: Q/K/V Attention (GQA), SwiGLU FFN, Layernorms</li>
+              <li>• <strong style="color: var(--text);"><code>norm.weight</code></strong>: <code>[5120]</code> (Output RMSNorm)</li>
+              <li>• <strong style="color: var(--text);"><code>markov_w1 / markov_w2</code></strong>: <code>[248320, 256]</code> (token transition bigram head)</li>
+              <li>• <strong style="color: var(--text);"><code>conf_proj_w / b</code></strong>: <code>[1, 5376]</code> (calibrated acceptance probability head)</li>
+            </ul>
+          </div>
+
+          <!-- Dataset & Inputs -->
+          <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 8px; border: 1px solid var(--card-border);">
+            <h4 style="font-size: 0.85rem; color: var(--accent-cyan); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+              <i data-lucide="database"></i> 2. Dataset & Cluster Inputs
+            </h4>
+            <ul style="font-size: 0.78rem; line-height: 1.6; color: var(--text-muted); list-style: none; padding: 0;">
+              <li>• <strong style="color: var(--text);">Dataset</strong>: <code>sahil2801/CodeAlpaca-20k</code> (20,022 sequences)</li>
+              <li>• <strong style="color: var(--text);">Volume</strong>: <strong>2,370,010 tokens</strong> of real Python code & logic</li>
+              <li>• <strong style="color: var(--text);">Cluster Extraction</strong>: Parallel GB10 extraction across <code>spark1</code> (10,000) & <code>spark2</code> (10,022)</li>
+              <li>• <strong style="color: var(--text);">Tapped Tensors</strong>: Intermediate residual stream before Attention/FFN layers</li>
+              <li>• <strong style="color: var(--text);">Interconnect</strong>: Dual 200Gbps Direct Attach Copper (400Gbps aggregate)</li>
+              <li>• <strong style="color: var(--text);">Dataloader</strong>: Multi-file zero-copy streaming direct to VRAM</li>
+            </ul>
+          </div>
+
+          <!-- Loss Formulation -->
+          <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 8px; border: 1px solid var(--card-border);">
+            <h4 style="font-size: 0.85rem; color: var(--warning); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+              <i data-lucide="binary"></i> 3. Dual Objective Loss Formulation
+            </h4>
+            <div style="font-size: 0.78rem; line-height: 1.6; color: var(--text-muted);">
+              <p style="margin-bottom: 0.4rem;"><strong style="color: var(--text);">Total Loss</strong>: $\mathcal{L} = \mathcal{L}_{\text{recon}} + 0.25 \times \mathcal{L}_{\text{conf}}$</p>
+              <p style="margin-bottom: 0.4rem;"><strong style="color: var(--text);">$\mathcal{L}_{\text{recon}}$</strong>: Cosine Similarity + MSE against Bonsai 2 Layer 62 representation (aligning drafter latent space with target model)</p>
+              <p style="margin-bottom: 0.4rem;"><strong style="color: var(--text);">$\mathcal{L}_{\text{conf}}$</strong>: Binary Cross-Entropy on $\text{BCEWithLogits}(\text{conf\_logits}, \mathbb{I}(\text{cos\_sim} \ge 0.85))$</p>
+              <p><strong style="color: var(--text);">Goal</strong>: Confidently emit 5 tokens per step with $\ge 95\%$ acceptance</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historical Training Runs & Evolution -->
+      <div class="card col-12">
+        <div class="card-title">
+          <span><i data-lucide="history"></i> Historic Training Runs, Benchmarks & Iteration Roadmap</span>
+          <span class="tag tag-green">4 Milestones Documented</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Run / Milestone</th>
+              <th>Dataset Scale</th>
+              <th>Loss Trajectory</th>
+              <th>Acceptance Rate</th>
+              <th>Speed (tok/s)</th>
+              <th>Outcome & Architectural Discovery</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Run 1: Exploratory Drafter</strong></td>
+              <td>1,000 samples</td>
+              <td>6.81 → 4.03</td>
+              <td><span class="tag tag-red">0.89% → 3.33%</span></td>
+              <td>13.2 → 18.9 tok/s</td>
+              <td style="color: var(--text-muted);">Proved feature extraction works; revealed massive Hadamard basis mismatch in runtime.</td>
+            </tr>
+            <tr>
+              <td><strong>Milestone: Hadamard Runtime Fix</strong></td>
+              <td>C++/CUDA runtime</td>
+              <td>N/A (C++ Patch)</td>
+              <td><strong style="color: var(--accent);">69.2% (K=2) / 100% (p=0.9)</strong></td>
+              <td><strong>37.9 → 47.9 tok/s</strong></td>
+              <td style="color: var(--text-muted);">Patched <code>tok_embd</code> inverse transform and <code>output.weight</code> rotation inheritance in llama.cpp.</td>
+            </tr>
+            <tr>
+              <td><strong>Run 2: 5-Epoch Calibrated Drafter</strong></td>
+              <td>1,000 samples (5 ep)</td>
+              <td>5.37 → 3.53</td>
+              <td><strong style="color: var(--accent);">95.83% (K=2) / 100% (K=3,4)</strong></td>
+              <td>26.1 tok/s (p=0.6) / 46.5 tok/s (p=0.0)</td>
+              <td style="color: var(--text-muted);">Trained <code>conf_proj</code> to eliminate rollbacks. Multi-quant benchmark proved Q4_K_M is optimal.</td>
+            </tr>
+            <tr style="background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent);">
+              <td><strong>Run 3: Full 20k Production Run (old trainer - superseded, see Run history)</strong></td>
+              <td><strong>20,022 Code Samples (2.37M toks)</strong></td>
+              <td><strong>Active Descending (3.50)</strong></td>
+              <td><strong style="color: var(--accent);">Target: 95%+ on K=5</strong></td>
+              <td><strong style="color: var(--accent);">Target: 100+ to 218 tok/s</strong></td>
+              <td style="color: var(--text);">Trained across full unified code dataset on GB10. Eliminates code vocabulary uncertainty for 5 tokens/step.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Hadamard Bug Resolution Card -->
+      <div class="card col-6">
+        <div class="card-title">
+          <span><i data-lucide="check-circle-2"></i> Runtime Bug Resolution: The Hadamard Fix</span>
+          <span class="tag tag-green">Resolved & Verified</span>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem;">
+          During initial testing against Bonsai 2, acceptance collapsed to <strong>0.89%</strong> (13.2 tok/s, -53% degradation).
+        </p>
+        <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem;">
+          <strong>Root Cause:</strong> PrismML's ternary base model applies Hadamard rotations. In <code>llama.cpp</code>'s DFlash runtime:
+        </p>
+        <ul style="font-size: 0.8rem; color: var(--text); padding-left: 1.25rem; margin-bottom: 0.75rem; line-height: 1.6;">
+          <li><code>tok_embd</code> was missing the inverse Hadamard transform</li>
+          <li><code>output.weight</code> was not inheriting <code>hadamard_rotations</code> from <code>ctx_other</code></li>
+        </ul>
+        <p style="font-size: 0.82rem; color: var(--text); line-height: 1.5;">
+          <strong>Result:</strong> After patching, acceptance jumped from <strong>0.89% to 69.23%</strong>, and throughput surged from <strong>13.20 tok/s to 47.85 tok/s</strong> (+72.2% over baseline).
+        </p>
+      </div>
+
+      <!-- Mafia Multi-Agent Track -->
+      <div class="card col-6">
+        <div class="card-title">
+          <span><i data-lucide="sparkles"></i> Mafia Multi-Agent Optimization Track</span>
+          <span class="tag tag-purple">Fable 5.1 Subagent Active</span>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem;">
+          Our Mafia subagent team is active, currently deploying Fable 5.1 to formulate multi-layer diffusion distillation loss to push generation past <strong>100+ tok/s</strong> at <strong>90-95%+ acceptance</strong>.
+        </p>
+        <table style="font-size: 0.8rem;">
+          <tr>
+            <td style="color: var(--text-muted);">Current Phase</td>
+            <td><strong style="color: var(--accent-purple);">Distillation Loss Reformulation</strong></td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Active Subagent</td>
+            <td><code>claude-fable-5-1</code> (OAuth session)</td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Current Throughput</td>
+            <td>47.85 tok/s (+72.2% over baseline)</td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Target Throughput</td>
+            <td><strong style="color: var(--accent);">100.0+ tok/s</strong> (3.6x over baseline)</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB: RUN HISTORY (all v2 runs, parsed from disk by /api/training/runs)    -->
+  <!-- ========================================================================= -->
+  <div id="tab-runs" class="tab-content">
+    <div class="grid-12">
+      <div class="card col-12">
+        <div class="card-title">
+          <span><i data-lucide="history"></i> Run history - every DSpark drafter run, in order</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+            <span class="tag tag-cyan" id="runs-count">--</span>
+            <span class="tag" id="runs-updated" style="font-family: var(--font-mono);">loading...</span>
+          </div>
+        </div>
+        <p class="runs-intro">
+          Numbers come from the logs in <code>dflash-training/v2/logs/</code>. Where a run has no <code>RESULT</code> lines on disk, the block is labeled
+          <span class="tag tag-purple">from note</span> and quotes the vault session note. GPU state is shown per eval: <span class="tag tag-green">clean</span> tok/s are valid;
+          <span class="tag tag-amber">contended</span> tok/s are not valid (acceptance still is). Baseline for multipliers: 29.8 tok/s (no drafter, same GPU, flat at any length).
+        </p>
+        <div id="runs-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB: LEARNINGS (vault session note rendered live via /api/notes)          -->
+  <!-- ========================================================================= -->
+  <div id="tab-learnings" class="tab-content">
+    <div class="grid-12">
+      <div class="card col-12" style="overflow: visible;">
+        <div class="card-title">
+          <span><i data-lucide="book-open"></i> Learnings - master session note</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+            <span class="tag" id="notes-path" style="font-family: var(--font-mono); max-width: 520px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</span>
+            <span class="tag tag-purple" id="notes-updated">last updated --</span>
+          </div>
+        </div>
+        <div class="notes-layout">
+          <nav class="notes-toc" id="notes-toc"></nav>
+          <article class="notes-body md" id="notes-body">loading the note...</article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 4: SEPARATE LIVE CONSOLE & LOGS                                       -->
+  <!-- ========================================================================= -->
+  <div id="tab-logs" class="tab-content">
+    <div class="grid-12">
+      <div class="card col-12">
+        <div class="card-title">
+          <span><i data-lucide="terminal"></i> Real-Time Server Console & Log Stream</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <label style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem;">
+              <input type="checkbox" id="autoscroll-toggle" checked> Autoscroll
+            </label>
+            <button class="btn btn-secondary" onclick="clearLogs()" style="padding: 0.25rem 0.65rem; font-size: 0.75rem;">
+              <i data-lucide="trash-2"></i> Clear Console
+            </button>
+          </div>
+        </div>
+        
+        <div class="terminal-window" id="terminal-stream">
+          [System] Real-time log stream initialized. Awaiting process output...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // Global State
+    let activeConfig = {
+      base_model: "PQ2_0",
+      speculative_enabled: true,
+      drafter: "trained_q4",
+      n_max: 4,
+      p_min: 0.0,
+      kv_cache_quant: "f16",
+      flash_attn: true,
+      context_size: 8192
+    };
+
+    let chatTargetNode = "spark1";
+
+    let lossChartInstance = null;
+    let benchChartInstance = null;
+    let paretoChartInstance = null;
+    let clusterTelemetryChartInstance = null;
+
+    let rollingHistory = {
+      labels: [],
+      sp1_util: [],
+      sp1_power: [],
+      sp2_util: [],
+      sp2_power: []
+    };
+
+    const PERSONAS = {
+      general: "You are Bonsai 2, a 27B native ternary language model on NVIDIA DGX Spark (GB10). Answer concisely and accurately.",
+      cuda: "You are an expert CUDA & C++ systems programmer specializing in tensor cores, inline PTX assembly, unified memory coherency, and low-latency inference on NVIDIA Blackwell GB10.",
+      code: "You are Bonsai 2, a concise, highly accurate code generator. Provide clean, well-tested code without unnecessary conversational filler.",
+      spec: "You are a Principal AI Systems Architect. Explain speculative decoding, Hadamard transforms, DFlash block diffusion, and ternary quantization with mathematical rigor."
+    };
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      const content = document.getElementById(tabId);
+      if (content) content.classList.add('active');
+
+      if (tabId === 'tab-unified') {
+        renderBenchmarkChart();
+        renderParetoChart();
+        loadMemoryBreakdown();
+      }
+      if (tabId === 'tab-training') {
+        loadTrainingLoss();
+        setTimeout(() => { if (lossChartInstance) lossChartInstance.resize(); }, 50);
+      }
+      if (tabId === 'tab-runs') loadRunHistory();
+      if (tabId === 'tab-learnings') loadNotes();
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      t.style.display = 'flex';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    // Math Formulas via KaTeX
+    function renderMathFormulas() {
+      if (window.katex) {
+        katex.render("\\alpha = \\min\\left(1, \\frac{P(x)}{Q(x)}\\right)", document.getElementById('math-inline-acceptance'));
+        katex.render("H_{2k} = \\frac{1}{\\sqrt{2}}\\begin{pmatrix} H_k & H_k \\\\ H_k & -H_k \\end{pmatrix}", document.getElementById('math-inline-hadamard'));
+      }
+    }
+
+    // Model & Quant Switching
+    async function selectBaseModel(quantId) {
+      activeConfig.base_model = quantId;
+      document.querySelectorAll('#card-quant-PQ2_0, #card-quant-PTQ1_0').forEach(c => c.classList.remove('selected'));
+      document.getElementById(`card-quant-${quantId}`).classList.add('selected');
+      
+      document.getElementById('active-quant-badge').textContent = `${quantId} · ${quantId === 'PTQ1_0' ? '32.8' : '47.9'} tok/s`;
+      document.getElementById('play-quant').textContent = `${quantId} (${quantId === 'PTQ1_0' ? '1.58' : '1.76'} bpw)`;
+      
+      await syncConfig();
+      await loadMemoryBreakdown();
+      showToast(`Selected Base Model: ${quantId}`);
+    }
+
+    async function selectDrafter(drafterId) {
+      activeConfig.drafter = drafterId;
+      document.querySelectorAll('[id^="card-drafter-"]').forEach(c => c.classList.remove('selected'));
+      const target = document.getElementById(`card-drafter-${drafterId}`);
+      if (target) target.classList.add('selected');
+
+      const names = {
+        "trained_q4": "Trained DFlash Q4_0",
+        "trained_conv": "Trained DFlash FP16",
+        "bonsai2_dspark_q4": "Bonsai 2 DSpark Q4_0",
+        "qwen38_mismatch": "Qwen 3.8 Mismatch",
+        "none": "None (Baseline)"
+      };
+
+      const label = names[drafterId] || drafterId;
+      document.getElementById('play-drafter').textContent = label;
+
+      await syncConfig();
+      await loadMemoryBreakdown();
+      showToast(`Selected Drafter: ${label}`);
+    }
+
+    async function toggleSpeculative(enabled) {
+      activeConfig.speculative_enabled = enabled;
+      const panel = document.getElementById('spec-controls-panel');
+      if (enabled) {
+        panel.style.opacity = '1';
+        panel.style.pointerEvents = 'auto';
+        document.getElementById('play-spec').textContent = 'Enabled';
+        document.getElementById('kpi-speed-val').textContent = '47.85 tok/s';
+      } else {
+        panel.style.opacity = '0.4';
+        panel.style.pointerEvents = 'none';
+        document.getElementById('play-spec').textContent = 'Disabled (Autoregressive)';
+        document.getElementById('kpi-speed-val').textContent = '27.79 tok/s';
+      }
+      await syncConfig();
+      await loadMemoryBreakdown();
+      showToast(`Speculative Decoding: ${enabled ? 'Enabled' : 'Disabled'}`);
+    }
+
+    function updateK(val) {
+      val = parseInt(val);
+      activeConfig.n_max = val;
+      document.getElementById('slider-k').value = val;
+      document.getElementById('val-k').textContent = `${val} tokens`;
+      document.getElementById('play-k').textContent = `${val} tokens`;
+
+      document.querySelectorAll('.preset-chips span').forEach(c => {
+        if (c.textContent.includes(`K=${val}`)) c.classList.add('active');
+        else if (c.textContent.includes('K=')) c.classList.remove('active');
+      });
+
+      syncConfig();
+    }
+
+    function updatePmin(val) {
+      val = parseFloat(val);
+      activeConfig.p_min = val;
+      document.getElementById('slider-pmin').value = val;
+      
+      let label = `${val.toFixed(2)}`;
+      if (val === 0.0) label += " (Greedy Draft)";
+      else if (val === 0.5) label += " (64.1% Acc)";
+      else if (val >= 0.9) label += " (100% Acc)";
+      document.getElementById('val-pmin').textContent = label;
+      document.getElementById('play-pmin').textContent = val.toFixed(2);
+
+      syncConfig();
+    }
+
+    async function updateKVQuant(isQ4) {
+      activeConfig.kv_cache_quant = isQ4 ? "q4_0" : "f16";
+      document.getElementById('play-kv').textContent = isQ4 ? "Q4_0 (4-bit)" : "FP16";
+      await syncConfig();
+      await loadMemoryBreakdown();
+      showToast(`KV Cache: ${activeConfig.kv_cache_quant}`);
+    }
+
+    function updateFlashAttn(enabled) {
+      activeConfig.flash_attn = enabled;
+      syncConfig();
+    }
+
+    async function syncConfig() {
+      try {
+        await fetch('/api/models/select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(activeConfig)
+        });
+      } catch (err) {}
+    }
+
+    // Memory Breakdown Map for Cluster
+    async function loadMemoryBreakdown() {
+      try {
+        const res = await fetch('/api/cluster/status');
+        const data = await res.json();
+        const sp1 = data.spark1;
+        const sp2 = data.spark2;
+        
+        const totalMb = sp1.memory_total_mb + sp2.memory_total_mb;
+        const totalGb = totalMb / 1024.0;
+        const usedMb = sp1.memory_used_mb + sp2.memory_used_mb;
+        const usedGb = usedMb / 1024.0;
+        const freeGb = totalGb - usedGb;
+
+        // Base & Drafter estimates on spark1
+        const baseGb = activeConfig.base_model === 'PQ2_0' ? 6.78 : 5.53;
+        const draftGb = activeConfig.drafter === 'trained_q4' ? 0.98 : (activeConfig.drafter === 'trained_conv' ? 7.0 : 0.6);
+        const sp1Other = Math.max(0, (sp1.memory_used_mb / 1024.0) - baseGb - draftGb);
+        const sp2Gb = sp2.memory_used_mb / 1024.0;
+
+        document.getElementById('seg-base').style.width = (baseGb / totalGb * 100).toFixed(1) + '%';
+        document.getElementById('seg-draft').style.width = (draftGb / totalGb * 100).toFixed(1) + '%';
+        document.getElementById('seg-sp2-used').style.width = (sp2Gb / totalGb * 100).toFixed(1) + '%';
+        document.getElementById('seg-os').style.width = (sp1Other / totalGb * 100).toFixed(1) + '%';
+        document.getElementById('seg-free').style.width = (freeGb / totalGb * 100).toFixed(1) + '%';
+
+        document.getElementById('mem-headroom-tag').textContent = `${freeGb.toFixed(1)} GB Headroom`;
+        document.getElementById('kpi-cluster-used-mem').textContent = `${usedGb.toFixed(1)} GB Used`;
+        document.getElementById('kpi-cluster-free-mem').textContent = `${freeGb.toFixed(1)} GB Free Headroom (Zero-Copy)`;
+
+        // Legend
+        const legend = document.getElementById('memory-legend');
+        legend.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #10b981;"></div><span>spark1 Base (${activeConfig.base_model}): <strong>${baseGb} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #06b6d4;"></div><span>spark1 Drafter: <strong>${draftGb} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #8b5cf6;"></div><span>spark2 Active/OS: <strong>${sp2Gb.toFixed(1)} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #ef4444;"></div><span>spark1 OS/Runtime: <strong>${sp1Other.toFixed(1)} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #161928; border: 1px solid rgba(255,255,255,0.1);"></div><span>Cluster Headroom: <strong>${freeGb.toFixed(1)} GB</strong></span></div>
+        `;
+      } catch (err) {}
+    }
+
+    // Speculative Token Simulation
+    function simulateTokenStep() {
+      const vocab = [
+        { draft: ["return", "n", "else:", "res"], ok: [true, true, false, false], corr: "elif" },
+        { draft: ["def", "solve", "(matrix,", "target):"], ok: [true, true, true, true], corr: "" },
+        { draft: ["for", "i", "in", "range(n):"], ok: [true, true, true, true], corr: "" },
+        { draft: ["tensor", "=", "torch.randn(", "shape)"], ok: [true, true, true, false], corr: "size)" }
+      ];
+      const pick = vocab[Math.floor(Math.random() * vocab.length)];
+
+      const draftRow = document.getElementById('tree-draft-row');
+      const targetRow = document.getElementById('tree-target-row');
+
+      draftRow.innerHTML = '<span style="font-size: 0.72rem; color: var(--text-muted); width: 130px;">DFlash Drafter:</span>';
+      targetRow.innerHTML = '<span style="font-size: 0.72rem; color: var(--text-muted); width: 130px;">Target Verification:</span>';
+
+      pick.draft.forEach((tok, idx) => {
+        const isOk = pick.ok[idx];
+        const draftPill = document.createElement('span');
+        draftPill.className = `token-pill ${isOk ? 'verified' : 'rejected'}`;
+        draftPill.innerHTML = `<code>${tok}</code> ${isOk ? '✓' : '✗'}`;
+        draftRow.appendChild(draftPill);
+
+        const targetPill = document.createElement('span');
+        if (isOk) {
+          targetPill.className = 'token-pill verified';
+          targetPill.textContent = `P=${(0.85 + Math.random()*0.14).toFixed(2)} Accept`;
+        } else {
+          targetPill.className = 'token-pill recovered';
+          targetPill.innerHTML = `<code>${pick.corr}</code> (Corrected)`;
+        }
+        targetRow.appendChild(targetPill);
+      });
+      showToast('Speculative step simulation re-rolled');
+    }
+
+    // Live Benchmark Runner
+    function setBenchPrompt(text) {
+      document.getElementById('bench-prompt-input').value = text;
+    }
+
+    async function runLiveBenchmark() {
+      const btn = document.getElementById('btn-run-bench');
+      const prompt = document.getElementById('bench-prompt-input').value.trim();
+      const n_predict = parseInt(document.getElementById('bench-tokens-select').value);
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Running...</span>';
+
+      const resultBox = document.getElementById('bench-live-result');
+      resultBox.classList.add('active');
+      document.getElementById('res-code-highlight').textContent = 'Executing hardware test on NVIDIA GB10...';
+
+      try {
+        const payload = {
+          base_model: activeConfig.base_model,
+          drafter: activeConfig.drafter,
+          speculative_enabled: activeConfig.speculative_enabled,
+          n_max: activeConfig.n_max,
+          p_min: activeConfig.p_min,
+          prompt: prompt,
+          n_predict: n_predict
+        };
+
+        const res = await fetch('/api/benchmark/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success && data.result) {
+          const r = data.result;
+          document.getElementById('res-gen-speed').textContent = `${r.gen_tok_s} tok/s`;
+          document.getElementById('res-prompt-speed').textContent = `${r.prompt_tok_s} tok/s`;
+          document.getElementById('res-acc-rate').textContent = `${r.acceptance_pct}%`;
+          document.getElementById('res-tokens-detail').textContent = `${r.n_accept} / ${r.n_drafted} draft tokens`;
+          document.getElementById('res-elapsed').textContent = `${r.elapsed_s} s`;
+          document.getElementById('res-tokens-count').textContent = `${r.n_predict} total tokens`;
+
+          const speedupBadge = document.getElementById('res-speedup-badge');
+          if (r.speedup_pct > 0) {
+            speedupBadge.textContent = `+${r.speedup_pct}% vs Baseline`;
+            speedupBadge.style.color = 'var(--accent)';
+          } else {
+            speedupBadge.textContent = `${r.speedup_pct}% vs Baseline`;
+            speedupBadge.style.color = 'var(--danger)';
+          }
+
+          const codeEl = document.getElementById('res-code-highlight');
+          codeEl.textContent = r.generated_text || data.raw_output;
+          if (window.Prism) Prism.highlightElement(codeEl);
+
+          showToast(`Benchmark: ${r.gen_tok_s} tok/s (${r.acceptance_pct}% acc)`);
+          await loadBenchmarkHistory();
+          renderBenchmarkChart();
+          renderParetoChart();
+        }
+      } catch (err) {
+        document.getElementById('res-code-highlight').textContent = 'Error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="zap"></i> Run Benchmark';
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    async function runBatchBenchmark() {
+      const btn = document.getElementById('btn-batch-bench');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Sweeping...</span>';
+      try {
+        const res = await fetch('/api/benchmark/batch', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Batch comparison complete: ${data.results.length} configurations evaluated`);
+          await loadBenchmarkHistory();
+          renderBenchmarkChart();
+          renderParetoChart();
+        }
+      } catch (err) {
+        showToast('Batch sweep failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="list"></i> Sweep All';
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    // Export Data
+    async function exportData(format) {
+      if (format === 'markdown') {
+        const res = await fetch('/api/benchmark/export?format=markdown');
+        const text = await res.text();
+        await navigator.clipboard.writeText(text);
+        showToast('Copied Markdown benchmark table to clipboard!');
+      } else if (format === 'csv') {
+        window.location.href = '/api/benchmark/export?format=csv';
+      } else if (format === 'json') {
+        window.location.href = '/api/benchmark/export?format=json';
+      }
+    }
+
+    // Benchmark History & Charts
+    async function loadBenchmarkHistory() {
+      try {
+        const res = await fetch('/api/benchmark/history');
+        const data = await res.json();
+        const tbody = document.getElementById('benchmark-table-body');
+        tbody.innerHTML = '';
+
+        data.history.forEach(row => {
+          const tr = document.createElement('tr');
+          const isBaseline = row.drafter === 'none';
+          const isMismatch = row.drafter === 'qwen38_mismatch';
+
+          let accTag = `<span class="tag tag-green">${row.acceptance_pct}%</span>`;
+          if (isBaseline) accTag = `<span class="tag">N/A</span>`;
+          else if (isMismatch) accTag = `<span class="tag tag-red">${row.acceptance_pct}%</span>`;
+
+          let speedupTag = `<span class="tag tag-green">+${row.speedup_pct || ((row.gen_tok_s - 27.79)/27.79*100).toFixed(1)}%</span>`;
+          if (isBaseline) speedupTag = `<span class="tag">1.0x</span>`;
+          else if (row.gen_tok_s < 27.79) speedupTag = `<span class="tag tag-red">${((row.gen_tok_s - 27.79)/27.79*100).toFixed(1)}%</span>`;
+
+          tr.innerHTML = `
+            <td><strong>${row.notes || row.id}</strong></td>
+            <td><span class="tag ${row.base_model === 'PTQ1_0' ? 'tag-cyan' : ''}">${row.base_model}</span></td>
+            <td>${row.drafter}</td>
+            <td>${row.n_max > 0 ? 'K=' + row.n_max : '-'}</td>
+            <td>${row.p_min !== undefined ? row.p_min : '-'}</td>
+            <td><strong style="color: ${row.gen_tok_s > 35 ? 'var(--accent)' : 'var(--text)'};">${row.gen_tok_s} tok/s</strong></td>
+            <td>${row.prompt_tok_s} tok/s</td>
+            <td>${accTag}</td>
+            <td>${speedupTag}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {}
+    }
+
+    function renderBenchmarkChart() {
+      const ctx = document.getElementById('benchChart').getContext('2d');
+      if (benchChartInstance) benchChartInstance.destroy();
+
+      const labels = [
+        'PQ2_0 Base',
+        'PTQ1_0 Base',
+        'Qwen Mismatch',
+        'DFlash K=2',
+        'DFlash K=3',
+        'DFlash K=4',
+        'DFlash K=5',
+        'DFlash p=0.5',
+        'Target Goal'
+      ];
+      const speeds = [27.79, 32.83, 13.20, 37.89, 43.65, 46.54, 47.85, 47.92, 100.0];
+      const colors = ['#64748b', '#06b6d4', '#f43f5e', '#10b981', '#10b981', '#10b981', '#10b981', '#06b6d4', '#8b5cf6'];
+
+      benchChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Speed (tok/s)',
+            data: speeds,
+            backgroundColor: colors,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 } } }
+          }
+        }
+      });
+    }
+
+    function renderParetoChart() {
+      const ctx = document.getElementById('paretoChart').getContext('2d');
+      if (paretoChartInstance) paretoChartInstance.destroy();
+
+      const dataPoints = [
+        { x: 6.78, y: 27.79, label: 'PQ2_0 Base' },
+        { x: 5.53, y: 32.83, label: 'PTQ1_0 Base' },
+        { x: 7.78, y: 37.89, label: 'DFlash K=2' },
+        { x: 7.78, y: 46.54, label: 'DFlash K=4' },
+        { x: 7.78, y: 47.85, label: 'DFlash K=5' },
+        { x: 6.53, y: 45.20, label: 'PTQ1_0+DFlash' },
+        { x: 7.78, y: 13.20, label: 'Qwen Mismatch' }
+      ];
+
+      paretoChartInstance = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: [{
+            label: 'Configs',
+            data: dataPoints,
+            backgroundColor: '#10b981',
+            borderColor: '#06b6d4',
+            pointRadius: 6,
+            pointHoverRadius: 9
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.raw.label}: ${ctx.raw.y} tok/s (${ctx.raw.x} GB VRAM)`
+              }
+            },
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              title: { display: true, text: 'VRAM (GB)', color: '#94a3b8', font: { size: 10 } },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              title: { display: true, text: 'Speed (tok/s)', color: '#94a3b8', font: { size: 10 } },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // Shared formatting helpers (numbers stay in JetBrains Mono via .num)
+    // ------------------------------------------------------------------
+    const BASELINE_TOK_S = 29.8;
+    function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
+    function setHtml(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+    function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function isNil(v) { return v === null || v === undefined; }
+    function fmtInt(n) { return isNil(n) ? '--' : Number(n).toLocaleString('en-US'); }
+    function fmtNum(v, d = 1) { return (isNil(v) || isNaN(v)) ? '--' : Number(v).toFixed(d); }
+    function fmtPct(v, d = 1) { return isNil(v) ? '--' : `${Number(v).toFixed(d)}%`; }
+    function fmtMin(m) {
+      if (isNil(m) || isNaN(m)) return '--';
+      if (m < 60) return `${Number(m).toFixed(1)} min`;
+      const h = Math.floor(m / 60), mm = Math.round(m - h * 60);
+      return `${h}h ${String(mm).padStart(2, '0')}m`;
+    }
+    function mult(tok) { return isNil(tok) ? '--' : `${(tok / BASELINE_TOK_S).toFixed(2)}x`; }
+    function gpuTag(state, host) {
+      const h = host ? ` · ${esc(host)}` : '';
+      if (state === 'clean') return `<span class="tag tag-green">GPU clean${h}</span>`;
+      if (state === 'contended') return `<span class="tag tag-amber">GPU contended${h} - tok/s not valid</span>`;
+      return `<span class="tag tag-muted">GPU state unknown${h}</span>`;
+    }
+    function modeTag(tau) {
+      return isNil(tau)
+        ? '<span class="tag tag-green">exact</span>'
+        : `<span class="tag tag-amber">tau=${tau} typical acceptance - short-form only</span>`;
+    }
+
+    // ------------------------------------------------------------------
+    // Live trainer stream: v2 (round-2, train_dspark_v2.py) and v1 (old trainer)
+    // ------------------------------------------------------------------
+    let trainingEventSource = null;
+    let lastPlottedStep = -1;
+    let lastPlottedFormat = null;
+    let liveMetaKey = null;
+
+    function renderLiveLossChart(steps, format) {
+      if (!steps || steps.length === 0) return;
+      const lastStep = steps[steps.length - 1].step;
+      if (lastStep === lastPlottedStep && format === lastPlottedFormat && lossChartInstance) return;
+      lastPlottedStep = lastStep;
+      lastPlottedFormat = format;
+
+      const labels = steps.map(l => l.step);
+      const ctx = document.getElementById('lossChart').getContext('2d');
+      if (lossChartInstance) lossChartInstance.destroy();
+
+      const monoTicks = { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 } };
+      const scales = {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { ...monoTicks, maxTicksLimit: 12 },
+             title: { display: true, text: 'step', color: '#71717a', font: { family: 'JetBrains Mono', size: 9 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: monoTicks }
+      };
+      const datasets = [];
+      if (format === 'v2') {
+        datasets.push({ label: 'total loss', data: steps.map(l => l.loss), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2, yAxisID: 'y' });
+        datasets.push({ label: 'l1', data: steps.map(l => l.l1), borderColor: '#06b6d4', borderDash: [4, 4], fill: false, tension: 0.3, pointRadius: 0, borderWidth: 1.5, yAxisID: 'y' });
+        datasets.push({ label: 'ce', data: steps.map(l => l.ce), borderColor: '#f59e0b', borderDash: [2, 3], fill: false, tension: 0.3, pointRadius: 0, borderWidth: 1.5, yAxisID: 'y' });
+        datasets.push({ label: 'acc (train batch, right axis)', data: steps.map(l => l.acc), borderColor: '#9d4edd', fill: false, tension: 0.3, pointRadius: 0, borderWidth: 1.5, yAxisID: 'y2' });
+        scales.y.suggestedMin = 0;
+        scales.y2 = { position: 'right', min: 0, max: 1, grid: { drawOnChartArea: false }, ticks: { color: '#9d4edd', font: { family: 'JetBrains Mono', size: 9 } } };
+      } else {
+        datasets.push({ label: 'Total Loss', data: steps.map(l => l.loss), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', fill: true, tension: 0.35, pointRadius: 2 });
+        datasets.push({ label: 'Reconstruction Loss', data: steps.map(l => (isNil(l.recon_loss) ? l.loss : l.recon_loss)), borderColor: '#06b6d4', borderDash: [4, 4], fill: false, tension: 0.35, pointRadius: 0 });
+        scales.y.suggestedMin = 3.0;
+        scales.y.suggestedMax = 5.5;
+      }
+
+      lossChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 300 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 12 } } },
+          scales
+        }
+      });
+    }
+
+    function renderLiveRunMeta(run) {
+      const box = document.getElementById('live-run-meta');
+      if (!box) return;
+      if (!run) { box.innerHTML = ''; liveMetaKey = null; return; }
+      const key = JSON.stringify([run.name, run.indexed_samples, run.log_source, run.container_id]);
+      if (key === liveMetaKey) return;
+      liveMetaKey = key;
+      const chips = [];
+      if (run.samples) chips.push(`${fmtInt(run.indexed_samples || run.samples)} samples · ${(run.sample_files || []).join(' + ')} (~${run.approx_tokens_label || '?'} tokens)`);
+      if (run.warm_start) chips.push(`warm-start: ${run.warm_start}`);
+      if (run.epochs) chips.push(`${run.epochs} epoch · batch ${run.batch_size} · lr ${run.lr} · anchors ${run.num_anchors}`);
+      if (run.checkpoint_steps) chips.push(`checkpoint every ${run.save_every} steps: ${run.checkpoint_steps.join(' / ')}`);
+      if (run.sec_per_step_nominal) chips.push(`~${run.sec_per_step_nominal} s/step nominal`);
+      if (run.log_source) chips.push(`log: ${run.log_source}`);
+      if (run.container_id) chips.push(`container ${run.container_id}`);
+      box.innerHTML = chips.map(c => `<span class="tag">${esc(c)}</span>`).join('');
+    }
+
+    function applyLiveStatus(live) {
+      const status = (live && live.status) || 'not running';
+      const tag = document.getElementById('live-training-status');
+      const pulse = document.getElementById('live-pulse');
+      const card = document.getElementById('live-training-card');
+      if (tag) {
+        if (status === 'running') { tag.className = 'tag tag-green'; tag.textContent = `RUNNING${live.run && live.run.container_id ? ' · ' + live.run.container_id : ''}`; }
+        else if (status === 'finished') { tag.className = 'tag tag-cyan'; tag.textContent = 'FINISHED'; }
+        else { tag.className = 'tag tag-amber'; tag.textContent = 'NOT RUNNING'; }
+      }
+      if (pulse) pulse.style.display = status === 'running' ? '' : 'none';
+      if (card) card.style.borderColor = status === 'running' ? 'rgba(16, 185, 129, 0.4)' : 'var(--card-border)';
+      setText('live-format-tag', live && live.format ? `trainer ${live.format}` : 'trainer --');
+      setText('live-run-title', (live && live.run && live.run.name) || 'DFlash drafter training run');
+      const v2 = document.getElementById('live-v2-metrics');
+      const v1 = document.getElementById('live-v1-metrics');
+      if (v2 && v1) {
+        const isV1 = live && live.format === 'v1';
+        v2.style.display = isV1 ? 'none' : '';
+        v1.style.display = isV1 ? '' : 'none';
+      }
+      renderLiveRunMeta(live ? live.run : null);
+      setText('live-console-source', (live && live.run && live.run.log_source) || 'docker stdout');
+    }
+
+    function applyLiveV2(live) {
+      setText('live-progress-text', `step ${fmtInt(live.step)} / ${fmtInt(live.total_steps)} · ep ${live.epoch}/${live.total_epochs} · ${fmtInt(live.samples_seen)} / ${fmtInt(live.total_samples)} samples · elapsed ${fmtMin(live.elapsed_min)}`);
+      setText('live-progress-pct', `${live.progress_pct}%`);
+      if (live.status === 'running') setText('live-progress-eta', `ETA ${fmtMin(live.eta_min)} (mean ${fmtNum(live.sec_per_step, 1)} s/step)`);
+      else if (live.status === 'finished') setText('live-progress-eta', 'complete');
+      else setText('live-progress-eta', 'ETA n/a (not running)');
+      const bar = document.getElementById('live-progress-bar');
+      if (bar) bar.style.width = `${live.progress_pct}%`;
+
+      setText('live-loss', fmtNum(live.loss, 4));
+      setText('live-loss-ma', `10-entry mean ${fmtNum(live.loss_ma10, 4)}`);
+      setText('live-ce', fmtNum(live.ce, 4));
+      setText('live-l1', fmtNum(live.l1, 4));
+      setText('live-conf', fmtNum(live.conf, 4));
+      setText('live-acc', fmtNum(live.acc, 3));
+      setText('live-acc-p', `acc_p ${fmtNum(live.acc_p, 3)}`);
+      setText('live-acc-ma', `10-entry mean ${fmtNum(live.acc_ma10, 3)}`);
+      setText('live-lr', live.lr);
+      setText('live-lr-flag', `flag --lr ${(live.run && live.run.lr) || '--'} · vram ${fmtNum(live.vram_gb, 1)} G`);
+      setText('live-step-time', `${fmtNum(live.sec_per_step, 1)} s/step`);
+      setText('live-step-time-recent', `last 10 log entries: ${isNil(live.sec_per_step_recent) ? '--' : fmtNum(live.sec_per_step_recent, 1) + ' s/step'}`);
+      const ck = live.latest_checkpoint;
+      const next = live.next_checkpoint_step ? `next: step ${live.next_checkpoint_step}` : 'next: none';
+      setText('live-checkpoint', ck ? (ck.final ? 'final' : `step ${ck.step}`) : 'none yet');
+      setText('live-checkpoint-next', ck ? `${ck.file} · ${ck.n_tensors} tensors · ${next}` : next);
+      setText('live-chart-tag', `step ${live.step}/${live.total_steps} · loss ${fmtNum(live.loss, 4)} · acc ${fmtNum(live.acc, 3)}`);
+    }
+
+    function applyLiveV1(live) {
+      const cur = live.current;
+      setText('live-progress-text', `Step ${cur.step} / ${cur.total_steps} (Epoch ${cur.epoch}/${cur.total_epochs}) · 20,022 Samples`);
+      setText('live-progress-pct', `${live.progress_pct}%`);
+      setText('live-progress-eta', `ETA ${fmtMin(cur.eta_min)}`);
+      const bar = document.getElementById('live-progress-bar');
+      if (bar) bar.style.width = `${live.progress_pct}%`;
+      setText('live-loss-v1', cur.loss.toFixed(4));
+      setText('live-loss-delta', `${live.loss_delta > 0 ? '+' : ''}${live.loss_delta.toFixed(4)} (${live.loss_delta_pct}%)`);
+      setText('live-recon-loss', cur.recon_loss.toFixed(4));
+      setText('live-conf-loss', cur.conf_loss.toFixed(4));
+      setText('live-lr-v1', cur.lr);
+      const seenK = (live.tokens_seen / 1000).toFixed(0);
+      setText('live-tokens-seen', `${seenK}k / 2.37M (${((live.tokens_seen / 2370010) * 100).toFixed(1)}%)`);
+      setText('live-throughput', `${live.tokens_per_sec} tok/s · ${live.samples_per_sec} s/s`);
+      setText('live-step-latency', `${live.step_latency_ms} ms/step`);
+      setText('live-eta', `${cur.eta_min.toFixed(1)} min`);
+      setText('live-chart-tag', `Live: Step ${cur.step}/${cur.total_steps} · Loss ${cur.loss.toFixed(4)}`);
+    }
+
+    function initTrainingStream() {
+      if (trainingEventSource) return;
+      trainingEventSource = new EventSource('/api/training/stream');
+      trainingEventSource.onopen = () => setText('live-sse-status', 'SSE STREAM LIVE (1.2s)');
+      trainingEventSource.onmessage = (e) => {
+        try {
+          const live = JSON.parse(e.data);
+          applyLiveStatus(live);
+
+          if (live && live.recent_logs && live.recent_logs.length > 0) {
+            const term = document.getElementById('live-terminal-logs');
+            if (term) {
+              term.textContent = live.recent_logs.join('\n');
+              term.scrollTop = term.scrollHeight;
+            }
+          }
+
+          if (!live || !live.current) {
+            setText('live-progress-text', 'no trainer log found (no container, no train_full2.log)');
+            return;
+          }
+          if (live.format === 'v2') applyLiveV2(live); else applyLiveV1(live);
+          if (live.steps && live.steps.length > 0) renderLiveLossChart(live.steps, live.format);
+        } catch (err) {
+          console.error('SSE parse error:', err);
+        }
+      };
+      trainingEventSource.onerror = () => setText('live-sse-status', 'RECONNECTING...');
+    }
+
+    // Called by switchTab('tab-training'). The stream starts on page load; this is a no-op guard.
+    function loadTrainingLoss() {
+      initTrainingStream();
+      if (!r2RefRendered) loadRound2Checkpoints();
+    }
+
+    // Start stream immediately on page load
+    initTrainingStream();
+
+    // ------------------------------------------------------------------
+    // Round-2 measured checkpoints (/api/training/checkpoints, refresh 30 s)
+    // ------------------------------------------------------------------
+    let r2RefRendered = false;
+
+    function renderR2Reference(ref) {
+      if (r2RefRendered || !ref) return;
+      r2RefRendered = true;
+      const priors = (ref.prior_drafters || []).map(p => {
+        const acc = isNil(p.accept_pct) ? '' : `${fmtPct(p.accept_pct)} / `;
+        return `<span>${esc(p.name)} · ${esc(p.metric)} · K=${p.K} ${esc(p.mode)}: <strong>${acc}${fmtNum(p.tok_s)} tok/s</strong></span>`;
+      }).join('');
+      setHtml('r2-reference', `
+        <span>baseline (no drafter): <strong>${fmtNum(ref.baseline_tok_s)} tok/s</strong> - ${esc(ref.baseline_note)}</span>
+        ${priors}
+        <span class="r2-ref-note">${esc(ref.exactness_note)} Short-form rows = ${ref.short_form_tokens} tokens; long-form = ${fmtInt(ref.longform_budget_tokens)}-token budget. Multipliers = tok/s / ${fmtNum(ref.baseline_tok_s)}.</span>`);
+    }
+
+    function shortFormTable(results) {
+      if (!results || !results.length) return '<div class="r2-empty">no short-form rows logged</div>';
+      const rows = results.map(r => `<tr>
+          <td>${modeTag(r.tau)}</td>
+          <td>${esc(r.prompt)}</td>
+          <td class="num">${fmtPct(r.accept_pct)}</td>
+          <td class="num"><strong>${fmtNum(r.tok_s)}</strong></td>
+          <td class="num">${r.n_accept}/${r.n_drafted}</td>
+          <td class="num">${mult(r.tok_s)}</td>
+        </tr>`).join('');
+      return `<table><thead><tr><th>mode</th><th>prompt</th><th>accept</th><th>tok/s</th><th>acc/drafted</th><th>vs 29.8</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function longFormTable(c) {
+      if (!c.longform || !c.longform.length) return '<div class="r2-empty">no long-form eval logged for this checkpoint</div>';
+      const rows = c.longform.map(r => `<tr>
+          <td>${esc(r.prompt_id)} · ${esc(r.prompt_name)}</td>
+          <td class="num">${fmtInt(r.n_decoded)}</td>
+          <td class="num"><strong>${fmtNum(r.tok_s)}</strong></td>
+          <td class="num">${r.n_accept}/${r.n_drafted}</td>
+          <td class="num">${fmtPct(r.accept_pct)}</td>
+          <td class="num">${mult(r.tok_s)}</td>
+        </tr>`).join('');
+      const meanX = isNil(c.longform_mean_multiplier) ? mult(c.longform_mean_tok_s) : `${Number(c.longform_mean_multiplier).toFixed(2)}x`;
+      const mean = isNil(c.longform_mean_tok_s) ? '' :
+        `<tr class="r2-mean-row"><td>mean over ${c.longform_mean_n} (${esc(c.longform_mean_mode || 'exact')})</td><td></td><td class="num">${fmtNum(c.longform_mean_tok_s)}</td><td></td><td></td><td class="num">${meanX}</td></tr>`;
+      return `<table><thead><tr><th>prompt</th><th>decoded</th><th>tok/s</th><th>acc/drafted</th><th>accept</th><th>vs 29.8</th></tr></thead><tbody>${rows}${mean}</tbody></table>`;
+    }
+
+    function renderRound2Checkpoints(data) {
+      renderR2Reference(data.reference);
+      const expected = data.expected_checkpoint_steps || [];
+      const totalSteps = expected.length ? Math.max(...expected) : 0;
+      setText('r2-ckpt-count', `${data.checkpoints.length} of ${expected.length} checkpoints measured`);
+      setText('r2-ckpt-updated', `log ${data.log_mtime_iso ? data.log_mtime_iso.slice(11) : '--'} · refresh 30 s`);
+      const list = data.checkpoints.map(c => {
+        const evalTs = c.eval_started ? `<span class="tag tag-muted">eval started ${esc(c.eval_started)}</span>` : '';
+        const pct = totalSteps ? `<span class="tag tag-muted">${(c.step / totalSteps * 100).toFixed(1)}% of the epoch</span>` : '';
+        return `<div class="r2-ckpt" id="r2-ckpt-${c.step}">
+          <div class="r2-ckpt-head">
+            <span class="r2-ckpt-step">step ${c.step}</span>${pct}${gpuTag(c.gpu_state, c.eval_host)}${evalTs}
+            <span class="tag tag-muted">K=5 · PQ2_0 base · temp 0</span>
+          </div>
+          <div class="r2-tables">
+            <div><div class="r2-sub">short-form · ${data.reference.short_form_tokens} tokens</div>${shortFormTable(c.results)}</div>
+            <div><div class="r2-sub">long-form · ${fmtInt(data.reference.longform_budget_tokens)}-token budget · exact</div>${longFormTable(c)}</div>
+          </div>
+        </div>`;
+      }).join('');
+      setHtml('r2-ckpt-list', list || '<div class="r2-empty">no checkpoint has been evaluated yet</div>');
+      const pending = data.pending_steps || [];
+      setText('r2-ckpt-pending', pending.length
+        ? `not yet measured: ${pending.map(s => (s === totalSteps ? `${s} (final)` : s)).join(' · ')}`
+        : 'all expected checkpoints measured');
+    }
+
+    async function loadRound2Checkpoints() {
+      try {
+        const res = await fetch('/api/training/checkpoints', { cache: 'no-store' });
+        renderRound2Checkpoints(await res.json());
+      } catch (err) {
+        setText('r2-ckpt-updated', 'fetch failed');
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Run history (/api/training/runs, refresh 60 s)
+    // ------------------------------------------------------------------
+    function statusTag(status) {
+      const s = String(status || 'unknown');
+      if (s.startsWith('running')) return `<span class="tag tag-green">${esc(s)}</span>`;
+      if (s.startsWith('finished')) return `<span class="tag tag-cyan">${esc(s)}</span>`;
+      if (s.startsWith('stopped')) return `<span class="tag tag-amber">${esc(s)}</span>`;
+      return `<span class="tag tag-muted">${esc(s)}</span>`;
+    }
+
+    function runCell(label, value, sub) {
+      return `<div class="run-cell"><div class="live-label">${esc(label)}</div><div class="live-val">${value}</div>${sub ? `<div class="live-sub">${sub}</div>` : ''}</div>`;
+    }
+
+    function k5Table(best) {
+      const keys = ['math', 'code', 'code2'].filter(k => best && best[k]);
+      if (!keys.length) return `<div class="r2-empty">${esc((best && best.source) || 'no K=5 exact rows')}</div>`;
+      const tokValid = !/not valid|invalid|contended/i.test(best.source || '');
+      const rows = keys.map(k => {
+        const r = best[k];
+        return `<tr><td>${esc(k)}</td><td class="num">${fmtPct(r.accept_pct)}</td><td class="num">${fmtNum(r.tok_s)}${tokValid ? '' : ' *'}</td><td class="num">${tokValid ? mult(r.tok_s) : '--'}</td><td class="num">${isNil(r.n_accept) ? '' : `${r.n_accept}/${r.n_drafted}`}</td></tr>`;
+      }).join('');
+      return `<div class="r2-sub">best K=5 exact · 200 tokens</div>
+        <table><thead><tr><th>prompt</th><th>accept</th><th>tok/s</th><th>vs 29.8</th><th>acc/drafted</th></tr></thead><tbody>${rows}</tbody></table>
+        <div class="live-sub">source: ${esc(best.source || '')}${tokValid ? '' : ' · * tok/s not valid (contended GPU)'}</div>`;
+    }
+
+    function resultsTable(results, tokValid) {
+      const rows = results.map(r => `<tr>
+        <td class="num">K=${r.K}</td>
+        <td>${modeTag(r.tau)}</td>
+        <td>${esc(r.prompt)}</td>
+        <td class="num">${fmtPct(r.accept_pct)}</td>
+        <td class="num">${fmtNum(r.tok_s)}${tokValid ? '' : ' *'}</td>
+        <td class="num">${tokValid ? mult(r.tok_s) : '--'}</td>
+        <td class="num">${r.n_accept}/${r.n_drafted}</td>
+      </tr>`).join('');
+      return `<div class="r2-sub">all logged rows · 200 tokens${tokValid ? '' : ' · * tok/s not valid (contended GPU)'}</div>
+        <table><thead><tr><th>K</th><th>mode</th><th>prompt</th><th>accept</th><th>tok/s</th><th>vs 29.8</th><th>acc/drafted</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function perCheckpointTable(r) {
+      const steps = Object.keys(r.per_checkpoint_k5_exact || {}).map(Number).sort((a, b) => a - b);
+      if (!steps.length) return '<div class="r2-empty">no checkpoint measured yet</div>';
+      const cellFor = (x) => x ? `<td class="num">${fmtPct(x.accept_pct)} / ${fmtNum(x.tok_s)}</td>` : '<td class="num">--</td>';
+      const rows = steps.map(s => {
+        const c = r.per_checkpoint_k5_exact[s];
+        return `<tr><td class="num">step ${s}</td><td>${gpuTag(c.gpu_state)}</td>${cellFor(c.math)}${cellFor(c.code)}${cellFor(c.code2)}<td class="num">${isNil(c.longform_mean_tok_s) ? '--' : `${fmtNum(c.longform_mean_tok_s)} (${mult(c.longform_mean_tok_s)})`}</td></tr>`;
+      }).join('');
+      return `<div class="r2-sub">per checkpoint · K=5 exact · accept / tok/s</div>
+        <table><thead><tr><th>ckpt</th><th>gpu</th><th>math</th><th>code</th><th>code2</th><th>long-form mean</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function gatesHtml(g) {
+      let html = '';
+      if (g.longcode && g.longcode.rows && g.longcode.rows.length) {
+        html += `<div class="r2-sub" style="margin-top: 0.8rem;">long-code gate · ${esc(g.longcode.conditions)}</div>
+          <table><thead><tr><th>mode</th><th>terminated</th><th>repetition loops</th><th>decode tok/s</th></tr></thead><tbody>` +
+          g.longcode.rows.map(x => `<tr><td>${x.tau === 0 ? '<span class="tag tag-green">exact (tau 0)</span>' : `<span class="tag tag-amber">tau=${x.tau}</span>`}</td><td class="num">${x.terminated}/${x.n}</td><td class="num">${x.repetition_loops}/${x.n}</td><td class="num">${fmtNum(x.decode_tok_s)}</td></tr>`).join('') +
+          '</tbody></table>';
+      }
+      if (g.gsm8k && g.gsm8k.rows && g.gsm8k.rows.length) {
+        html += `<div class="r2-sub" style="margin-top: 0.8rem;">GSM8K quality gate · ${esc(g.gsm8k.conditions)}</div>
+          <table><thead><tr><th>mode</th><th>exact-match</th><th>wall</th></tr></thead><tbody>` +
+          g.gsm8k.rows.map(x => `<tr><td>${x.tau === 0 ? '<span class="tag tag-green">exact (tau 0)</span>' : `<span class="tag tag-amber">tau=${x.tau}</span>`}</td><td class="num">${x.correct}/${x.n} = ${fmtPct(x.exact_match_pct)}</td><td class="num">${fmtInt(x.wall_s)} s</td></tr>`).join('') +
+          '</tbody></table>';
+      }
+      if (g.errors && g.errors.length) html += `<div class="live-sub">first GSM8K attempt failed and was re-run as gsm8k_gate_v2: ${esc(g.errors[0].slice(0, 120))}</div>`;
+      return html;
+    }
+
+    function noteBlock(nb) {
+      if (!nb || !nb.rows || !nb.rows.length) return '';
+      const keys = Object.keys(nb.rows[0]);
+      const label = (k) => k.replace(/_accept_pct$/, ' accept').replace(/_pct$/, ' %').replace(/_tok_s$/, ' tok/s').replace(/_/g, ' ');
+      const head = keys.map(k => `<th>${esc(label(k))}</th>`).join('');
+      const body = nb.rows.map(r => `<tr>${keys.map(k => {
+        const v = r[k];
+        if (typeof v === 'number') return `<td class="num">${k.endsWith('_pct') ? fmtPct(v) : (k.endsWith('_tok_s') ? fmtNum(v) : v)}</td>`;
+        return `<td>${esc(v)}</td>`;
+      }).join('')}</tr>`).join('');
+      return `<div style="margin-top: 0.8rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap;"><span class="tag tag-purple">from note</span><span style="font-size: 0.74rem; color: var(--text-muted);">${esc(nb.conditions || '')}</span></div>
+        <table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
+        <div class="live-sub">${esc(nb.source)}</div></div>`;
+    }
+
+    function renderRunCard(r) {
+      const t = r.train || {};
+      const ev = r.eval;
+      const facts = [
+        `dataset: ${r.dataset}`,
+        `lr flag ${r.lr_flag || 'n/a'} · logged peak ${t.lr_logged_max || '--'}`,
+        `${r.epochs} epoch${r.epochs > 1 ? 's' : ''}${r.max_steps ? ` · max ${r.max_steps} steps` : ''} · batch ${r.batch_size} · anchors ${r.num_anchors}`,
+        `warm-start: ${r.warm_start}`,
+      ];
+      if (r.node) facts.push(`node: ${r.node}`);
+      if (r.train_slice) facts.push(`train slice: ${r.train_slice}`);
+      if (r.launched_at) facts.push(`launched ${r.launched_at}`);
+
+      const trainCells = !isNil(t.last_step) ? [
+        runCell('steps logged', `${fmtInt(t.last_step)} / ${fmtInt(t.total_steps)}`, `ep ${t.last_epoch}/${t.total_epochs} · ${fmtMin(t.elapsed_min)} · ${fmtNum(t.sec_per_step, 1)} s/step`),
+        runCell('final loss (last logged)', fmtNum(t.final_loss, 4), `10-entry mean ${fmtNum(t.loss_ma10, 4)} · first ${fmtNum(t.first_loss, 4)}`),
+        runCell('final acc (train batch)', fmtNum(t.final_acc, 3), `10-entry mean ${fmtNum(t.acc_ma10, 3)} · acc_p ${fmtNum(t.final_acc_p, 3)}`),
+        runCell('ce / l1 / conf', `${fmtNum(t.final_ce, 3)} / ${fmtNum(t.final_l1, 3)} / ${fmtNum(t.final_conf, 3)}`, t.header ? `${fmtInt(t.header.samples)} samples · anchors ${t.header.num_anchors} · block ${t.header.block_size}` : ''),
+      ].join('') : `<div class="run-cell"><div class="live-label">train log</div><div class="r2-empty">${esc(r.launch_line || 'no step lines on disk yet')}</div></div>`;
+
+      const tokValid = ev ? (ev.gpu_state === 'clean' && !r.eval_caveat) : true;
+      let evalHtml = '';
+      if (ev && ev.results && ev.results.length) evalHtml += resultsTable(ev.results, tokValid);
+      if (ev && ev.longform && ev.longform.length) evalHtml += `<div class="r2-sub" style="margin-top: 0.8rem;">long-form · exact</div>` + longFormTable({ longform: ev.longform, longform_mean_tok_s: ev.longform_mean_tok_s, longform_mean_n: ev.longform_mean_n, longform_mean_mode: 'exact' });
+      if (r.id === 'round2') {
+        evalHtml += perCheckpointTable(r);
+        evalHtml += `<div style="margin-top: 0.5rem;"><span class="run-link" onclick="gotoRound2Checkpoints()">open the Round-2 measured checkpoints section (all rows, long-form, tau)</span></div>`;
+        if (r.checkpoints_pending && r.checkpoints_pending.length) evalHtml += `<div class="live-sub">not yet measured: ${r.checkpoints_pending.join(' · ')}</div>`;
+      }
+      if (!evalHtml) evalHtml = `<div class="r2-empty">${esc(r.eval_source || 'no eval on disk')}</div>`;
+
+      const gpu = ev ? gpuTag(ev.gpu_state, ev.host) : '';
+      const caveat = r.eval_caveat ? `<div class="run-caveat">caveat: ${esc(r.eval_caveat)}</div>` : '';
+      const lf = isNil(r.longform_mean_tok_s) ? '' :
+        `<div class="live-sub" style="margin-top: 0.4rem;">long-form mean (exact, K=5): <strong class="num" style="color: var(--text);">${fmtNum(r.longform_mean_tok_s)} tok/s</strong> = ${mult(r.longform_mean_tok_s)} vs 29.8</div>`;
+      const notes = (r.note_blocks || []).map(noteBlock).join('');
+      const gates = r.gates ? gatesHtml(r.gates) : '';
+      const paths = [t.log, ev && ev.log].filter(Boolean).map(esc).join(' · ');
+      const isRunning = String(r.status || '').startsWith('running');
+
+      return `<div class="run-card ${isRunning ? 'run-running' : ''}" id="run-${esc(r.id)}">
+        <div class="run-head"><span class="run-order">#${r.order}</span><span class="run-name">${esc(r.name)}</span>${statusTag(r.status)}</div>
+        <div class="run-facts">${facts.map(f => `<span class="tag">${esc(f)}</span>`).join('')}</div>
+        <div class="run-grid">${trainCells}</div>
+        <div class="run-sections">
+          <div class="run-section">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap;"><span class="r2-sub" style="margin: 0;">eval</span>${gpu}<span class="tag tag-muted">${esc(r.eval_source || '')}</span></div>
+            ${caveat}${k5Table(r.best_k5_exact)}${lf}
+          </div>
+          <div class="run-section">${evalHtml}${gates}${notes}</div>
+        </div>
+        ${r.decision_rule ? `<div class="run-caveat" style="color: var(--text-muted);">decision rule: ${esc(r.decision_rule)}</div>` : ''}
+        <div class="run-learned">${esc(r.learned)}<small>${esc(r.learned_source || '')}</small></div>
+        <div class="run-paths">${paths}</div>
+      </div>`;
+    }
+
+    async function loadRunHistory() {
+      try {
+        const res = await fetch('/api/training/runs', { cache: 'no-store' });
+        const data = await res.json();
+        const runs = (data.runs || []).slice().sort((a, b) => a.order - b.order);
+        setHtml('runs-list', runs.map(renderRunCard).join(''));
+        setText('runs-count', `${runs.length} runs`);
+        setText('runs-updated', `parsed ${data.generated_at} · refresh 60 s`);
+        const running = runs.filter(r => String(r.status || '').startsWith('running')).length;
+        setText('runs-tab-badge', running ? `${running} running` : `${runs.length} runs`);
+      } catch (err) {
+        setText('runs-updated', 'fetch failed');
+      }
+    }
+
+    function gotoRound2Checkpoints() {
+      switchTab('tab-training');
+      const el = document.getElementById('round2-checkpoints-card');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ------------------------------------------------------------------
+    // Learnings: vault note via /api/notes, rendered by a small inline
+    // markdown renderer (headings, paragraphs, lists, fenced code, inline
+    // code, bold/italic, pipe tables, links). No external library.
+    // ------------------------------------------------------------------
+    function mdSlug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60); }
+
+    function mdInline(s) {
+      let out = esc(s);
+      const codes = [];
+      out = out.replace(/`([^`]+)`/g, (m, c) => { codes.push(c); return ` ${codes.length - 1} `; });
+      out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      out = out.replace(/(^|[\s(])__(?!\s)(.+?)__(?=[\s).,;:!?]|$)/g, '$1<strong>$2</strong>');
+      out = out.replace(/(^|[\s(])\*(?!\s)([^*\n]+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
+      out = out.replace(/(^|[\s(])_(?!\s)([^_\n]+?)_(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
+      out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) =>
+        /^(https?:|\/|#|mailto:)/.test(u) ? `<a href="${u}" target="_blank" rel="noopener">${t}</a>` : `${t} (<code>${u}</code>)`);
+      out = out.replace(/ (\d+) /g, (m, i) => `<code>${codes[Number(i)]}</code>`);
+      return out;
+    }
+
+    function mdSplitRow(line) {
+      let s = line.trim();
+      if (s.startsWith('|')) s = s.slice(1);
+      if (s.endsWith('|')) s = s.slice(0, -1);
+      return s.split('|').map(c => c.trim());
+    }
+
+    function mdTable(header, rows) {
+      const th = header.map(h => `<th>${mdInline(h)}</th>`).join('');
+      const body = rows.map(r => `<tr>${header.map((_, i) => {
+        const v = r[i] === undefined ? '' : r[i];
+        const numeric = /\d/.test(v) && i > 0;
+        return `<td class="${numeric ? 'num' : ''}">${mdInline(v)}</td>`;
+      }).join('')}</tr>`).join('');
+      return `<table><thead><tr>${th}</tr></thead><tbody>${body}</tbody></table>`;
+    }
+
+    function mdParseList(lines, start) {
+      const itemRe = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
+      const first = lines[start].match(itemRe);
+      const baseIndent = first[1].length;
+      const ordered = /\d/.test(first[2]);
+      const items = [];
+      let i = start;
+      while (i < lines.length) {
+        const m = lines[i].match(itemRe);
+        if (!m) {
+          if (items.length && /^\s+\S/.test(lines[i])) { items[items.length - 1].text += ' ' + lines[i].trim(); i++; continue; }
+          break;
+        }
+        const indent = m[1].length;
+        if (indent < baseIndent) break;
+        if (indent > baseIndent) {
+          const sub = mdParseList(lines, i);
+          if (items.length) items[items.length - 1].sub += sub.html;
+          i = sub.next;
+          continue;
+        }
+        items.push({ text: m[3], sub: '' });
+        i++;
+      }
+      const tag = ordered ? 'ol' : 'ul';
+      return { html: `<${tag}>${items.map(it => `<li>${mdInline(it.text)}${it.sub}</li>`).join('')}</${tag}>`, next: i };
+    }
+
+    function renderMarkdown(md) {
+      const lines = String(md || '').replace(/\r/g, '').split('\n');
+      const html = [];
+      const headings = [];
+      const blockStart = /^(#{1,6}\s|```|\s*([-*+]|\d+[.)])\s+|\s*\|.*\|\s*$|\s*>)/;
+      let i = 0;
+      while (i < lines.length) {
+        const line = lines[i];
+        if (/^\s*$/.test(line)) { i++; continue; }
+        let m = line.match(/^```(\w*)\s*$/);
+        if (m) {
+          const lang = m[1]; const buf = []; i++;
+          while (i < lines.length && !/^```\s*$/.test(lines[i])) { buf.push(lines[i]); i++; }
+          i++;
+          html.push(`<pre><code class="${lang ? 'language-' + esc(lang) : ''}">${esc(buf.join('\n'))}</code></pre>`);
+          continue;
+        }
+        m = line.match(/^(#{1,6})\s+(.*?)\s*#*\s*$/);
+        if (m) {
+          const level = m[1].length; const text = m[2];
+          const id = `md-h-${headings.length}-${mdSlug(text)}`;
+          headings.push({ level, text, id });
+          html.push(`<h${level} id="${id}">${mdInline(text)}</h${level}>`);
+          i++; continue;
+        }
+        if (/^\s*\|.*\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?\s*:?-{3,}/.test(lines[i + 1])) {
+          const header = mdSplitRow(line); i += 2; const rows = [];
+          while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) { rows.push(mdSplitRow(lines[i])); i++; }
+          html.push(mdTable(header, rows));
+          continue;
+        }
+        if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) { html.push('<hr>'); i++; continue; }
+        if (/^\s*>/.test(line)) {
+          const buf = [];
+          while (i < lines.length && /^\s*>/.test(lines[i])) { buf.push(lines[i].replace(/^\s*>\s?/, '')); i++; }
+          html.push(`<blockquote>${mdInline(buf.join(' '))}</blockquote>`);
+          continue;
+        }
+        if (/^\s*([-*+]|\d+[.)])\s+/.test(line)) { const res = mdParseList(lines, i); html.push(res.html); i = res.next; continue; }
+        const buf = [line]; i++;
+        while (i < lines.length && !/^\s*$/.test(lines[i]) && !blockStart.test(lines[i])) { buf.push(lines[i]); i++; }
+        html.push(`<p>${mdInline(buf.join(' '))}</p>`);
+      }
+      return { html: html.join('\n'), headings };
+    }
+
+    let notesMtime = null;
+    let tocObserver = null;
+
+    function scrollToHeading(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelectorAll('#notes-toc a').forEach(a => a.classList.toggle('active', a.dataset.target === id));
+    }
+
+    function armTocObserver() {
+      if (tocObserver) tocObserver.disconnect();
+      if (!('IntersectionObserver' in window)) return;
+      tocObserver = new IntersectionObserver((entries) => {
+        entries.forEach(en => {
+          if (en.isIntersecting) document.querySelectorAll('#notes-toc a').forEach(a => a.classList.toggle('active', a.dataset.target === en.target.id));
+        });
+      }, { rootMargin: '0px 0px -70% 0px' });
+      document.querySelectorAll('#notes-body h2').forEach(h => tocObserver.observe(h));
+    }
+
+    async function loadNotes() {
+      try {
+        const res = await fetch('/api/notes', { cache: 'no-store' });
+        const data = await res.json();
+        if (!data.ok) { setHtml('notes-body', `<div class="r2-empty">could not read the note: ${esc(data.error)}</div>`); return; }
+        setText('notes-path', data.path);
+        setText('notes-updated', `last updated ${data.mtime_iso} · ${fmtInt(data.lines)} lines · refresh 60 s`);
+        if (data.mtime === notesMtime) return;
+        notesMtime = data.mtime;
+        const { html, headings } = renderMarkdown(data.markdown);
+        setHtml('notes-body', html);
+        const h2s = headings.filter(h => h.level === 2);
+        setHtml('notes-toc', `<div class="toc-title">sections (${h2s.length})</div>` +
+          h2s.map(h => `<a data-target="${h.id}" onclick="scrollToHeading('${h.id}')">${mdInline(h.text)}</a>`).join(''));
+        setText('learnings-tab-badge', `${h2s.length} sections`);
+        if (window.Prism) document.querySelectorAll('#notes-body pre code[class*="language-"]').forEach(el => { try { Prism.highlightElement(el); } catch (e) {} });
+        armTocObserver();
+      } catch (err) {
+        setText('notes-updated', 'fetch failed');
+      }
+    }
+
+    // Multi-Node Rolling Hardware Telemetry Comparison Chart (Chart.js)
+    function initClusterTelemetryChart() {
+      const ctx = document.getElementById('clusterTelemetryChart').getContext('2d');
+      if (clusterTelemetryChartInstance) clusterTelemetryChartInstance.destroy();
+
+      clusterTelemetryChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: rollingHistory.labels,
+          datasets: [
+            {
+              label: 'spark1 GPU (%)',
+              data: rollingHistory.sp1_util,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.04)',
+              fill: true,
+              tension: 0.3,
+              borderWidth: 2,
+              pointRadius: 0
+            },
+            {
+              label: 'spark2 GPU (%)',
+              data: rollingHistory.sp2_util,
+              borderColor: '#06b6d4',
+              backgroundColor: 'rgba(6, 182, 212, 0.04)',
+              fill: true,
+              tension: 0.3,
+              borderWidth: 2,
+              pointRadius: 0
+            },
+            {
+              label: 'spark1 Power (W)',
+              data: rollingHistory.sp1_power,
+              borderColor: 'rgba(16, 185, 129, 0.4)',
+              borderDash: [4, 4],
+              tension: 0.3,
+              borderWidth: 1.5,
+              pointRadius: 0,
+              yAxisID: 'y1'
+            },
+            {
+              label: 'spark2 Power (W)',
+              data: rollingHistory.sp2_power,
+              borderColor: 'rgba(6, 182, 212, 0.4)',
+              borderDash: [4, 4],
+              tension: 0.3,
+              borderWidth: 1.5,
+              pointRadius: 0,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8', maxTicksLimit: 6, font: { size: 9 } } },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: '#94a3b8', font: { size: 9 } },
+              suggestedMin: 0, suggestedMax: 100,
+              title: { display: true, text: 'GPU %', color: '#94a3b8', font: { size: 9 } }
+            },
+            y1: {
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#94a3b8', font: { size: 9 } },
+              suggestedMin: 0, suggestedMax: 100,
+              title: { display: true, text: 'Watts', color: '#94a3b8', font: { size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    // SSE Real-Time Dual-Spark Telemetry Stream
+    function startTelemetrySSE() {
+      const evtSource = new EventSource('/api/telemetry/stream');
+      evtSource.onmessage = function(e) {
+        try {
+          const data = JSON.parse(e.data);
+          const c = data.cluster;
+          if (c) {
+            const sp1 = c.spark1;
+            const sp2 = c.spark2;
+            const ic = c.interconnect;
+            const agg = c.aggregate;
+
+            // 1. Header Pills
+            const sp1UsedGb = (sp1.memory_used_mb / 1024).toFixed(1);
+            const sp1Util = Math.round(sp1.utilization_pct);
+            document.getElementById('hdr-sp1-summary').textContent = `GB10 · ${sp1Util}% · ${sp1.power_draw_w.toFixed(0)}W · ${sp1UsedGb}GB`;
+
+            const sp2UsedGb = (sp2.memory_used_mb / 1024).toFixed(1);
+            const sp2Util = Math.round(sp2.utilization_pct);
+            const sp2Online = sp2.online;
+            document.getElementById('hdr-sp2-summary').textContent = sp2Online ? 
+              `GB10 · ${sp2Util}% · ${sp2.power_draw_w.toFixed(0)}W · ${sp2UsedGb}GB` : 'OFFLINE';
+
+            const sp2Dot = document.getElementById('hdr-sp2-dot');
+            if (sp2Online) {
+              sp2Dot.className = 'pulse-cyan';
+            } else {
+              sp2Dot.className = 'pulse-amber';
+            }
+
+            const rttAvg = ((ic.link0.rtt_ms + ic.link1.rtt_ms) / 2).toFixed(2);
+            document.getElementById('hdr-fabric-summary').textContent = `${ic.aggregate_bandwidth_gbps}G DAC · ${rttAvg}ms`;
+
+            // 2. Executive KPI Cards
+            document.getElementById('kpi-nodes-tag').textContent = `${c.nodes_online}/${c.total_nodes} Online`;
+            document.getElementById('kpi-cluster-used-mem').textContent = `${agg.used_memory_gb} GB Used`;
+            document.getElementById('kpi-cluster-free-mem').textContent = `${agg.free_memory_gb} GB Free Headroom (Zero-Copy)`;
+            document.getElementById('kpi-interconnect-rtt').textContent = `${rttAvg} ms`;
+            document.getElementById('kpi-cluster-power').textContent = `${agg.total_power_w} W`;
+            document.getElementById('kpi-power-sub').textContent = `spark1: ${sp1.power_draw_w.toFixed(1)}W · spark2: ${sp2.power_draw_w.toFixed(1)}W`;
+
+            // 3. Topology Visualizer
+            document.getElementById('topo-sp1-telemetry').textContent = `Util: ${sp1Util}% · Temp: ${sp1.temperature_c.toFixed(0)}°C · Power: ${sp1.power_draw_w.toFixed(1)}W`;
+            document.getElementById('topo-sp1-mem').textContent = `${sp1UsedGb} / 121.7 GB`;
+
+            document.getElementById('topo-sp2-telemetry').textContent = sp2Online ? 
+              `Util: ${sp2Util}% · Temp: ${sp2.temperature_c.toFixed(0)}°C · Power: ${sp2.power_draw_w.toFixed(1)}W` : 'Offline / Unreachable';
+            document.getElementById('topo-sp2-mem').textContent = `${sp2UsedGb} / 121.7 GB`;
+
+            document.getElementById('topo-link0-rtt').textContent = `${ic.link0.rtt_ms.toFixed(2)} ms RTT · ${ic.link0.status}`;
+            document.getElementById('topo-link1-rtt').textContent = `${ic.link1.rtt_ms.toFixed(2)} ms RTT · ${ic.link1.status}`;
+
+            // 4. Deep Health Cards
+            // spark1
+            const sp1SmClock = sp1.sm_clock_mhz || 2418;
+            const sp1ClockPct = Math.round((sp1SmClock / 3003) * 100);
+            document.getElementById('h-sp1-sm-clock').textContent = `${sp1SmClock.toLocaleString()} MHz / 3,003 MHz (${sp1ClockPct}%)`;
+            document.getElementById('h-sp1-sm-clock-fill').style.width = sp1ClockPct + '%';
+
+            document.getElementById('h-sp1-gpu-util').textContent = `${sp1Util}% Active Core`;
+            document.getElementById('h-sp1-gpu-util-fill').style.width = sp1Util + '%';
+
+            if (sp1.disk) {
+              document.getElementById('h-sp1-disk').textContent = `${sp1.disk.used_gb} GB / ${sp1.disk.total_tb} TB (${sp1.disk.used_pct}% Used)`;
+              document.getElementById('h-sp1-disk-fill').style.width = sp1.disk.used_pct + '%';
+            }
+
+            document.getElementById('h-sp1-thermal').textContent = `${sp1.temperature_c.toFixed(0)}°C (Normal Range)`;
+            document.getElementById('h-sp1-pwr').textContent = `${sp1.power_draw_w.toFixed(1)} W`;
+            const sp1FreeGb = ((sp1.memory_total_mb - sp1.memory_used_mb) / 1024).toFixed(1);
+            document.getElementById('h-sp1-mem-detail').textContent = `${sp1UsedGb} GB Used`;
+            document.getElementById('h-sp1-mem-free').textContent = `${sp1FreeGb} GB Headroom`;
+
+            if (sp1.cpu_load) {
+              document.getElementById('h-sp1-load').textContent = `${sp1.cpu_load['1m']}, ${sp1.cpu_load['5m']}, ${sp1.cpu_load['15m']}`;
+            }
+            if (sp1.uptime_str) {
+              document.getElementById('h-sp1-uptime').textContent = sp1.uptime_str;
+            }
+            if (sp1.fabric_stats && sp1.fabric_stats.link0) {
+              document.getElementById('h-sp1-tx').textContent = sp1.fabric_stats.link0.tx_gb + ' GB';
+              document.getElementById('h-sp1-rx').textContent = sp1.fabric_stats.link0.rx_gb + ' GB';
+            }
+
+            // spark2
+            const sp2SmClock = sp2.sm_clock_mhz || 2380;
+            const sp2ClockPct = Math.round((sp2SmClock / 3003) * 100);
+            document.getElementById('h-sp2-sm-clock').textContent = `${sp2SmClock.toLocaleString()} MHz / 3,003 MHz (${sp2ClockPct}%)`;
+            document.getElementById('h-sp2-sm-clock-fill').style.width = sp2ClockPct + '%';
+
+            document.getElementById('h-sp2-gpu-util').textContent = `${sp2Util}% Active Core`;
+            document.getElementById('h-sp2-gpu-util-fill').style.width = sp2Util + '%';
+
+            if (sp2.disk) {
+              document.getElementById('h-sp2-disk').textContent = `${sp2.disk.used_gb} GB / ${sp2.disk.total_tb} TB (${sp2.disk.used_pct}% Used)`;
+              document.getElementById('h-sp2-disk-fill').style.width = sp2.disk.used_pct + '%';
+            }
+
+            document.getElementById('h-sp2-thermal').textContent = `${sp2.temperature_c.toFixed(0)}°C (Normal Range)`;
+            document.getElementById('h-sp2-pwr').textContent = `${sp2.power_draw_w.toFixed(1)} W`;
+            const sp2FreeGb = ((sp2.memory_total_mb - sp2.memory_used_mb) / 1024).toFixed(1);
+            document.getElementById('h-sp2-mem-detail').textContent = `${sp2UsedGb} GB Used`;
+            document.getElementById('h-sp2-mem-free').textContent = `${sp2FreeGb} GB Headroom`;
+
+            if (sp2.cpu_load) {
+              document.getElementById('h-sp2-load').textContent = `${sp2.cpu_load['1m']}, ${sp2.cpu_load['5m']}, ${sp2.cpu_load['15m']}`;
+            }
+            if (sp2.uptime_str) {
+              document.getElementById('h-sp2-uptime').textContent = sp2.uptime_str;
+            }
+            document.getElementById('h-sp2-rtt').textContent = `${ic.link0.rtt_ms.toFixed(2)} ms RTT`;
+
+            // 5. Rolling Telemetry Data
+            const timeStr = new Date().toLocaleTimeString();
+            rollingHistory.labels.push(timeStr);
+            rollingHistory.sp1_util.push(sp1Util);
+            rollingHistory.sp1_power.push(sp1.power_draw_w);
+            rollingHistory.sp2_util.push(sp2Util);
+            rollingHistory.sp2_power.push(sp2.power_draw_w);
+
+            if (rollingHistory.labels.length > 25) {
+              rollingHistory.labels.shift();
+              rollingHistory.sp1_util.shift();
+              rollingHistory.sp1_power.shift();
+              rollingHistory.sp2_util.shift();
+              rollingHistory.sp2_power.shift();
+            }
+
+            if (clusterTelemetryChartInstance) clusterTelemetryChartInstance.update();
+          }
+        } catch (err) {}
+      };
+    }
+
+    // SSE Server Logs Stream
+    function startLogsSSE() {
+      const evtSource = new EventSource('/api/server/logs/stream');
+      const term = document.getElementById('terminal-stream');
+      evtSource.onmessage = function(e) {
+        try {
+          const item = JSON.parse(e.data);
+          const line = item.log;
+          const div = document.createElement('div');
+          div.textContent = line;
+          term.appendChild(div);
+
+          if (document.getElementById('autoscroll-toggle')?.checked) {
+            term.scrollTop = term.scrollHeight;
+          }
+        } catch (err) {}
+      };
+    }
+
+    function clearLogs() {
+      document.getElementById('terminal-stream').innerHTML = '<span style="color: #64748b;">Console cleared.</span>';
+    }
+
+    // Chat Playground Controls & Target Selection
+    function setChatTargetNode(nodeId) {
+      chatTargetNode = nodeId;
+      const btnSp1 = document.getElementById('btn-node-spark1');
+      const btnSp2 = document.getElementById('btn-node-spark2');
+      const tag = document.getElementById('chat-active-node-tag');
+      const tabBadge = document.getElementById('active-chat-node-badge');
+
+      if (nodeId === 'spark1') {
+        btnSp1.className = 'btn';
+        btnSp2.className = 'btn btn-secondary';
+        tag.textContent = 'Node: spark1 (Primary)';
+        tag.className = 'tag tag-green';
+        tabBadge.textContent = 'spark1';
+        tabBadge.style.color = 'var(--accent)';
+      } else {
+        btnSp2.className = 'btn';
+        btnSp1.className = 'btn btn-secondary';
+        tag.textContent = 'Node: spark2 (Fabric)';
+        tag.className = 'tag tag-cyan';
+        tabBadge.textContent = 'spark2';
+        tabBadge.style.color = 'var(--accent-cyan)';
+      }
+      showToast(`Chat Execution Node: ${nodeId}`);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function setSystemPersona(key) {
+      document.querySelectorAll('[id^="persona-"]').forEach(c => c.classList.remove('active'));
+      const activeBtn = document.getElementById(`persona-${key}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const text = PERSONAS[key] || PERSONAS.general;
+      document.getElementById('chat-system-prompt').value = text;
+      showToast(`Loaded Persona: ${key}`);
+    }
+
+    function clearChat() {
+      const box = document.getElementById('chat-box');
+      box.innerHTML = `
+        <div class="chat-bubble assistant">
+          <div class="bubble-header">
+            <span>Bonsai 2 (27B) · Node: ${chatTargetNode}</span>
+            <span>Reset</span>
+          </div>
+          Conversation cleared. Bonsai 2 is ready for prompt.
+        </div>
+      `;
+      showToast('Conversation cleared');
+    }
+
+    async function exportChatMarkdown() {
+      const bubbles = document.querySelectorAll('.chat-bubble');
+      const lines = ['# Bonsai 2 Speculative Chat Transcript (NVIDIA GB10)\n'];
+      bubbles.forEach(b => {
+        const isUser = b.classList.contains('user');
+        lines.push(`### ${isUser ? 'User' : 'Bonsai 2 Assistant'}\n`);
+        lines.push(b.textContent.trim() + '\n');
+      });
+      const md = lines.join('\n');
+      await navigator.clipboard.writeText(md);
+      showToast('Copied chat transcript to clipboard!');
+    }
+
+    // Interactive Chat Playground Runner
+    async function sendPrompt() {
+      const input = document.getElementById('user-input');
+      const btn = document.getElementById('send-btn');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      btn.disabled = true;
+
+      const systemPrompt = document.getElementById('chat-system-prompt').value.trim();
+      const chatBox = document.getElementById('chat-box');
+      
+      // User Bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble user';
+      userBubble.innerHTML = `
+        <div class="bubble-header"><span>You</span><span>${new Date().toLocaleTimeString()}</span></div>
+        ${text}
+      `;
+      chatBox.appendChild(userBubble);
+
+      // Assistant Bubble
+      const assistantBubble = document.createElement('div');
+      assistantBubble.className = 'chat-bubble assistant';
+      assistantBubble.innerHTML = `
+        <div class="bubble-header">
+          <span>Bonsai 2 · Node: <strong style="color: ${chatTargetNode==='spark2'?'var(--accent-cyan)':'var(--accent)'};">${chatTargetNode}</strong> (${activeConfig.base_model})</span>
+          <span id="bubble-live-speed">Generating...</span>
+        </div>
+        <div class="bubble-body"></div>
+        <span class="streaming-cursor" id="streaming-cursor"></span>
+      `;
+      chatBox.appendChild(assistantBubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      const bubbleBody = assistantBubble.querySelector('.bubble-body');
+      const speedLabel = assistantBubble.querySelector('#bubble-live-speed');
+      const cursor = assistantBubble.querySelector('#streaming-cursor');
+
+      const startTime = performance.now();
+      let firstTokenTime = null;
+      let tokenCount = 0;
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: text,
+            system_prompt: systemPrompt,
+            target_node: chatTargetNode,
+            base_model: activeConfig.base_model,
+            drafter: activeConfig.drafter,
+            max_tokens: 256
+          })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+              try {
+                const parsed = JSON.parse(line.substring(6));
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  if (!firstTokenTime) {
+                    firstTokenTime = performance.now();
+                    const ttftMs = Math.round(firstTokenTime - startTime);
+                    document.getElementById('hud-ttft').textContent = `${ttftMs} ms`;
+                  }
+                  bubbleBody.textContent += delta;
+                  tokenCount++;
+
+                  const curElapsedSec = (performance.now() - startTime) / 1000;
+                  const liveTokSec = (tokenCount / (curElapsedSec || 1)).toFixed(1);
+                  speedLabel.textContent = `${liveTokSec} tok/s`;
+                  document.getElementById('hud-tok-s').textContent = `${liveTokSec} tok/s`;
+                  document.getElementById('hud-tokens-count').textContent = `${tokenCount} tokens`;
+                  document.getElementById('hud-elapsed').textContent = `${curElapsedSec.toFixed(2)} s`;
+
+                  chatBox.scrollTop = chatBox.scrollHeight;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+
+        if (cursor) cursor.remove();
+
+        const totalElapsedSec = (performance.now() - startTime) / 1000;
+        const finalTokPerSec = (tokenCount / (totalElapsedSec || 1)).toFixed(1);
+        speedLabel.textContent = `${finalTokPerSec} tok/s (${totalElapsedSec.toFixed(2)}s)`;
+        document.getElementById('chat-token-stats').textContent = `${tokenCount} tokens · ${finalTokPerSec} tok/s`;
+        document.getElementById('hud-tok-s').textContent = `${finalTokPerSec} tok/s`;
+      } catch (err) {
+        if (cursor) cursor.remove();
+        bubbleBody.textContent = 'Error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        input.focus();
+      }
+    }
+
+    // Server Controls
+    async function startServer() {
+      const btn = document.getElementById('btn-start-server');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Starting Server...</span>';
+      
+      try {
+        const res = await fetch('/api/server/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(activeConfig)
+        });
+        const data = await res.json();
+        if (data.success) showToast(`Server launched (PID ${data.pid})`);
+        else showToast(`Server error: ${data.message}`);
+      } catch (err) {
+        showToast('Failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="rocket"></i> Launch / Switch Server (Port 8085)';
+        if (window.lucide) lucide.createIcons();
+        updateServerStatus();
+      }
+    }
+
+    async function stopServer() {
+      try {
+        await fetch('/api/server/stop', { method: 'POST' });
+        showToast('Server stopped');
+        updateServerStatus();
+      } catch (err) {}
+    }
+
+    async function updateServerStatus() {
+      try {
+        const res = await fetch('/api/server/status');
+        const data = await res.json();
+        
+        const badge = document.getElementById('header-server-state');
+        const localBadge = document.getElementById('server-badge');
+        const stopBtn = document.getElementById('btn-stop-server');
+        
+        if (data.running) {
+          badge.textContent = `PORT ${data.port} (PID ${data.pid})`;
+          badge.style.color = 'var(--accent)';
+          localBadge.textContent = `ONLINE (${data.pid})`;
+          localBadge.className = 'tag tag-green';
+          stopBtn.style.display = 'inline-flex';
+        } else {
+          badge.textContent = 'STOPPED';
+          badge.style.color = 'var(--warning)';
+          localBadge.textContent = 'STOPPED';
+          localBadge.className = 'tag tag-red';
+          stopBtn.style.display = 'none';
+        }
+      } catch (err) {}
+    }
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+
+      initClusterTelemetryChart();
+      startTelemetrySSE();
+      startLogsSSE();
+      updateServerStatus();
+      setInterval(updateServerStatus, 3000);
+
+      loadBenchmarkHistory();
+      renderBenchmarkChart();
+      renderParetoChart();
+      loadMemoryBreakdown();
+      renderMathFormulas();
+
+      // Training Studio, Run history, Learnings: parsed from disk by the server.
+      loadRound2Checkpoints();
+      loadRunHistory();
+      loadNotes();
+      setInterval(loadRound2Checkpoints, 30000);
+      setInterval(loadRunHistory, 60000);
+      setInterval(loadNotes, 60000);
+    });
+  </script>
+</body>
+</html>

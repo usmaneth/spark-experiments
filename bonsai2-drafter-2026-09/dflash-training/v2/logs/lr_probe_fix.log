@@ -1,0 +1,21 @@
+[08:25:31] LR PROBE FIX: convert on spark1 (spark2 python has no numpy), eval on spark2
+[08:25:36] ckpt on spark1: 3714723290 bytes
+[08:27:46] gguf: 1104605632 /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf
+[08:27:49] eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on spark2; demo llama-server co-resident (idle unless chatted)
+RESULT lrprobe K=5 math | accept 47.368% | 57.447 tok/s | 144/304
+RESULT lrprobe K=5 code | accept 35.165% | 47.678 tok/s | 128/364
+RESULT lrprobe K=5 code2 | accept 43.949% | 54.936 tok/s | 138/314
+SWEEP DONE
+RESULT lrprobe K=5 tau=0.05 math | accept 65.690% | 72.213 tok/s | 157/239
+RESULT lrprobe K=5 tau=0.05 code | accept 61.508% | 68.931 tok/s | 155/252
+RESULT lrprobe K=5 tau=0.05 code2 | accept 59.459% | 67.664 tok/s | 154/259
+SWEEP+TYP DONE
+RESULT LONGFORM exact K=5 p1 | 1474 | 56.827 tok/s | 1018/2280
+RESULT LONGFORM exact K=5 p2 | 2001 | 54.739 tok/s | 1361/3199
+RESULT LONGFORM exact K=5 p3 | 2006 | 62.668 tok/s | 1449/2781
+RESULT LONGFORM exact K=5 p4 | 2003 | 62.781 tok/s | 1445/2786
+RESULT LONGFORM exact K=5 p5 | 2004 | 56.190 tok/s | 1381/3111
+RESULT LONGFORM exact K=5 p6 | 1451 | 66.540 tok/s | 1072/1895
+RESULT LONGFORM MEAN exact K=5 over 6: 60.0 tok/s
+LONGFORM DONE
+[08:31:57] LR PROBE FIX FINISHED
