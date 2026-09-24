@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# spark1, detached: for each DSpark v3 checkpoint (step*.safetensors and the final file), convert on the CPU
+# node_a, detached: for each DSpark v3 checkpoint (step*.safetensors and the final file), convert on the CPU
 # (two-step + Q4_K_M) and run the 3-prompt K=5 exact probe on a GPU that holds no training or benchmark job:
-# spark1 when v3 is not training, else spark2 after the v2.1 follow-on (probe + clean bench) is finished.
+# node_a when v3 is not training, else node_b after the v2.1 follow-on (probe + clean bench) is finished.
 set -u
-ROOT=/home/usman/Bonsai-demo; V2=$ROOT/dflash-training/v2; MD=$ROOT/models/bonsai2-dspark; DONOR=$ROOT/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
+ROOT=/home/REDACTED/Bonsai-demo; V2=$ROOT/dflash-training/v2; MD=$ROOT/models/bonsai2-dspark; DONOR=$ROOT/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
 LOG=$V2/logs/dspark_v3_ckpt_eval.log; sz(){ stat -c%s "$1" 2>/dev/null || echo 0; }; say(){ echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 busy_local(){ nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null | grep -vE 'llama-server|gnome-remote-desktop' | wc -l; }
-busy_spark2(){ ssh -o ConnectTimeout=8 spark2 'nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null | grep -vE "llama-server|gnome-remote-desktop" | wc -l' 2>/dev/null || echo 1; }
+busy_node_b(){ ssh -o ConnectTimeout=8 node_b 'nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null | grep -vE "llama-server|gnome-remote-desktop" | wc -l' 2>/dev/null || echo 1; }
 say "v3 checkpoint waiter started (cap 60 h)"; done_list=""
 for i in $(seq 1 7200); do
   for CK in $(ls $MD/bonsai2_dspark_v3_step*.safetensors $MD/bonsai2_dspark_v3.safetensors 2>/dev/null); do
@@ -22,14 +22,14 @@ for i in $(seq 1 7200); do
       [ "$(sz "$Q")" -gt 1000000000 ] || { say "CKPT $TAG: CONVERT FAILED"; done_list="$done_list $CK"; continue; }
     fi
     sed "s#bonsai2-dspark-full1ep1-Q4_K_M.gguf#bonsai2-dspark-${TAG}-Q4_K_M.gguf#g; s#RESULT full1ep1#RESULT ${TAG}#g; s#for K in 4 5; do for W in math code code2#for K in 5; do for W in math code code2#" /tmp/ep1_sweep.sh | head -n "$(grep -n 'SWEEP DONE' /tmp/ep1_sweep.sh | head -1 | cut -d: -f1)" > /tmp/${TAG}_probe.sh
-    # pick a GPU: local when nothing trains here; else spark2 once the v2.1 follow-on is finished and its GPU is free
+    # pick a GPU: local when nothing trains here; else node_b once the v2.1 follow-on is finished and its GPU is free
     host=""; while [ -z "$host" ]; do
-      if [ "$(busy_local)" -eq 0 ]; then host=spark1
-      elif grep -q 'V21 FOLLOW-ON FINISHED' $V2/logs/dspark_v21_spark1.log 2>/dev/null && [ "$(busy_spark2)" -eq 0 ]; then host=spark2
+      if [ "$(busy_local)" -eq 0 ]; then host=node_a
+      elif grep -q 'V21 FOLLOW-ON FINISHED' $V2/logs/dspark_v21_node_a.log 2>/dev/null && [ "$(busy_node_b)" -eq 0 ]; then host=node_b
       else sleep 300; fi
     done
-    if [ $host = spark1 ]; then say "CKPT $TAG: probe on spark1"; bash /tmp/${TAG}_probe.sh | grep -E '^RESULT' | tee -a "$LOG"
-    else rsync -a "$Q" spark2:$MD/ && scp -q /tmp/${TAG}_probe.sh spark2:/tmp/ && say "CKPT $TAG: probe on spark2" && ssh spark2 "bash /tmp/${TAG}_probe.sh" | grep -E '^RESULT' | tee -a "$LOG"; fi
+    if [ $host = node_a ]; then say "CKPT $TAG: probe on node_a"; bash /tmp/${TAG}_probe.sh | grep -E '^RESULT' | tee -a "$LOG"
+    else rsync -a "$Q" node_b:$MD/ && scp -q /tmp/${TAG}_probe.sh node_b:/tmp/ && say "CKPT $TAG: probe on node_b" && ssh node_b "bash /tmp/${TAG}_probe.sh" | grep -E '^RESULT' | tee -a "$LOG"; fi
     done_list="$done_list $CK"
   done
   grep -q 'DSPARK V3 TRAINED' $V2/logs/dspark_v3.log 2>/dev/null && [ -f $MD/bonsai2_dspark_v3.safetensors ] && case " $done_list " in *" $MD/bonsai2_dspark_v3.safetensors "*) say "all v3 checkpoints probed"; break;; esac

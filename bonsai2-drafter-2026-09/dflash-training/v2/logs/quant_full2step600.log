@@ -2,8 +2,8 @@ ggml_cuda_init: found 1 CUDA devices (Total VRAM: 124608 MiB):
   Device 0: NVIDIA GB10, compute capability 12.1, VMM: yes, VRAM: 124608 MiB
 version: 0.2.0-dev (build 10687, commit 5d80cff0b)
 built with GNU 13.3.0 for Linux aarch64
-llama_quantize: quantizing '/home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full2step600-conv.gguf' to '/home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full2step600-Q4_K_M.gguf' as Q4_K_M
-llama_model_loader: loaded meta data with 33 key-value pairs and 62 tensors from /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full2step600-conv.gguf (version GGUF V3 (latest))
+llama_quantize: quantizing '/home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full2step600-conv.gguf' to '/home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full2step600-Q4_K_M.gguf' as Q4_K_M
+llama_model_loader: loaded meta data with 33 key-value pairs and 62 tensors from /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full2step600-conv.gguf (version GGUF V3 (latest))
 llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
 llama_model_loader: - kv   0:                       general.architecture str              = dflash
 llama_model_loader: - kv   1:                               general.name str              = Qwen3.8-27B-DSpark

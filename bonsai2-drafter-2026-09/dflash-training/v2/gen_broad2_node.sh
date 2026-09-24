@@ -3,7 +3,7 @@
 # Usage: gen_broad2_node.sh <a|b>   (run on the node whose GPU is free; 24 slots, greedy, n_predict 512)
 set -u
 H="${1:?a or b}"
-ROOT=/home/usman/Bonsai-demo
+ROOT=/home/REDACTED/Bonsai-demo
 V2=$ROOT/dflash-training/v2
 PORT=8095
 cd $ROOT

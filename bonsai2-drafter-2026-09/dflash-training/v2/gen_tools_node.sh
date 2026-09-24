@@ -5,7 +5,7 @@
 # Usage: gen_tools_node.sh          (run on the node whose GPU is free; do not run while another
 #        llama-server uses port 8095 on this node)
 set -u
-ROOT=/home/usman/Bonsai-demo
+ROOT=/home/REDACTED/Bonsai-demo
 V2=$ROOT/dflash-training/v2
 PORT=8095
 cd $ROOT

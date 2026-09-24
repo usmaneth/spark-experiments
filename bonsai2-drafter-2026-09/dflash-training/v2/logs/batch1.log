@@ -1,6 +1,6 @@
 ggml_cuda_init: found 1 CUDA devices (Total VRAM: 124608 MiB):
   Device 0: NVIDIA GB10, compute capability 12.1, VMM: yes, VRAM: 124608 MiB
-llama_model_loader: loaded meta data with 49 key-value pairs and 851 tensors from /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf (version GGUF V3 (latest))
+llama_model_loader: loaded meta data with 49 key-value pairs and 851 tensors from /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf (version GGUF V3 (latest))
 llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
 llama_model_loader: - kv   0:                       general.architecture str              = qwen35
 llama_model_loader: - kv   1:                               general.type str              = model

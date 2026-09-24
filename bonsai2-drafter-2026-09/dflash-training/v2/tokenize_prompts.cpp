@@ -9,11 +9,11 @@
 //
 // Usage: tokenize_prompts <model.gguf> <in.bin> <out.txt>
 // Build (same flags as extract_feats_e3, only libllama is needed):
-//   cd /home/usman/Bonsai-demo && g++ -O2 -std=c++17 \
+//   cd /home/REDACTED/Bonsai-demo && g++ -O2 -std=c++17 \
 //     -I llama.cpp/include -I llama.cpp/ggml/include -I llama.cpp/src \
 //     dflash-training/v2/tokenize_prompts.cpp -o dflash-training/v2/tokenize_prompts \
 //     -L bin/cuda -lllama -lggml-base \
-//     -Wl,-rpath,/home/usman/Bonsai-demo/bin/cuda:/home/usman/Bonsai-demo/llama.cpp/build-cuda/bin
+//     -Wl,-rpath,/home/REDACTED/Bonsai-demo/bin/cuda:/home/REDACTED/Bonsai-demo/llama.cpp/build-cuda/bin
 
 #include "llama.h"
 

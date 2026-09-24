@@ -1,45 +1,45 @@
-[02:20:22] final-eval waiter started (needs complete /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf; prefers idle spark2; cap 8h)
-[02:25:02] FULL1 GGUF present (1104605632 bytes); copying to spark2
-[02:25:03] spark2 busy (1 procs), waiting for idle
-[02:26:04] spark2 busy (1 procs), waiting for idle
-[02:27:04] spark2 busy (1 procs), waiting for idle
-[02:28:05] spark2 busy (1 procs), waiting for idle
-[02:29:05] spark2 busy (1 procs), waiting for idle
-[02:30:05] spark2 busy (1 procs), waiting for idle
-[02:31:06] spark2 busy (1 procs), waiting for idle
-[02:32:06] spark2 busy (1 procs), waiting for idle
-[02:33:07] spark2 busy (1 procs), waiting for idle
-[02:34:07] spark2 busy (1 procs), waiting for idle
-[02:35:08] spark2 busy (1 procs), waiting for idle
-[02:36:08] spark2 busy (1 procs), waiting for idle
-[02:37:09] spark2 busy (1 procs), waiting for idle
-[02:38:09] spark2 busy (1 procs), waiting for idle
-[02:39:09] spark2 busy (1 procs), waiting for idle
-[02:40:10] spark2 busy (1 procs), waiting for idle
-[02:41:10] spark2 busy (1 procs), waiting for idle
-[02:42:11] spark2 busy (1 procs), waiting for idle
-[02:43:11] spark2 busy (1 procs), waiting for idle
-[02:44:12] spark2 busy (1 procs), waiting for idle
-[02:45:12] spark2 busy (1 procs), waiting for idle
-[02:46:12] spark2 busy (1 procs), waiting for idle
-[02:47:13] spark2 busy (1 procs), waiting for idle
-[02:48:13] spark2 busy (1 procs), waiting for idle
-[02:49:14] spark2 busy (1 procs), waiting for idle
-[02:50:14] spark2 busy (1 procs), waiting for idle
-[02:51:15] spark2 busy (1 procs), waiting for idle
-[02:52:15] spark2 busy (1 procs), waiting for idle
-[02:53:15] spark2 busy (1 procs), waiting for idle
-[02:54:16] spark2 busy (1 procs), waiting for idle
-[02:55:16] spark2 busy (1 procs), waiting for idle
-[02:56:17] spark2 busy (1 procs), waiting for idle
-[02:57:17] spark2 busy (1 procs), waiting for idle
-[02:58:18] spark2 busy (1 procs), waiting for idle
-[02:59:18] spark2 busy (1 procs), waiting for idle
-[03:00:18] spark2 busy (1 procs), waiting for idle
-[03:01:19] spark2 busy (1 procs), waiting for idle
-[03:02:19] spark2 busy (1 procs), waiting for idle
+[02:20:22] final-eval waiter started (needs complete /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf; prefers idle node_b; cap 8h)
+[02:25:02] FULL1 GGUF present (1104605632 bytes); copying to node_b
+[02:25:03] node_b busy (1 procs), waiting for idle
+[02:26:04] node_b busy (1 procs), waiting for idle
+[02:27:04] node_b busy (1 procs), waiting for idle
+[02:28:05] node_b busy (1 procs), waiting for idle
+[02:29:05] node_b busy (1 procs), waiting for idle
+[02:30:05] node_b busy (1 procs), waiting for idle
+[02:31:06] node_b busy (1 procs), waiting for idle
+[02:32:06] node_b busy (1 procs), waiting for idle
+[02:33:07] node_b busy (1 procs), waiting for idle
+[02:34:07] node_b busy (1 procs), waiting for idle
+[02:35:08] node_b busy (1 procs), waiting for idle
+[02:36:08] node_b busy (1 procs), waiting for idle
+[02:37:09] node_b busy (1 procs), waiting for idle
+[02:38:09] node_b busy (1 procs), waiting for idle
+[02:39:09] node_b busy (1 procs), waiting for idle
+[02:40:10] node_b busy (1 procs), waiting for idle
+[02:41:10] node_b busy (1 procs), waiting for idle
+[02:42:11] node_b busy (1 procs), waiting for idle
+[02:43:11] node_b busy (1 procs), waiting for idle
+[02:44:12] node_b busy (1 procs), waiting for idle
+[02:45:12] node_b busy (1 procs), waiting for idle
+[02:46:12] node_b busy (1 procs), waiting for idle
+[02:47:13] node_b busy (1 procs), waiting for idle
+[02:48:13] node_b busy (1 procs), waiting for idle
+[02:49:14] node_b busy (1 procs), waiting for idle
+[02:50:14] node_b busy (1 procs), waiting for idle
+[02:51:15] node_b busy (1 procs), waiting for idle
+[02:52:15] node_b busy (1 procs), waiting for idle
+[02:53:15] node_b busy (1 procs), waiting for idle
+[02:54:16] node_b busy (1 procs), waiting for idle
+[02:55:16] node_b busy (1 procs), waiting for idle
+[02:56:17] node_b busy (1 procs), waiting for idle
+[02:57:17] node_b busy (1 procs), waiting for idle
+[02:58:18] node_b busy (1 procs), waiting for idle
+[02:59:18] node_b busy (1 procs), waiting for idle
+[03:00:18] node_b busy (1 procs), waiting for idle
+[03:01:19] node_b busy (1 procs), waiting for idle
+[03:02:19] node_b busy (1 procs), waiting for idle
 [03:03:20] GPU state: clean
-[03:03:20] LAUNCH final sweep on spark2 (K=4,5; PQ2_0)
+[03:03:20] LAUNCH final sweep on node_b (K=4,5; PQ2_0)
 RESULT full1 K=4 math | accept 50.000% | 50.076 tok/s | 134/268
 RESULT full1 K=4 code | accept 45.775% | 31.133 tok/s | 130/284
 RESULT full1 K=4 code2 | accept 58.996% | 20.406 tok/s | 141/239

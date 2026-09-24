@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Detached: after the final clean eval finishes on spark2, run a GSM8K exact-match quality gate for typical acceptance.
-V2=/home/usman/Bonsai-demo/dflash-training/v2; echo "[$(date +%H:%M:%S)] gsm8k gate waiter started (chained after FINAL EVAL FINISHED; cap 10h)"
+# Detached: after the final clean eval finishes on node_b, run a GSM8K exact-match quality gate for typical acceptance.
+V2=/home/REDACTED/Bonsai-demo/dflash-training/v2; echo "[$(date +%H:%M:%S)] gsm8k gate waiter started (chained after FINAL EVAL FINISHED; cap 10h)"
 for i in $(seq 1 7200); do grep -q 'FINAL EVAL FINISHED' $V2/logs/full1_final_eval.log 2>/dev/null && break; sleep 5; done
 grep -q 'FINAL EVAL FINISHED' $V2/logs/full1_final_eval.log 2>/dev/null || { echo "[$(date +%H:%M:%S)] TIMEOUT waiting for final eval"; exit 1; }
-echo "[$(date +%H:%M:%S)] final eval done -> preparing gsm8k on spark2"
-cat > /tmp/gsm8k_gate_spark2.sh <<'EOS'
-set -u; cd /home/usman/Bonsai-demo; V2=/home/usman/Bonsai-demo/dflash-training/v2; mkdir -p $V2/gsm8k
+echo "[$(date +%H:%M:%S)] final eval done -> preparing gsm8k on node_b"
+cat > /tmp/gsm8k_gate_node_b.sh <<'EOS'
+set -u; cd /home/REDACTED/Bonsai-demo; V2=/home/REDACTED/Bonsai-demo/dflash-training/v2; mkdir -p $V2/gsm8k
 # 1) fetch 50 GSM8K test problems via the container's datasets lib
-sudo docker run --rm -v /home/usman:/home/usman bonsai/dflash-trainer:latest python3 -c "
+sudo docker run --rm -v /home/REDACTED:/home/REDACTED bonsai/dflash-trainer:latest python3 -c "
 from datasets import load_dataset; import json
 ds=load_dataset('gsm8k','main',split='test'); n=50
 with open('$V2/gsm8k/problems.jsonl','w') as f:
@@ -17,11 +17,11 @@ with open('$V2/gsm8k/problems.jsonl','w') as f:
 print('wrote',n)" 2>&1 | tail -1
 sudo chown -R usman:p-usman $V2/gsm8k 2>/dev/null
 # 2) score exact-match at each tau (K=5, epoch-1 drafter, typ binary)
-export LD_LIBRARY_PATH=/home/usman/Bonsai-demo/bin/typ:/home/usman/Bonsai-demo/bin/cuda
+export LD_LIBRARY_PATH=/home/REDACTED/Bonsai-demo/bin/typ:/home/REDACTED/Bonsai-demo/bin/cuda
 B=models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf; D=models/bonsai2-dspark/bonsai2-dspark-full1ep1-Q4_K_M.gguf
 python3 - <<'PY'
 import json,subprocess,re,os,time
-V2='/home/usman/Bonsai-demo/dflash-training/v2'; probs=[json.loads(l) for l in open(f'{V2}/gsm8k/problems.jsonl')]
+V2='/home/REDACTED/Bonsai-demo/dflash-training/v2'; probs=[json.loads(l) for l in open(f'{V2}/gsm8k/problems.jsonl')]
 B='models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf'; D='models/bonsai2-dspark/bonsai2-dspark-full1ep1-Q4_K_M.gguf'
 def last_num(s):
     m=re.findall(r'-?\d+(?:\.\d+)?', s.replace(',',''))
@@ -70,5 +70,5 @@ for tau in ['0','0.02','0.05']:
 print("LONGCODE GATE DONE")
 PY2
 EOS
-scp -q /tmp/gsm8k_gate_spark2.sh spark2:/tmp/gsm8k_gate_spark2.sh && ssh spark2 'bash /tmp/gsm8k_gate_spark2.sh'
+scp -q /tmp/gsm8k_gate_node_b.sh node_b:/tmp/gsm8k_gate_node_b.sh && ssh node_b 'bash /tmp/gsm8k_gate_node_b.sh'
 echo "[$(date +%H:%M:%S)] GSM8K GATE FINISHED"

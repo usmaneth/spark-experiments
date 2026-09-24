@@ -47,9 +47,9 @@ static void fwht_inplace(float * a, int n) {
 
 int main(int argc, char ** argv) {
     const char * model_path = (argc > 1) ? argv[1]
-        : "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
+        : "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
     const char * out_dir = (argc > 2) ? argv[2]
-        : "/home/usman/Bonsai-demo/dflash-training/v2/teacher";
+        : "/home/REDACTED/Bonsai-demo/dflash-training/v2/teacher";
 
     printf("=== Bonsai 2 teacher tensor dump ===\n");
     printf("model:   %s\n", model_path);

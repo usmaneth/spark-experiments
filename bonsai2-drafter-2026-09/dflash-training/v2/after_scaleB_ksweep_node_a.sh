@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# spark1: after EAGLE-3 run B and its probe release the GPU, sweep the DSpark v2 draft length
+# node_a: after EAGLE-3 run B and its probe release the GPU, sweep the DSpark v2 draft length
 # (K=3,4,5,6,7) over the workload matrix with the benchmark harness. The demo llama-server on
 # :8085 stays resident (idle unless chatted). Output: eval/spec_bench_full/results/gb10-ksweep-1
 set -u
-ROOT=/home/usman/Bonsai-demo; V2=$ROOT/dflash-training/v2; EV=$ROOT/dflash-training/eval
-OUT=$EV/spec_bench_full/results/gb10-ksweep-1; LOG=$V2/logs/ksweep_spark1.log
+ROOT=/home/REDACTED/Bonsai-demo; V2=$ROOT/dflash-training/v2; EV=$ROOT/dflash-training/eval
+OUT=$EV/spec_bench_full/results/gb10-ksweep-1; LOG=$V2/logs/ksweep_node_a.log
 D=models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf
 say(){ echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 until grep -q 'PROBE scaleB-final FINISHED' $V2/logs/eagle3_probe_scaleB-final.log 2>/dev/null; do sleep 300; done

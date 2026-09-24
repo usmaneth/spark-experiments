@@ -1,4 +1,4 @@
-[09:35:09] waiting for GEN HALF a DONE in /home/usman/Bonsai-demo/dflash-training/v2/logs/gen_broad2_a.log
+[09:35:09] waiting for GEN HALF a DONE in /home/REDACTED/Bonsai-demo/dflash-training/v2/logs/gen_broad2_a.log
 [18:57:11] gen done: 10000 records; stopping gen server pid 4127006
 {
   "records": 10000,

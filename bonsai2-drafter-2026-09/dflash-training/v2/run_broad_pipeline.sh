@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# Broad-mix Medusa retrain pipeline (spark2). Stages, in order:
+# Broad-mix Medusa retrain pipeline (node_b). Stages, in order:
 #   waitgen  - wait for gen_client_broad to finish, then stop the llama-server on :8095
 #   extract  - teacher-force feature extraction -> feats/batch3_broad.bin (+ category tags)
-#   rsync    - copy batch3_broad.bin (+ prompt files) to spark1 over the direct link (background)
+#   rsync    - copy batch3_broad.bin (+ prompt files) to node_a over the direct link (background)
 #   train    - Medusa heads on feats/*.bin -> medusa/medusa_heads_v2.safetensors
 #   evalcat  - per-category held-out eval (v2 vs v1 on the same split)
 #   merge    - merge v2 heads into a copy of the PQ2_0 GGUF
 #   bench    - llama-speculative-simple math/code at n_max 2 and 4 (v2 heads, plus v1 n_max=2 reference)
 # Usage: run_broad_pipeline.sh [stage ...]   (default: all stages in order)
 set -uo pipefail
-ROOT=/home/usman/Bonsai-demo
+ROOT=/home/REDACTED/Bonsai-demo
 V2=$ROOT/dflash-training/v2
 MODEL=$ROOT/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
 MERGED=$ROOT/models/bonsai2-medusa/Ternary-Bonsai-2-27B-PQ2_0-medusa-v2.gguf
 V1=$ROOT/models/bonsai2-medusa/Ternary-Bonsai-2-27B-PQ2_0-medusa.gguf
-DOCKER="sudo docker run --rm --gpus all -v /home/usman:/home/usman bonsai/dflash-trainer:latest"
+DOCKER="sudo docker run --rm --gpus all -v /home/REDACTED:/home/REDACTED bonsai/dflash-trainer:latest"
 LOGS=$V2/logs
 mkdir -p "$LOGS" "$ROOT/logs/medusa"
 ts() { date +%H:%M:%S; }
@@ -54,14 +54,14 @@ stage_extract() {
 }
 
 stage_rsync() {
-    say "rsync: batch3_broad.bin -> spark1 (background, direct link 10.99.0.1)"
+    say "rsync: batch3_broad.bin -> node_a (background, direct link 203.0.113.11)"
     (
         rsync -W --inplace --partial -e "ssh -o StrictHostKeyChecking=accept-new" \
-            "$V2/feats/batch3_broad.bin" usman@10.99.0.1:"$V2/feats/batch3_broad.bin.tmp" \
-        && ssh usman@10.99.0.1 "mv $V2/feats/batch3_broad.bin.tmp $V2/feats/batch3_broad.bin && stat -c%s $V2/feats/batch3_broad.bin" \
+            "$V2/feats/batch3_broad.bin" user@203.0.113.11:"$V2/feats/batch3_broad.bin.tmp" \
+        && ssh user@203.0.113.11 "mv $V2/feats/batch3_broad.bin.tmp $V2/feats/batch3_broad.bin && stat -c%s $V2/feats/batch3_broad.bin" \
         && rsync -e "ssh -o StrictHostKeyChecking=accept-new" "$V2"/prompts_broad.jsonl "$V2"/prompts_broad.jsonl.counts.json \
             "$V2"/prompts_broad_ids.jsonl "$V2"/prompts_gen_broad.jsonl "$V2"/prompts_gen_broad_tags.jsonl \
-            "$V2"/build_prompts_broad.py "$V2"/tag_gen_records.py "$V2"/run_broad_pipeline.sh usman@10.99.0.1:"$V2"/ \
+            "$V2"/build_prompts_broad.py "$V2"/tag_gen_records.py "$V2"/run_broad_pipeline.sh user@203.0.113.11:"$V2"/ \
         && echo "RSYNC_DONE $(date +%H:%M:%S)"
         echo "rsync rc=$?"
     ) > "$LOGS/rsync_batch3_broad.log" 2>&1 &

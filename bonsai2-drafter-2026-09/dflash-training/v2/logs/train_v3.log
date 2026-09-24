@@ -21,7 +21,7 @@ NOTE: CUDA Forward Compatibility mode ENABLED.
 [train] device=cuda dtype=torch.bfloat16 (NVIDIA GB10)
 [train] loading teacher matrices (this reads ~2.5 GB f16 each) ...
 [data] indexed 23401 samples across 5 file(s); embd=5120 n_taps=5
-[warm-start] loading /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step600.safetensors
+[warm-start] loading /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step600.safetensors
 [warm-start] loaded. missing=0 unexpected=0
 [train] 11701 steps, 1 epochs, 23401 samples, num_anchors=256, block_size=7
 ep 1/1 step 10/11701 loss 1.2910 (ce 0.1801 l1 0.6305 conf 0.4804) acc 0.669 acc_p 0.650 lr 1.00e-04 vram 18.7G 3.6m

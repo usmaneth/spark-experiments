@@ -2,9 +2,9 @@
 [10:52:00] ABL base done: val step 1651/1651 acc 0.488/0.403/0.364/0.336 ce 3.453/3.991/4.228/4.441 n_tok 47009 30s | 34 train lines
 [10:52:00] ABL depth5 start: --ttt-depth 5 --lr 1e-4
 [11:48:04] ABL depth5 done: val step 1651/1651 acc 0.460/0.382/0.353/0.334/0.316 ce 3.653/4.122/4.308/4.441/4.592 n_tok 47009 37s | 34 train lines
-[12:40:04] ABL warmL0 start: --ttt-depth 4 --lr 1e-4 --warm-start /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_warmL0_init.safetensors
+[12:40:04] ABL warmL0 start: --ttt-depth 4 --lr 1e-4 --warm-start /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_warmL0_init.safetensors
 [13:44:57] ABL warmL0 done: val step 1651/1651 acc 0.504/0.403/0.346/0.299 ce 3.554/4.136/4.493/4.840 n_tok 47009 69s | 34 train lines
-[13:44:57] ABL warmL4 start: --ttt-depth 4 --lr 1e-4 --warm-start /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_warmL4_init.safetensors
+[13:44:57] ABL warmL4 start: --ttt-depth 4 --lr 1e-4 --warm-start /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_warmL4_init.safetensors
 [15:13:13] ABL warmL4 done: val step 1651/1651 acc 0.518/0.356/0.271/0.211 ce 3.275/4.243/4.802/5.213 n_tok 47009 78s | 34 train lines
 [15:13:13] ABLATIONS DONE
 [10:52:00] ABL base done: val step 1651/1651 acc 0.488/0.403/0.364/0.336 ce 3.453/3.991/4.228/4.441 n_tok 47009 30s | 34 train lines

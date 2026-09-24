@@ -2,9 +2,9 @@
  "tool": "spec_bench",
  "schema_version": 2,
  "created_utc": "2026-09-18T18:26:13Z",
- "note": "dry run, not publishable: contended GPUs, external servers (spark1 :8085 plain PQ2_0 with 4 slots, spark2 :8096 bonsai2-27b-spec with the DSpark v2 drafter, 1 slot); no v1 server; power sampled on the client host spark1 only",
+ "note": "dry run, not publishable: contended GPUs, external servers (node_a :8085 plain PQ2_0 with 4 slots, node_b :8096 bonsai2-27b-spec with the DSpark v2 drafter, 1 slot); no v1 server; power sampled on the client host node_a only",
  "environment": {
-  "hostname": "spark1",
+  "hostname": "node_a",
   "platform": "Linux-7.0.0-1019-nvidia-aarch64-with-glibc2.39",
   "python": "3.12.14",
   "gpu_name": "NVIDIA GB10",
@@ -16,7 +16,7 @@
   "gpu_compute_apps": [
    {
     "pid": 1446531,
-    "name": "/home/usman/Bonsai-demo/bin/cuda/llama-server",
+    "name": "/home/REDACTED/Bonsai-demo/bin/cuda/llama-server",
     "used_memory": "9970 MiB"
    },
    {
@@ -39,7 +39,7 @@
    1
   ],
   "slot_prompt_ids": "code-01,code-02,chat-01,chat-02,reasoning-01,reasoning-02,tool-01,tool-02",
-  "prompts": "/home/usman/Bonsai-demo/dflash-training/eval/spec_bench_full/prompts.json",
+  "prompts": "/home/REDACTED/Bonsai-demo/dflash-training/eval/spec_bench_full/prompts.json",
   "prompt_ids": "code-01,tool-01,agent-01",
   "categories": null,
   "limit": null,
@@ -64,11 +64,11 @@
   "allow_busy_gpu": false,
   "plan_only": false,
   "out": "dflash-training/eval/spec_bench_full/dryrun",
-  "note": "dry run, not publishable: contended GPUs, external servers (spark1 :8085 plain PQ2_0 with 4 slots, spark2 :8096 bonsai2-27b-spec with the DSpark v2 drafter, 1 slot); no v1 server; power sampled on the client host spark1 only"
+  "note": "dry run, not publishable: contended GPUs, external servers (node_a :8085 plain PQ2_0 with 4 slots, node_b :8096 bonsai2-27b-spec with the DSpark v2 drafter, 1 slot); no v1 server; power sampled on the client host node_a only"
  },
  "server_urls": {
-  "baseline": "http://10.99.0.1:8085",
-  "dspark-v2": "http://10.99.0.2:8096"
+  "baseline": "http://203.0.113.11:8085",
+  "dspark-v2": "http://203.0.113.12:8096"
  },
  "config_names": [
   "baseline",
@@ -193,7 +193,7 @@
    "slots": 1,
    "column": "no drafter",
    "mode": "remote",
-   "url": "http://10.99.0.1:8085",
+   "url": "http://203.0.113.11:8085",
    "drafter": null,
    "spec_draft_n_max": null,
    "server_args": null,
@@ -223,7 +223,7 @@
     "generation_seconds": 56.7,
     "tok_s_wall": 8.92378453116623,
     "energy_mj_per_token": 6475.868960913483,
-    "host": "spark1",
+    "host": "node_a",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T18:26:13Z",
@@ -235,7 +235,7 @@
    "slots": 1,
    "column": "DSpark v2 (K=5)",
    "mode": "remote",
-   "url": "http://10.99.0.2:8096",
+   "url": "http://203.0.113.12:8096",
    "drafter": null,
    "spec_draft_n_max": 5,
    "server_args": null,
@@ -265,7 +265,7 @@
     "generation_seconds": 63.7,
     "tok_s_wall": 7.938662068727475,
     "energy_mj_per_token": 7040.497588090457,
-    "host": "spark1",
+    "host": "node_a",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T18:27:19Z",
@@ -860,7 +860,7 @@
   "slots.1.v2.accept": "41.7%",
   "slots.1.v2.speedup": "1.07x",
   "slots.1.v2.aggregate_speedup": "0.97x",
-  "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on spark1 while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
+  "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on node_a while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
   "power.idle.w": "55.3",
   "power.baseline.w": "57.8",
   "power.baseline.mj": "6476",
@@ -885,7 +885,7 @@
     "generation_seconds": 56.7,
     "tok_s_wall": 8.92378453116623,
     "energy_mj_per_token": 6475.868960913483,
-    "host": "spark1",
+    "host": "node_a",
     "interval_s": 1.0
    }
   },
@@ -904,7 +904,7 @@
     "generation_seconds": 63.7,
     "tok_s_wall": 7.938662068727475,
     "energy_mj_per_token": 7040.497588090457,
-    "host": "spark1",
+    "host": "node_a",
     "interval_s": 1.0
    }
   }

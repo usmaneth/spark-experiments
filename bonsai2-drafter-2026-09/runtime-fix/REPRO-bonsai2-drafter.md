@@ -3,7 +3,7 @@
 This file is untracked working material for the benchmark doc and the blog post.
 It records what a clean build of `PrismML-Eng/llama.cpp` branch `prism` at
 `1a07bfa5f` does with the Bonsai 2 DSpark drafters, why, and the exact commands
-that reproduce the numbers. Built and measured on spark1 on 2026-09-18.
+that reproduce the numbers. Built and measured on node_a on 2026-09-18.
 
 Upstream commit: `1a07bfa5f4144274c8f1c9963821dd9d9a51854b`
 (2026-09-17 23:58:45 -0700, "Merge pull request #179 from PrismML-Eng/feat/dspark-shared-head-runtime").
@@ -33,7 +33,7 @@ Upstream commit: `1a07bfa5f4144274c8f1c9963821dd9d9a51854b`
 - What to cite: `PrismML-Eng/llama.cpp` commit `1a07bfa5f` plus the PR that
   carries this patch (or the PR's merge commit once it exists). Do not cite
   `1a07bfa5f` alone, and do not cite the local 18-file tree behind
-  `/home/usman/Bonsai-demo/bin/cuda` (build 10687, commit `5d80cff0b`).
+  `/home/REDACTED/Bonsai-demo/bin/cuda` (build 10687, commit `5d80cff0b`).
 - The demo's pinned release binaries (`RELEASE_TAG="prism-b10683-d8f26ee"` in
   `scripts/download_binaries.sh:15`) predate `1a07bfa5f` by 23 commits and have
   the same gap. `BONSAI_SPECULATIVE=1` on Bonsai 2 does not accelerate with the
@@ -56,12 +56,12 @@ Upstream commit: `1a07bfa5f4144274c8f1c9963821dd9d9a51854b`
 ## 1. Clean build
 
 ```bash
-git clone https://github.com/PrismML-Eng/llama.cpp.git /home/usman/llama.cpp-upstream
-git -C /home/usman/llama.cpp-upstream checkout 1a07bfa5f
-cmake -S /home/usman/llama.cpp-upstream -B /home/usman/llama.cpp-upstream/build-cuda \
+git clone https://github.com/PrismML-Eng/llama.cpp.git /home/REDACTED/llama.cpp-upstream
+git -C /home/REDACTED/llama.cpp-upstream checkout 1a07bfa5f
+cmake -S /home/REDACTED/llama.cpp-upstream -B /home/REDACTED/llama.cpp-upstream/build-cuda \
   -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=121a -DGGML_CUDA_FA=ON -DGGML_NATIVE=ON \
   -DCMAKE_BUILD_TYPE=Release
-cmake --build /home/usman/llama.cpp-upstream/build-cuda -j 18 \
+cmake --build /home/REDACTED/llama.cpp-upstream/build-cuda -j 18 \
   --target llama-speculative-simple llama-server llama-bench llama-quantize llama-gguf
 ```
 
@@ -76,7 +76,7 @@ built with GNU 13.3.0 for Linux aarch64
 ```
 
 The same flags produced the local patched binaries
-(`/home/usman/Bonsai-demo/llama.cpp/build-cuda/CMakeCache.txt`: GGML_CUDA=ON,
+(`/home/REDACTED/Bonsai-demo/llama.cpp/build-cuda/CMakeCache.txt`: GGML_CUDA=ON,
 CMAKE_CUDA_ARCHITECTURES=121a, GGML_CUDA_FA=ON, GGML_CUDA_FA_ALL_QUANTS=OFF,
 GGML_NATIVE=ON, Release), so the comparison is flag for flag.
 
@@ -88,7 +88,7 @@ The unpatched binaries are kept in `build-cuda/bin.clean-1a07bfa5f/`;
 
 ## 2. Acceptance
 
-Host: spark1 (DGX Spark GB10, aarch64, CUDA 13.0, driver 580.178.04). The GPU
+Host: node_a (DGX Spark GB10, aarch64, CUDA 13.0, driver 580.178.04). The GPU
 was at 88-91% utilization from a separate generation server for every run, so
 acceptance counts are valid (greedy, deterministic) and tokens/s are not. Each
 cell is one 200-token run of `llama-speculative-simple`:
@@ -113,9 +113,9 @@ CODE2: <|im_start|>user\nImplement binary search in Python with type hints, a do
 Binaries:
 
 - "clean 1a07bfa5f": `build-cuda/bin.clean-1a07bfa5f/` (section 1).
-- "local patched tree": `/home/usman/Bonsai-demo/bin/cuda` (build 10687,
+- "local patched tree": `/home/REDACTED/Bonsai-demo/bin/cuda` (build 10687,
   commit `5d80cff0b` + 18 modified files), the binaries behind the numbers
-  verified earlier on an idle spark2.
+  verified earlier on an idle node_b.
 - "1a07bfa5f + this patch": `build-cuda/bin/` after section 5.
 
 Drafters:
@@ -244,7 +244,7 @@ no transform. Bonsai 2 is the first target with a rotated embedding table and a
 folded head, and no vendor drafter has been paired with it yet.
 
 The local 18-file tree fixes this with two inline changes
-(`git -C /home/usman/Bonsai-demo/llama.cpp diff -- src/models/dflash.cpp
+(`git -C /home/REDACTED/Bonsai-demo/llama.cpp diff -- src/models/dflash.cpp
 src/llama-context.cpp`, base `5d80cff0b`): `graph_params()` and
 `graph_reserve()` fall back to `ctx_other->model`'s maps when the draft's are
 empty (6 lines), and `dflash.cpp` repeats the 9-line inverse block after two of
@@ -262,10 +262,10 @@ instead of decoding garbage.
 
 ## 5. Patch
 
-Branch `fix/dflash-borrowed-hadamard` in `/home/usman/llama.cpp-upstream`
+Branch `fix/dflash-borrowed-hadamard` in `/home/REDACTED/llama.cpp-upstream`
 (based on `1a07bfa5f`, commit `288859a96`, open as PrismML-Eng/llama.cpp PR #210
 from `usmaneth/llama.cpp`). The same diff is saved as
-`/home/usman/llama.cpp-upstream/dflash-borrowed-hadamard.patch`.
+`/home/REDACTED/llama.cpp-upstream/dflash-borrowed-hadamard.patch`.
 `git diff --check` is clean and the added lines are ASCII.
 
 ```text
@@ -595,7 +595,7 @@ and were not changed):
   patched binaries alike. Record the patch (or the PR merge commit) with every
   number.
 - Speed: every tok/s in this file was measured on a shared GPU and is invalid.
-  The publishable speeds are the earlier idle-spark2 numbers on the local
+  The publishable speeds are the earlier idle-node_b numbers on the local
   patched tree, which the fixed clean build now matches count for count:
   200-token math 61.5 tok/s, code 53.9, code2 59.8, base 29.8-29.9; long-form
   mean 64.4 tok/s. They were not re-measured in this session.
@@ -630,7 +630,7 @@ architecture needs an unrotated embedding source.
 ## 9. Environment
 
 ```text
-Host:      spark1, NVIDIA DGX Spark (GB10), aarch64, 20 cores
+Host:      node_a, NVIDIA DGX Spark (GB10), aarch64, 20 cores
 OS:        Ubuntu 24.04.5 LTS, kernel 7.0.0-1019-nvidia
 GPU:       NVIDIA GB10, driver 580.178.04, CUDA 13.0 (nvcc V13.0.88)
 Compiler:  gcc 13.3.0, cmake 3.28.3

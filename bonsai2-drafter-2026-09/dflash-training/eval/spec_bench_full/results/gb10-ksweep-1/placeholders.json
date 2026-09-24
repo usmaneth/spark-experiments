@@ -113,7 +113,7 @@
  "power.dspark-v2-k7.mj": "1817",
  "power.dspark-v2-k7.w": "80.9",
  "power.idle.w": "13.6",
- "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on spark1 while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
+ "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on node_a while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
  "power.v2.mj": "1667",
  "power.v2.w": "80.3",
  "reasoning.dspark-v2-k3.accept": "59.7%",

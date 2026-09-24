@@ -3,7 +3,7 @@
 # Usage: after_gen_extract.sh <a|b>
 set -u
 H="${1:?a or b}"
-ROOT=/home/usman/Bonsai-demo; V2=$ROOT/dflash-training/v2
+ROOT=/home/REDACTED/Bonsai-demo; V2=$ROOT/dflash-training/v2
 GLOG=$V2/logs/gen_broad2_$H.log; LOG=$V2/logs/after_gen_extract_$H.log
 say(){ echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 say "waiting for GEN HALF $H DONE in $GLOG"

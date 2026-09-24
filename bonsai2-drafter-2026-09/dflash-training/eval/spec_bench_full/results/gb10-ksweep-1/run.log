@@ -12,7 +12,7 @@ spec_bench: 5 runs (5 configs x 1 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999
   started llama-server pid 3179908, log dflash-training/eval/spec_bench_full/results/gb10-ksweep-1/server-dspark-v2-np1.log
   healthy after 3.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    69.67 tok/s  accept 0.610 (384/630)  4.00 tok/step
   code-02          pass 1   353 tok    66.84 tok/s  accept 0.578 (263/455)  3.92 tok/step
@@ -69,7 +69,7 @@ spec_bench: 5 runs (5 configs x 1 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 3 -ngld 999
   started llama-server pid 3197264, log dflash-training/eval/spec_bench_full/results/gb10-ksweep-1/server-dspark-v2-k3-np1.log
   healthy after 3.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    61.75 tok/s  accept 0.723 (349/483)  3.14 tok/step
   code-02          pass 1   353 tok    60.83 tok/s  accept 0.708 (240/339)  3.12 tok/step
@@ -126,7 +126,7 @@ spec_bench: 5 runs (5 configs x 1 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999
   started llama-server pid 3214978, log dflash-training/eval/spec_bench_full/results/gb10-ksweep-1/server-dspark-v2-k4-np1.log
   healthy after 3.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    66.71 tok/s  accept 0.666 (371/557)  3.63 tok/step
   code-02          pass 1   353 tok    65.48 tok/s  accept 0.653 (256/392)  3.64 tok/step
@@ -183,7 +183,7 @@ spec_bench: 5 runs (5 configs x 1 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 6 -ngld 999
   started llama-server pid 3232978, log dflash-training/eval/spec_bench_full/results/gb10-ksweep-1/server-dspark-v2-k6-np1.log
   healthy after 4.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    67.75 tok/s  accept 0.541 (390/721)  4.20 tok/step
   code-02          pass 1   353 tok    65.03 tok/s  accept 0.511 (267/522)  4.10 tok/step
@@ -240,7 +240,7 @@ spec_bench: 5 runs (5 configs x 1 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 7 -ngld 999
   started llama-server pid 3250787, log dflash-training/eval/spec_bench_full/results/gb10-ksweep-1/server-dspark-v2-k7-np1.log
   healthy after 4.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    65.42 tok/s  accept 0.493 (395/802)  4.38 tok/step
   code-02          pass 1   353 tok    62.57 tok/s  accept 0.466 (271/581)  4.30 tok/step

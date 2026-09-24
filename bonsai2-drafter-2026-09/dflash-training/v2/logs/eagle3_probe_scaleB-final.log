@@ -1,5 +1,5 @@
-[03:55:06] PROBE scaleB-final: /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleB_ema.safetensors
-[03:55:31] probe host: spark1 (local GPU free)
+[03:55:06] PROBE scaleB-final: /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleB_ema.safetensors
+[03:55:31] probe host: node_a (local GPU free)
 RESULT eagle3-scaleB-final K=5 math | accept 43.574% | 52.289 tok/s | 139/319
 RESULT eagle3-scaleB-final K=5 code | accept 30.075% | 41.373 tok/s | 120/399
 RESULT eagle3-scaleB-final K=5 code2 | accept 34.771% | 44.574 tok/s | 129/371

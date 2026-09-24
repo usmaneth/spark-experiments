@@ -1,8 +1,8 @@
 # Speculative decoding benchmark
 
-Note: dry run, not publishable: contended GPUs, external servers (spark1 :8085 plain PQ2_0 with 4 slots, spark2 :8096 bonsai2-27b-spec with the DSpark v2 drafter, 1 slot); no v1 server; power sampled on the client host spark1 only
+Note: dry run, not publishable: contended GPUs, external servers (node_a :8085 plain PQ2_0 with 4 slots, node_b :8096 bonsai2-27b-spec with the DSpark v2 drafter, 1 slot); no v1 server; power sampled on the client host node_a only
 
-Generated 2026-09-18T18:26:13Z on spark1 (NVIDIA GB10, driver 580.178.04, CUDA 13.0). llama-server version: 0.2.0-dev (build 10687, commit 5d80cff0b), build b10687-5d80cff0b.
+Generated 2026-09-18T18:26:13Z on node_a (NVIDIA GB10, driver 580.178.04, CUDA 13.0). llama-server version: 0.2.0-dev (build 10687, commit 5d80cff0b), build b10687-5d80cff0b.
 
 Prompts: 1 matrix prompts x 128 tokens, 1 tool prompts x 128 tokens, 1 agent prompts x 128 tokens. Passes per prompt: 1. Slots: 1. Rates are arithmetic means of the server decode-only `predicted_per_second`; acceptance is aggregated accepted/drafted tokens; speedup is the ratio of the two means over the same prompts. The tool and agent rows come from `/v1/chat/completions` with a tools list and the server template (reasoning effort: template); the other rows come from `/completion` with a client-side ChatML template. The single quicksort prompt runs 3 passes at 64 tokens on every single-slot server.
 
@@ -49,7 +49,7 @@ A tool prompt is valid when the answer holds at least one well-formed call (a na
 
 ## Power
 
-`nvidia-smi` sampled at 1 Hz on spark1. Idle is the mean draw over 10 s with the model loaded and no request in flight. Mean and max cover the generation phase. `gen tok/s` is generated tokens over the wall time of that phase, prefill included, and mJ/token is mean W / gen tok/s x 1000. In server-url mode the samples come from the client host, which may not run the server.
+`nvidia-smi` sampled at 1 Hz on node_a. Idle is the mean draw over 10 s with the model loaded and no request in flight. Mean and max cover the generation phase. `gen tok/s` is generated tokens over the wall time of that phase, prefill included, and mJ/token is mean W / gen tok/s x 1000. In server-url mode the samples come from the client host, which may not run the server.
 
 | config | slots | idle W | mean W | max W | util % | tokens | gen tok/s | mJ/token |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -58,12 +58,12 @@ A tool prompt is valid when the answer holds at least one well-formed call (a na
 
 ## Configuration
 
-- `baseline` slots 1: remote server http://10.99.0.1:8085 (not launched by the tool; its flags are its own)
+- `baseline` slots 1: remote server http://203.0.113.11:8085 (not launched by the tool; its flags are its own)
   build b10687-5d80cff0b, model `models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 4, n_ctx 32768
-- `dspark-v2` slots 1: remote server http://10.99.0.2:8096 (not launched by the tool; its flags are its own)
+- `dspark-v2` slots 1: remote server http://203.0.113.12:8096 (not launched by the tool; its flags are its own)
   build b10687-5d80cff0b, model `models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 8192
 - GPU: NVIDIA GB10, 580.178.04
-- GPU processes at start: /home/usman/Bonsai-demo/bin/cuda/llama-server (9970 MiB), bin/cuda/llama-server (13310 MiB)
+- GPU processes at start: /home/REDACTED/Bonsai-demo/bin/cuda/llama-server (9970 MiB), bin/cuda/llama-server (13310 MiB)
 - Matrix and long prompts: POST /completion, temperature 0, seed 42, cache_prompt false, ChatML template applied by the client, no system message
 - Tool and agent prompts: POST /v1/chat/completions, temperature 0, seed 42, cache_prompt false, tools list with tool_choice auto, server template (--jinja)
 - Draft counters: `timings.draft_n` and `timings.draft_n_accepted` from each response

@@ -276,17 +276,17 @@ def train(features_bin, pretrained_st, output_st, epochs=2, lr=1e-4, batch_size=
 
     print("=== All Training Epochs Complete ===")
 if __name__ == "__main__":
-    part1 = "/home/usman/Bonsai-demo/dflash-training/bonsai2_features_part1.bin"
-    part2 = "/home/usman/Bonsai-demo/dflash-training/bonsai2_features_part2.bin"
-    part1k = "/home/usman/Bonsai-demo/dflash-training/bonsai2_features_1k.bin"
+    part1 = "/home/REDACTED/Bonsai-demo/dflash-training/bonsai2_features_part1.bin"
+    part2 = "/home/REDACTED/Bonsai-demo/dflash-training/bonsai2_features_part2.bin"
+    part1k = "/home/REDACTED/Bonsai-demo/dflash-training/bonsai2_features_1k.bin"
     
     features_bin = []
     if os.path.exists(part1): features_bin.append(part1)
     if os.path.exists(part2): features_bin.append(part2)
     if not features_bin and os.path.exists(part1k): features_bin.append(part1k)
     
-    pretrained_st = "/home/usman/Bonsai-demo/models/qwen38-dspark/model.safetensors"
-    output_st = "/home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_trained.safetensors"
+    pretrained_st = "/home/REDACTED/Bonsai-demo/models/qwen38-dspark/model.safetensors"
+    output_st = "/home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_trained.safetensors"
     
     epochs = 3
     if len(sys.argv) > 1: epochs = int(sys.argv[1])

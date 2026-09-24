@@ -26,9 +26,9 @@ TARGET_TITLE = "Mafia terminal panel testing"
 INITIAL_PID = 1407421
 INITIAL_TTY = "/dev/pts/7"
 
-TRANSCRIPT_PATH = f"/home/usman/.claude/projects/-home-usman/{SESSION_ID}.jsonl"
-SESSION_JSON_PATH = f"/home/usman/.claude/sessions/{INITIAL_PID}.json"
-LOG_FILE = "/home/usman/Bonsai-demo/dflash-training/claude_watcher.log"
+TRANSCRIPT_PATH = f"/home/REDACTED/.claude/projects/-home-REDACTED/{SESSION_ID}.jsonl"
+SESSION_JSON_PATH = f"/home/REDACTED/.claude/sessions/{INITIAL_PID}.json"
+LOG_FILE = "/home/REDACTED/Bonsai-demo/dflash-training/claude_watcher.log"
 
 WATCH_DURATION_SEC = 12 * 3600 # 12 hours
 CHECK_INTERVAL_SEC = 3.0       # Polling interval
@@ -54,7 +54,7 @@ def find_active_target():
         return INITIAL_PID, tty, TRANSCRIPT_PATH
 
     # 2. Check all active Claude sessions in ~/.claude/sessions/
-    session_files = glob.glob("/home/usman/.claude/sessions/*.json")
+    session_files = glob.glob("/home/REDACTED/.claude/sessions/*.json")
     for sf in session_files:
         try:
             with open(sf, "r") as f:
@@ -63,7 +63,7 @@ def find_active_target():
             sid = data.get("sessionId")
             if pid and os.path.exists(f"/proc/{pid}"):
                 # Check transcript for title
-                trans = f"/home/usman/.claude/projects/-home-usman/{sid}.jsonl"
+                trans = f"/home/REDACTED/.claude/projects/-home-REDACTED/{sid}.jsonl"
                 if os.path.exists(trans):
                     with open(trans, "r") as tf:
                         for l in tf:

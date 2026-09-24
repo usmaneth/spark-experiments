@@ -29,7 +29,7 @@ grep -n '<PR-URL' README.md   # expect no output
 Verify the local files first:
 
 ```bash
-cd /home/usman/Bonsai-demo/models/hf-release/Ternary-Bonsai-2-27B-dspark-dflash
+cd /home/REDACTED/Bonsai-demo/models/hf-release/Ternary-Bonsai-2-27B-dspark-dflash
 sha256sum -c SHA256SUMS   # expect two OK lines
 ```
 
@@ -40,7 +40,7 @@ Set `HF_USER` to the account or organization that owns the repository.
 ```bash
 export HF_USER=<hf-user>
 export REPO=$HF_USER/Ternary-Bonsai-2-27B-dspark-dflash
-cd /home/usman/Bonsai-demo/models/hf-release/Ternary-Bonsai-2-27B-dspark-dflash
+cd /home/REDACTED/Bonsai-demo/models/hf-release/Ternary-Bonsai-2-27B-dspark-dflash
 
 # 1. log in once (or export HF_TOKEN with a write token)
 hf auth login

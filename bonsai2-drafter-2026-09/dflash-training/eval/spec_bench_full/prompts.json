@@ -452,7 +452,7 @@
       "import urllib.request",
       "",
       "QUANTS = [\"Q4_0\", \"Q4_K_M\", \"Q5_K_M\", \"Q6_K\", \"Q8_0\"]",
-      "ROOT = \"/home/usman/Bonsai-demo\"  # repo root"
+      "ROOT = \"/home/REDACTED/Bonsai-demo\"  # repo root"
     ]},
     {"id": "agent-08", "category": "agent", "set": "agent", "prompt": "Write a bug report for the API failure below with the sections Summary, Steps to reproduce, Expected, Actual and Evidence. Then write a regression test in Python unittest that reproduces the failure against a fake HTTP server on 127.0.0.1 and passes once the bug is fixed.", "tool_call": {"name": "run_shell", "arguments": {"command": "curl -sv http://127.0.0.1:8080/v1/chat/completions -H 'Content-Type: application/json' -d @req.json 2>&1 | tail -30; echo; tail -16 logs/server.log"}}, "tool_result": [
       "* Trying 127.0.0.1:8080...",

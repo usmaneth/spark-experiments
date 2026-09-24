@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Medusa v2 benchmark with target-side typical acceptance (SPEC_TYPICAL_TAU) on spark2.
+# Medusa v2 benchmark with target-side typical acceptance (SPEC_TYPICAL_TAU) on node_b.
 # Runs math/code x n_max {2,4} x tau {0.05, 0.02} (the tau-unset rows come from run_broad_pipeline.sh bench).
 # Usage: bench_medusa_tau.sh [merged.gguf] [taus...]
 set -uo pipefail
-ROOT=/home/usman/Bonsai-demo
+ROOT=/home/REDACTED/Bonsai-demo
 MODEL=${1:-$ROOT/models/bonsai2-medusa/Ternary-Bonsai-2-27B-PQ2_0-medusa-v2.gguf}
 shift || true
 TAUS=("$@"); [ ${#TAUS[@]} -eq 0 ] && TAUS=(0.05 0.02)

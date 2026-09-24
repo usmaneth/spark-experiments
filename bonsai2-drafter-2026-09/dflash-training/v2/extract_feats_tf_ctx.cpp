@@ -47,9 +47,9 @@ static bool parse_line(const std::string & s, std::vector<int32_t> & toks, int &
 }
 
 int main(int argc, char ** argv) {
-    const char * model_path = (argc>1)?argv[1] : "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
-    const char * data_path  = (argc>2)?argv[2] : "/home/usman/Bonsai-demo/dflash-training/v2/prompts_gen_batch2.jsonl";
-    const char * out_path   = (argc>3)?argv[3] : "/home/usman/Bonsai-demo/dflash-training/v2/feats/batch2.bin";
+    const char * model_path = (argc>1)?argv[1] : "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
+    const char * data_path  = (argc>2)?argv[2] : "/home/REDACTED/Bonsai-demo/dflash-training/v2/prompts_gen_batch2.jsonl";
+    const char * out_path   = (argc>3)?argv[3] : "/home/REDACTED/Bonsai-demo/dflash-training/v2/feats/batch2.bin";
     const int max_samples   = (argc>4)?atoi(argv[4]) : 100000;
 
     const uint32_t tap_layers[5] = {6,20,34,48,62};

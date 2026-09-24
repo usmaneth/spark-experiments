@@ -1,6 +1,6 @@
 ggml_cuda_init: found 1 CUDA devices (Total VRAM: 124608 MiB):
   Device 0: NVIDIA GB10, compute capability 12.1, VMM: yes, VRAM: 124608 MiB
-llama_model_loader: loaded meta data with 49 key-value pairs and 851 tensors from /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf (version GGUF V3 (latest))
+llama_model_loader: loaded meta data with 49 key-value pairs and 851 tensors from /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf (version GGUF V3 (latest))
 llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
 llama_model_loader: - kv   0:                       general.architecture str              = qwen35
 llama_model_loader: - kv   1:                               general.type str              = model
@@ -2348,9 +2348,9 @@ sched_reserve: graph nodes  = 4639
 sched_reserve: graph splits = 2
 sched_reserve: reserve took 171.24 ms, sched copies = 1
 === Bonsai 2 feature-only teacher-force extractor ===
-model:/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
+model:/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
 data:prompts_gen_broad2_a.jsonl
-out:/home/usman/Bonsai-demo/dflash-training/v2/feats_broad2_bon2/broad2_a.bin
+out:/home/REDACTED/Bonsai-demo/dflash-training/v2/feats_broad2_bon2/broad2_a.bin
 n_ctx:2048 (samples longer than this are skipped)
   feat 50 (skip 0) | tok 25073 gen 20916 | 794.2 tok/s | 31.6s
   feat 100 (skip 0) | tok 51730 gen 43220 | 830.2 tok/s | 62.3s
@@ -2671,4 +2671,4 @@ ggml_backend_cuda_graph_compute: CUDA graph warmup reset
 ~llama_context:  CUDA_Host compute buffer size is  88.0782 MiB, matches expectation of  88.0782 MiB
 
 === done === samples=10000 skip=0 tokens=5386676 gen=4453831 time=6226.4s (865.1 tok/s)
-out:/home/usman/Bonsai-demo/dflash-training/v2/feats_broad2_bon2/broad2_a.bin
+out:/home/REDACTED/Bonsai-demo/dflash-training/v2/feats_broad2_bon2/broad2_a.bin

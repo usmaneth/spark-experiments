@@ -25,7 +25,7 @@ NOTE: The SHMEM allocation limit is set to the default of 64MB.  This may be
 [train] device=cuda dtype=torch.bfloat16 (NVIDIA GB10)
 [train] loading teacher matrices (this reads ~2.5 GB f16 each) ...
 [data] indexed 47 samples across 1 file(s); embd=5120 n_taps=5
-[warm-start] loading /home/usman/Bonsai-demo/models/qwen38-dspark/model.safetensors
+[warm-start] loading /home/REDACTED/Bonsai-demo/models/qwen38-dspark/model.safetensors
 [warm-start] loaded. missing=0 unexpected=0
 [train] 24 steps, 1 epochs, 47 samples, num_anchors=512, block_size=7
 ep 1/1 step 5/24 loss 0.9664 (ce 0.1106 l1 0.4642 conf 0.3915) acc 0.757 acc_p 0.742 lr 1.79e-04 vram 18.7G 2.1m
@@ -33,6 +33,6 @@ ep 1/1 step 10/24 loss 1.0491 (ce 0.1477 l1 0.5402 conf 0.3611) acc 0.710 acc_p 
 ep 1/1 step 15/24 loss 0.9579 (ce 0.1099 l1 0.4666 conf 0.3814) acc 0.760 acc_p 0.741 lr 6.24e-05 vram 18.7G 7.8m
 ep 1/1 step 20/24 loss 1.1496 (ce 0.1343 l1 0.5538 conf 0.4614) acc 0.711 acc_p 0.692 lr 1.43e-05 vram 18.7G 10.7m
 ep 1/1 step 24/24 loss 1.3766 (ce 0.1650 l1 0.7068 conf 0.5048) acc 0.614 acc_p 0.607 lr 1.00e-06 vram 18.7G 12.6m
-[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2_smoke.safetensors
-[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2_smoke_epoch1.safetensors
+[save] wrote 62 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2_smoke.safetensors
+[save] wrote 62 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2_smoke_epoch1.safetensors
 [train] done.

@@ -79,7 +79,7 @@
  "power.baseline.mj": "2135",
  "power.baseline.w": "60.9",
  "power.idle.w": "14.5",
- "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on spark2 while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
+ "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on node_b while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
  "power.v1.mj": "1458",
  "power.v1.w": "77.0",
  "power.v2.mj": "1495",

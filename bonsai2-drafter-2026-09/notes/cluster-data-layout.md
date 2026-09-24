@@ -1,6 +1,6 @@
 # Data layout on the cluster
 
-The profile mirror copies `/home/<user>` from spark1 to spark2 every 15 minutes.
+The profile mirror copies `/home/<user>` from node_a to node_b every 15 minutes.
 It exists so that a person's configuration follows them to the other node. It is
 not a data channel. A large file under a home directory reaches the peer within
 15 minutes and fills its disk.
@@ -28,5 +28,5 @@ not a data channel. A large file under a home directory reaches the peer within
 ## History
 
 2026-09-19: the mirror had copied 1.4 TB of training features and checkpoints to
-spark2 as full duplicates and was in the middle of a 0.9 TB copy when it was
+node_b as full duplicates and was in the middle of a 0.9 TB copy when it was
 stopped. The guards above and the `/models/<user>` rule date from that day.

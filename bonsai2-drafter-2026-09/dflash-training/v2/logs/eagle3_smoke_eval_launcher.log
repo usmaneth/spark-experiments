@@ -1,7 +1,7 @@
 [09:26:58] EAGLE3 smoke eval: waiting for container feed9161d260 to exit
-[09:47:53] ckpt: 3738508760 /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_smoke.safetensors
+[09:47:53] ckpt: 3738508760 /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_smoke.safetensors
 [09:48:41] gguf: Q8_0 1997254304 bytes, Q4_K_M 1131646624 bytes
-[09:48:46] EAGLE3 smoke: eval on spark2 (clean), demo llama-server co-resident
+[09:48:46] EAGLE3 smoke: eval on node_b (clean), demo llama-server co-resident
 RESULT eagle3smokeQ8 K=5 math | accept 21.053% | 31.820 tok/s | 104/494
 RESULT eagle3smokeQ8 K=5 code | accept 16.065% | 27.941 tok/s | 89/554
 RESULT eagle3smokeQ8 K=5 code2 | accept 19.721% | 30.610 tok/s | 99/502

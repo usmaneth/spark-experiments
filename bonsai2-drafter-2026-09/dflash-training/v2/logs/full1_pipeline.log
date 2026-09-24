@@ -7,7 +7,7 @@ drwxrwsr-x 10 usman p-usman        4096 Sep 17 23:26 ..
 -rw-rw-r--  1 usman p-usman  1650591540 Sep 17 23:26 batch1.bin
 -rw-rw-r--  1 usman p-usman 29176097466 Sep 17 23:27 batch2.bin
 [23:27:03] LAUNCH full retrain: 2 epochs on batch1+batch2
-== [1/5] TRAIN tag=full1 feats=/home/usman/Bonsai-demo/dflash-training/v2/feats_full epochs=2 bs=2 lr=1e-4  (log: /home/usman/Bonsai-demo/dflash-training/v2/logs/train_full1.log)
+== [1/5] TRAIN tag=full1 feats=/home/REDACTED/Bonsai-demo/dflash-training/v2/feats_full epochs=2 bs=2 lr=1e-4  (log: /home/REDACTED/Bonsai-demo/dflash-training/v2/logs/train_full1.log)
 train exit: 137
 ep 2/2 step 460/904 loss 0.8691 (ce 0.0838 l1 0.4010 conf 0.3843) acc 0.801 acc_p 0.777 lr 9.77e-05 vram 18.7G 166.1m
 ep 2/2 step 470/904 loss 0.9965 (ce 0.1143 l1 0.4714 conf 0.4107) acc 0.765 acc_p 0.738 lr 9.43e-05 vram 18.7G 169.7m
@@ -23,6 +23,6 @@ gguf_ex_read_0: kv[0]: key = general.architecture
 gguf_ex_read_0: kv[14]: key = dflash.block_size
 gguf_ex_read_0: kv[15]: key = dflash.target_layers
 gguf_ex_read_0: kv[30]: key = tokenizer.ggml.mask_token_id
-DONE: /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf (1104605632 bytes)
-Eval (idle GPU): /home/usman/Bonsai-demo/dflash-training/v2/../eval/spec_eval.sh /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf /tmp/eval_full1.json 200 '4 5 7' '0.0'
+DONE: /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf (1104605632 bytes)
+Eval (idle GPU): /home/REDACTED/Bonsai-demo/dflash-training/v2/../eval/spec_eval.sh /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1-Q4_K_M.gguf /tmp/eval_full1.json 200 '4 5 7' '0.0'
 [02:24:16] PIPELINE FINISHED exit=0

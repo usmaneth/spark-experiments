@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from safetensors import safe_open
 
-sys.path.insert(0, '/home/usman/Bonsai-demo/llama.cpp/gguf-py')
+sys.path.insert(0, '/home/REDACTED/Bonsai-demo/llama.cpp/gguf-py')
 from gguf import GGUFWriter, GGUFReader
 
 def convert(safetensors_path, donor_gguf_path, output_gguf_path):
@@ -96,7 +96,7 @@ def convert(safetensors_path, donor_gguf_path, output_gguf_path):
     print("Conversion complete!")
 
 if __name__ == "__main__":
-    safetensors_path = "/home/usman/Bonsai-demo/models/qwen38-dspark/model.safetensors"
-    donor_gguf_path = "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"
-    output_gguf_path = "/home/usman/Bonsai-demo/models/qwen38-dspark/Qwen3.8-27B-DSpark-raw.gguf"
+    safetensors_path = "/home/REDACTED/Bonsai-demo/models/qwen38-dspark/model.safetensors"
+    donor_gguf_path = "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"
+    output_gguf_path = "/home/REDACTED/Bonsai-demo/models/qwen38-dspark/Qwen3.8-27B-DSpark-raw.gguf"
     convert(safetensors_path, donor_gguf_path, output_gguf_path)

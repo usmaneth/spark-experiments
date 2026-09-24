@@ -22,7 +22,7 @@ import sys
 import numpy as np
 import torch
 
-LLAMA_CPP = "/home/usman/Bonsai-demo/llama.cpp"
+LLAMA_CPP = "/home/REDACTED/Bonsai-demo/llama.cpp"
 sys.path.insert(0, os.path.join(LLAMA_CPP, "gguf-py"))
 import gguf  # noqa: E402
 from gguf import GGUFReader, GGUFValueType, GGUFWriter  # noqa: E402

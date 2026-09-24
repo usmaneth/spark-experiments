@@ -64,6 +64,6 @@ ep 1/1 step 1600/1651 loss 4.9198 (hard 4.7779 steps 4.403/4.894/5.091/5.292) ac
 ep 1/1 step 1650/1651 loss 2.9281 (hard 2.8345 steps 2.381/2.863/3.135/3.334) acc 0.559/0.438/0.422/0.381 gnorm 4.19 lr 1.00e-06 vram 19.4G 1.68s/step 47.3m
 ep 1/1 step 1651/1651 loss 2.0057 (hard 1.9227 steps 1.405/1.917/2.220/2.480) acc 0.736/0.586/0.498/0.441 gnorm 4.37 lr 1.00e-06 vram 19.4G 0.02s/step 47.3m
 val step 1651/1651 acc 0.488/0.403/0.364/0.336 ce 3.453/3.991/4.228/4.441 n_tok 47009 30s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_base.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_base_epoch1.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_base.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_base_epoch1.safetensors
 [train] done.

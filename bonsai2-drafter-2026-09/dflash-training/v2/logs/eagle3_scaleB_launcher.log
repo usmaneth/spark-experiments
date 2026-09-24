@@ -1,4 +1,4 @@
-[00:46:18] rsync half-B features from spark2
+[00:46:18] rsync half-B features from node_b
 [00:53:11] half-B features: 220270852309 bytes
 [00:53:11] training set: batch1.bin batch2.bin batch3_broad.bin broad2_a.bin broad2_b.bin 
 [03:55:06] train exit 0

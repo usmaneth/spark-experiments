@@ -1,5 +1,5 @@
 Duplicated key name 'general.architecture', overwriting it with new value 'eagle3' of type STRING
-[gguf] reading /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000_ema.safetensors
+[gguf] reading /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000_ema.safetensors
 [gguf] checkpoint metadata: {'max_seq_len': '1024', 'taps': '0,2,4', 'epoch': '1', 'ttt_depth': '4', 'accum': '1', 'ema_weights': '1', 'hard_alpha': '0.0', 'lr': '0.0001', 'ema': '0.999', 'val_samples': '200', 'step': '2000', 'batch_size': '2', 'target_layers': '6,34,62'}
 [gguf] target_layers = [6, 34, 62] (checkpoint metadata)
 [gguf] copied 10 tokenizer.* keys from Ternary-Bonsai-2-27B-PQ2_0.gguf
@@ -19,7 +19,7 @@ Duplicated key name 'general.architecture', overwriting it with new value 'eagle
 [gguf] + output.weight                float16  (32768, 5120)
 [gguf] + d2t                          int64    (32768,)
 [gguf] + token_embd.weight            float16  (248320, 5120)
-[gguf] wrote /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-scaleA-s2000ema-conv.gguf (3.49 GiB)
+[gguf] wrote /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-scaleA-s2000ema-conv.gguf (3.49 GiB)
 [gguf] KV:
   GGUF.version = 3 (UINT32)
   GGUF.tensor_count = 16 (UINT64)

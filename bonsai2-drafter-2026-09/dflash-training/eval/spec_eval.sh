@@ -4,7 +4,7 @@
 # across workloads (code/math/reasoning/chat), for a sweep of n-max and p-min.
 # Usage: spec_eval.sh <base_gguf> <drafter_gguf> <out_json> [n_predict] [nmax_list] [pmin_list]
 set -u
-ROOT=/home/usman/Bonsai-demo
+ROOT=/home/REDACTED/Bonsai-demo
 export LD_LIBRARY_PATH=$ROOT/bin/cuda
 BASE="${1:?base gguf}"; DRAFTER="${2:?drafter gguf}"; OUT="${3:-/tmp/spec_eval.json}"
 NPRED="${4:-256}"; NMAX_LIST="${5:-3 4 5 7}"; PMIN_LIST="${6:-0.0 0.4 0.6}"

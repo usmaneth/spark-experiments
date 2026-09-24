@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Detached: after the long-code rows finish, fetch openai/gsm8k test (50) on spark2 and score exact-match at tau 0/0.02/0.05.
-V2=/home/usman/Bonsai-demo/dflash-training/v2; echo "[$(date +%H:%M:%S)] gsm8k v2 waiter (chained after LONGCODE GATE DONE; cap 8h)"
+# Detached: after the long-code rows finish, fetch openai/gsm8k test (50) on node_b and score exact-match at tau 0/0.02/0.05.
+V2=/home/REDACTED/Bonsai-demo/dflash-training/v2; echo "[$(date +%H:%M:%S)] gsm8k v2 waiter (chained after LONGCODE GATE DONE; cap 8h)"
 for i in $(seq 1 5760); do grep -q 'LONGCODE GATE DONE' $V2/logs/gsm8k_gate.log 2>/dev/null && break; sleep 5; done
 grep -q 'LONGCODE GATE DONE' $V2/logs/gsm8k_gate.log 2>/dev/null || { echo "TIMEOUT waiting for long-code rows"; exit 1; }
-cat > /tmp/gsm8k_v2_spark2.sh <<'EOS'
-set -u; cd /home/usman/Bonsai-demo; V2=/home/usman/Bonsai-demo/dflash-training/v2; mkdir -p $V2/gsm8k
-sudo docker run --rm -v /home/usman:/home/usman bonsai/dflash-trainer:latest python3 -c "
+cat > /tmp/gsm8k_v2_node_b.sh <<'EOS'
+set -u; cd /home/REDACTED/Bonsai-demo; V2=/home/REDACTED/Bonsai-demo/dflash-training/v2; mkdir -p $V2/gsm8k
+sudo docker run --rm -v /home/REDACTED:/home/REDACTED bonsai/dflash-trainer:latest python3 -c "
 import json,sys
 try:
     from datasets import load_dataset; ds=load_dataset('openai/gsm8k','main',split='test')
@@ -16,10 +16,10 @@ with open('$V2/gsm8k/problems.jsonl','w') as f:
         f.write(json.dumps({'q':ds[i]['question'],'a':ds[i]['answer'].split('####')[-1].strip().replace(',','')})+'\n')
 print('wrote 50 gsm8k test problems')" 2>&1 | tail -2
 sudo chown -R usman:p-usman $V2/gsm8k 2>/dev/null; [ -s $V2/gsm8k/problems.jsonl ] || { echo "GSM8K DATA MISSING"; exit 1; }
-export LD_LIBRARY_PATH=/home/usman/Bonsai-demo/bin/typ:/home/usman/Bonsai-demo/bin/cuda
+export LD_LIBRARY_PATH=/home/REDACTED/Bonsai-demo/bin/typ:/home/REDACTED/Bonsai-demo/bin/cuda
 python3 - <<'PY'
 import json,subprocess,re,os,time
-V2='/home/usman/Bonsai-demo/dflash-training/v2'; probs=[json.loads(l) for l in open(f'{V2}/gsm8k/problems.jsonl')]
+V2='/home/REDACTED/Bonsai-demo/dflash-training/v2'; probs=[json.loads(l) for l in open(f'{V2}/gsm8k/problems.jsonl')]
 B='models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf'; D='models/bonsai2-dspark/bonsai2-dspark-full1ep1-Q4_K_M.gguf'
 def last_num(s):
     m=re.findall(r'-?\d+(?:\.\d+)?', s.replace(',','')); return m[-1] if m else None
@@ -37,4 +37,4 @@ for tau in ['0','0.02','0.05']:
 print("GSM8K V2 DONE")
 PY
 EOS
-scp -q /tmp/gsm8k_v2_spark2.sh spark2:/tmp/gsm8k_v2_spark2.sh && ssh spark2 'bash /tmp/gsm8k_v2_spark2.sh'; echo "[$(date +%H:%M:%S)] GSM8K V2 FINISHED"
+scp -q /tmp/gsm8k_v2_node_b.sh node_b:/tmp/gsm8k_v2_node_b.sh && ssh node_b 'bash /tmp/gsm8k_v2_node_b.sh'; echo "[$(date +%H:%M:%S)] GSM8K V2 FINISHED"

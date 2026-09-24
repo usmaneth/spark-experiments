@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Detached: when the full1 epoch-1 checkpoint appears, convert it (two-step) + quantize so it can be evaluated mid-run.
-ROOT=/home/usman/Bonsai-demo; MD=$ROOT/models/bonsai2-dspark; V2=$ROOT/dflash-training/v2
+ROOT=/home/REDACTED/Bonsai-demo; MD=$ROOT/models/bonsai2-dspark; V2=$ROOT/dflash-training/v2
 CK=$MD/bonsai2_dspark_full1_epoch1.safetensors; TAG=full1ep1
 RAW=$MD/bonsai2-dspark-${TAG}-dspark-raw.gguf; CONV=$MD/bonsai2-dspark-${TAG}-conv.gguf; Q=$MD/bonsai2-dspark-${TAG}-Q4_K_M.gguf
 DONOR=$ROOT/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf

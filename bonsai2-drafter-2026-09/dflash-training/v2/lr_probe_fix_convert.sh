@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# LR probe, part 2: convert on spark1 and evaluate on spark2.
-# The probe script converted on spark2, but spark2's host python has no numpy, so the
+# LR probe, part 2: convert on node_a and evaluate on node_b.
+# The probe script converted on node_b, but node_b's host python has no numpy, so the
 # conversion produced no GGUF and the sweep printed "?" rows. This script does the
-# conversion on spark1 (known-good path), pushes the Q4_K_M to spark2, and runs the
+# conversion on node_a (known-good path), pushes the Q4_K_M to node_b, and runs the
 # same K=5 sweep there. It writes the real RESULT lines to logs/lr_probe.log.
 set -u
 TAG=lrprobe
-ROOT=/home/usman/Bonsai-demo
+ROOT=/home/REDACTED/Bonsai-demo
 V2=$ROOT/dflash-training/v2
 MD=$ROOT/models/bonsai2-dspark
 DONOR=$ROOT/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
@@ -21,12 +21,12 @@ fail(){ say "LR PROBE FIX FAILED: $*"; exit 1; }
 
 # Remove the "?" rows from the failed sweep so the dashboard parser sees only real results.
 sed -i '/accept ?%/d; /| ? tok\/s/d; /MEAN exact K=5 over 6: 0.0/d' "$LOG"
-say "LR PROBE FIX: convert on spark1 (spark2 python has no numpy), eval on spark2"
+say "LR PROBE FIX: convert on node_a (node_b python has no numpy), eval on node_b"
 
-# 1. pull the checkpoint from spark2
-rsync -a --inplace spark2:$CK $MD/ || fail "rsync checkpoint from spark2"
+# 1. pull the checkpoint from node_b
+rsync -a --inplace node_b:$CK $MD/ || fail "rsync checkpoint from node_b"
 [ "$(sz "$CK")" -gt 3000000000 ] || fail "checkpoint too small: $(sz "$CK")"
-say "ckpt on spark1: $(sz "$CK") bytes"
+say "ckpt on node_a: $(sz "$CK") bytes"
 
 # 2. two-step convert + quantize (same commands as full2_step_ckpt_eval.sh)
 rm -f "$RAW" "$CONV" "$Q"
@@ -39,15 +39,15 @@ LD_LIBRARY_PATH=$ROOT/bin/cuda $ROOT/bin/cuda/llama-quantize "$CONV" "$Q" Q4_K_M
 rm -f "$RAW" "$CONV"
 say "gguf: $(sz "$Q") $Q"
 
-# 3. push to spark2, wait until nothing but llama-server holds the GPU
-rsync -a "$Q" spark2:$MD/ || fail "rsync gguf to spark2"
+# 3. push to node_b, wait until nothing but llama-server holds the GPU
+rsync -a "$Q" node_b:$MD/ || fail "rsync gguf to node_b"
 for j in $(seq 1 60); do
-  n=$(ssh -o ConnectTimeout=8 spark2 'nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null | grep -v llama-server | wc -l')
+  n=$(ssh -o ConnectTimeout=8 node_b 'nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null | grep -v llama-server | wc -l')
   [ "${n:-1}" -eq 0 ] && break; sleep 30
 done
-say "eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on spark2; demo llama-server co-resident (idle unless chatted)"
+say "eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on node_b; demo llama-server co-resident (idle unless chatted)"
 
 # 4. same sweep as the probe script
 sed "s#bonsai2-dspark-full1ep1-Q4_K_M.gguf#bonsai2-dspark-${TAG}-Q4_K_M.gguf#g; s#RESULT full1ep1#RESULT ${TAG}#g; s#for K in 4 5; do for W in math code code2#for K in 5; do for W in math code code2#; s#for K in 5 7; do for TAU in 0.02 0.05#for K in 5; do for TAU in 0.05#" /tmp/ep1_sweep.sh > /tmp/${TAG}_sweep.sh
-scp -q /tmp/${TAG}_sweep.sh spark2:/tmp/${TAG}_sweep.sh && ssh spark2 "bash /tmp/${TAG}_sweep.sh" | grep -E '^RESULT|DONE' | tee -a "$LOG"
+scp -q /tmp/${TAG}_sweep.sh node_b:/tmp/${TAG}_sweep.sh && ssh node_b "bash /tmp/${TAG}_sweep.sh" | grep -E '^RESULT|DONE' | tee -a "$LOG"
 say "LR PROBE FIX FINISHED"

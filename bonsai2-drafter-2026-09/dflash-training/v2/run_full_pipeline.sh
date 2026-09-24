@@ -4,10 +4,10 @@
 # donor-tokenizer KV type-tag bug in every environment; do not use it.
 #
 # Usage: run_full_pipeline.sh <tag> <feats_dir> [epochs=2] [batch_size=2] [lr=1e-4]
-# Example: run_full_pipeline.sh full1 /home/usman/Bonsai-demo/dflash-training/v2/feats 2
+# Example: run_full_pipeline.sh full1 /home/REDACTED/Bonsai-demo/dflash-training/v2/feats 2
 set -u
 TAG="${1:?tag (e.g. full1)}"; FEATS="${2:?feats dir}"; EPOCHS="${3:-2}"; BS="${4:-2}"; LR="${5:-1e-4}"
-ROOT=/home/usman/Bonsai-demo
+ROOT=/home/REDACTED/Bonsai-demo
 V2=$ROOT/dflash-training/v2
 MD=$ROOT/models/bonsai2-dspark
 DONOR=$ROOT/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
@@ -21,7 +21,7 @@ sz(){ stat -c%s "$1" 2>/dev/null || echo 0; }
 need(){ if [ "$(sz "$1")" -lt "$2" ]; then echo "FAIL: $3 -> $1 is $(sz "$1") bytes"; exit 1; fi; }
 
 echo "== [1/5] TRAIN tag=$TAG feats=$FEATS epochs=$EPOCHS bs=$BS lr=$LR  (log: $LOG)"
-sudo docker run --rm --gpus all -v /home/usman:/home/usman bonsai/dflash-trainer:latest \
+sudo docker run --rm --gpus all -v /home/REDACTED:/home/REDACTED bonsai/dflash-trainer:latest \
   python3 -u $V2/train_dspark_v2.py \
   --feats-dir "$FEATS" --teacher-dir $V2/teacher \
   --warm-start $ROOT/models/qwen38-dspark/model.safetensors \

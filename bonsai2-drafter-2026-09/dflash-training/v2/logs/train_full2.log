@@ -25,7 +25,7 @@ NOTE: The SHMEM allocation limit is set to the default of 64MB.  This may be
 [train] device=cuda dtype=torch.bfloat16 (NVIDIA GB10)
 [train] loading teacher matrices (this reads ~2.5 GB f16 each) ...
 [data] indexed 3401 samples across 3 file(s); embd=5120 n_taps=5
-[warm-start] loading /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full1.safetensors
+[warm-start] loading /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full1.safetensors
 [warm-start] loaded. missing=0 unexpected=0
 [train] 1701 steps, 1 epochs, 3401 samples, num_anchors=256, block_size=7
 ep 1/1 step 10/1701 loss 1.0311 (ce 0.1172 l1 0.4883 conf 0.4256) acc 0.738 acc_p 0.729 lr 1.20e-04 vram 18.7G 3.7m
@@ -57,7 +57,7 @@ ep 1/1 step 260/1701 loss 1.4842 (ce 0.2255 l1 0.7754 conf 0.4834) acc 0.575 acc
 ep 1/1 step 270/1701 loss 1.0774 (ce 0.1478 l1 0.5279 conf 0.4017) acc 0.725 acc_p 0.707 lr 1.13e-04 vram 18.7G 99.3m
 ep 1/1 step 280/1701 loss 1.7120 (ce 0.2681 l1 0.8904 conf 0.5535) acc 0.501 acc_p 0.505 lr 1.12e-04 vram 18.7G 103.0m
 ep 1/1 step 290/1701 loss 0.9323 (ce 0.1165 l1 0.4420 conf 0.3737) acc 0.762 acc_p 0.754 lr 1.12e-04 vram 18.7G 106.7m
-[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step300.safetensors
+[save] wrote 62 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step300.safetensors
 ep 1/1 step 300/1701 loss 1.6538 (ce 0.2388 l1 0.8478 conf 0.5672) acc 0.544 acc_p 0.529 lr 1.11e-04 vram 18.7G 110.8m
 ep 1/1 step 310/1701 loss 0.6611 (ce 0.0742 l1 0.2911 conf 0.2958) acc 0.853 acc_p 0.838 lr 1.11e-04 vram 18.7G 114.5m
 ep 1/1 step 320/1701 loss 1.1725 (ce 0.1687 l1 0.5939 conf 0.4099) acc 0.684 acc_p 0.670 lr 1.10e-04 vram 18.7G 118.2m
@@ -88,7 +88,7 @@ ep 1/1 step 560/1701 loss 0.9934 (ce 0.1319 l1 0.4882 conf 0.3733) acc 0.749 acc
 ep 1/1 step 570/1701 loss 1.1750 (ce 0.1809 l1 0.5901 conf 0.4040) acc 0.695 acc_p 0.672 lr 9.00e-05 vram 18.7G 209.7m
 ep 1/1 step 580/1701 loss 1.5650 (ce 0.2352 l1 0.8210 conf 0.5089) acc 0.556 acc_p 0.544 lr 8.90e-05 vram 18.7G 213.4m
 ep 1/1 step 590/1701 loss 0.6955 (ce 0.0803 l1 0.3133 conf 0.3018) acc 0.839 acc_p 0.826 lr 8.80e-05 vram 18.7G 217.1m
-[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step600.safetensors
+[save] wrote 62 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step600.safetensors
 ep 1/1 step 600/1701 loss 1.1041 (ce 0.1404 l1 0.5229 conf 0.4407) acc 0.732 acc_p 0.709 lr 8.71e-05 vram 18.7G 221.0m
 ep 1/1 step 610/1701 loss 1.4875 (ce 0.2044 l1 0.7718 conf 0.5113) acc 0.580 acc_p 0.571 lr 8.61e-05 vram 18.7G 224.8m
 ep 1/1 step 620/1701 loss 0.7066 (ce 0.0817 l1 0.3225 conf 0.3024) acc 0.828 acc_p 0.821 lr 8.51e-05 vram 18.7G 228.4m
@@ -119,7 +119,7 @@ ep 1/1 step 860/1701 loss 1.0941 (ce 0.1533 l1 0.5527 conf 0.3880) acc 0.707 acc
 ep 1/1 step 870/1701 loss 0.9489 (ce 0.1084 l1 0.4525 conf 0.3880) acc 0.767 acc_p 0.749 lr 5.84e-05 vram 18.7G 334.7m
 ep 1/1 step 880/1701 loss 1.0237 (ce 0.1150 l1 0.4793 conf 0.4294) acc 0.753 acc_p 0.734 lr 5.73e-05 vram 18.7G 339.5m
 ep 1/1 step 890/1701 loss 0.7041 (ce 0.0673 l1 0.3152 conf 0.3216) acc 0.849 acc_p 0.825 lr 5.62e-05 vram 18.7G 344.1m
-[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step900.safetensors
+[save] wrote 62 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step900.safetensors
 ep 1/1 step 900/1701 loss 0.7021 (ce 0.0847 l1 0.3250 conf 0.2924) acc 0.829 acc_p 0.819 lr 5.51e-05 vram 18.7G 349.2m
 ep 1/1 step 910/1701 loss 0.7724 (ce 0.0743 l1 0.3351 conf 0.3630) acc 0.835 acc_p 0.814 lr 5.40e-05 vram 18.7G 355.2m
 [09:21:20] ROUND-2 STOPPED at step ~step 910 by decision (plateau confirmed at 300/600/900 + LR probe)

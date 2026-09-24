@@ -105,7 +105,7 @@ Then `llama-quantize <conv> <out> Q8_0` (test Q4_K_M after Q8_0 works; check tha
 
 Same harness as every other drafter (`/tmp/ep1_sweep.sh` via sed): `llama-speculative-simple`
 with `--spec-type draft-eagle3 -md <eagle3.gguf> --spec-draft-n-max 5`, K=5 exact match, the three
-200-token prompts and the six long-form prompts, clean spark2. The comparison row is DSpark step-600:
+200-token prompts and the six long-form prompts, clean node_b. The comparison row is DSpark step-600:
 math 52.1% / 61.5 tok/s, code 42.9% / 53.9, long-form mean 64.4 (baseline 29.8).
 
 Cost model to beat: an EAGLE-3 step is 1 batched encoder+decoder pass plus 5 chain passes
@@ -115,5 +115,5 @@ Cost model to beat: an EAGLE-3 step is 1 batched encoder+decoder pass plus 5 cha
 ## Files
 
 `v2/eagle3/build_draft_vocab.py`, `v2/eagle3/train_eagle3.py`, `v2/eagle3/eagle3_to_gguf.py`,
-`v2/eagle3/run_smoke_spark2.sh`, logs in `v2/logs/eagle3_*.log`, checkpoints in
+`v2/eagle3/run_smoke_node_b.sh`, logs in `v2/logs/eagle3_*.log`, checkpoints in
 `models/bonsai2-eagle3/`.
