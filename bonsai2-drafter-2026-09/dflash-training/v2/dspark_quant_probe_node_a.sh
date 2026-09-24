@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# spark1: does the drafter's quantization cap DSpark v2's acceptance? Convert the step-600 checkpoint
+# node_a: does the drafter's quantization cap DSpark v2's acceptance? Convert the step-600 checkpoint
 # once, quantize to Q5_K_M, Q6_K, Q8_0 and F16, and run the 3-prompt K=5 exact probe on each plus the
 # shipped Q4_K_M. Idle GPU (the :8085 demo server is resident), so tok/s is comparable across variants.
 set -u
-ROOT=/home/usman/Bonsai-demo; V2=$ROOT/dflash-training/v2; MD=$ROOT/models/bonsai2-dspark; QP=$MD/quantprobe
+ROOT=/home/REDACTED/Bonsai-demo; V2=$ROOT/dflash-training/v2; MD=$ROOT/models/bonsai2-dspark; QP=$MD/quantprobe
 DONOR=$ROOT/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf
 CK=$MD/bonsai2_dspark_full2_step600.safetensors; LOG=$V2/logs/dspark_quant_probe.log
 sz(){ stat -c%s "$1" 2>/dev/null || echo 0; }

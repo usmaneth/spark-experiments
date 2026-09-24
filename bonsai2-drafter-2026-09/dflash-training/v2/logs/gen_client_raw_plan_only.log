@@ -1,4 +1,4 @@
-loaded 3000 candidate prompts (3000 raw_prompt, 0 chat) (skip_lines=0) max_prompt_tokens=3600 server=http://10.99.0.2:8096
+loaded 3000 candidate prompts (3000 raw_prompt, 0 chat) (skip_lines=0) max_prompt_tokens=3600 server=http://203.0.113.12:8096
 plan-only: server model=models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf build=b10687-5d80cff0b n_ctx(default slot)=8192 slots=1
   [  0] t_tool_0       tool   kind=raw  n_prompt= 1082 ends_with="tart|>assistant\n<think>\n"
   [  1] t_agent_1      agent  kind=raw  n_prompt= 2631 ends_with="tart|>assistant\n<think>\n"

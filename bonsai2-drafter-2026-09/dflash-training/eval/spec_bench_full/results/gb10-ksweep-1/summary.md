@@ -1,6 +1,6 @@
 # Speculative decoding benchmark
 
-Generated 2026-09-19T10:58:00Z on spark1 (NVIDIA GB10, driver 580.178.04, CUDA 13.0). llama-server version: 0.2.0-dev (build 10687, commit 5d80cff0b), build b10687-5d80cff0b.
+Generated 2026-09-19T10:58:00Z on node_a (NVIDIA GB10, driver 580.178.04, CUDA 13.0). llama-server version: 0.2.0-dev (build 10687, commit 5d80cff0b), build b10687-5d80cff0b.
 
 Prompts: 32 matrix prompts x 512 tokens, 8 tool prompts x 512 tokens, 8 agent prompts x 512 tokens. Passes per prompt: 1. Slots: 1. Rates are arithmetic means of the server decode-only `predicted_per_second`; acceptance is aggregated accepted/drafted tokens; speedup is the ratio of the two means over the same prompts. The tool and agent rows come from `/v1/chat/completions` with a tools list and the server template (reasoning effort: template); the other rows come from `/completion` with a client-side ChatML template.
 
@@ -90,7 +90,7 @@ A tool prompt is valid when the answer holds at least one well-formed call (a na
 
 ## Power
 
-`nvidia-smi` sampled at 1 Hz on spark1. Idle is the mean draw over 10 s with the model loaded and no request in flight. Mean and max cover the generation phase. `gen tok/s` is generated tokens over the wall time of that phase, prefill included, and mJ/token is mean W / gen tok/s x 1000.
+`nvidia-smi` sampled at 1 Hz on node_a. Idle is the mean draw over 10 s with the model loaded and no request in flight. Mean and max cover the generation phase. `gen tok/s` is generated tokens over the wall time of that phase, prefill included, and mJ/token is mean W / gen tok/s x 1000.
 
 | config | slots | idle W | mean W | max W | util % | tokens | gen tok/s | mJ/token |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -103,22 +103,22 @@ A tool prompt is valid when the answer holds at least one well-formed call (a na
 ## Configuration
 
 - `dspark-v2` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - `dspark-v2-k3` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 3 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - `dspark-v2-k4` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - `dspark-v2-k6` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 6 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 4.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 4.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - `dspark-v2-k7` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 7 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 4.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 4.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - GPU: NVIDIA GB10, 580.178.04
-- GPU processes at start: /home/usman/Bonsai-demo/bin/cuda/llama-server (9970 MiB)
+- GPU processes at start: /home/REDACTED/Bonsai-demo/bin/cuda/llama-server (9970 MiB)
 - Matrix and long prompts: POST /completion, temperature 0, seed 42, cache_prompt false, ChatML template applied by the client, no system message
 - Tool and agent prompts: POST /v1/chat/completions, temperature 0, seed 42, cache_prompt false, tools list with tool_choice auto, server template (--jinja)
 - Draft counters: `timings.draft_n` and `timings.draft_n_accepted` from each response

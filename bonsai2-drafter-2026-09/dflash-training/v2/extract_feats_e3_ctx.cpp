@@ -12,13 +12,13 @@
 //
 // Usage: extract_feats_e3_ctx <model.gguf> <gen.jsonl> <out.bin> [max_samples] [n_ctx=2048]
 // This copy of extract_feats_e3.cpp adds the optional n_ctx argument (the tool/agent set needs 4,608).
-// Build (spark1 or spark2, CPU compile, links against bin/cuda):
-//   cd /home/usman/Bonsai-demo && g++ -O2 -std=c++17 \
+// Build (node_a or node_b, CPU compile, links against bin/cuda):
+//   cd /home/REDACTED/Bonsai-demo && g++ -O2 -std=c++17 \
 //     -I llama.cpp/include -I llama.cpp/ggml/include -I llama.cpp/src \
 //     dflash-training/v2/extract_feats_e3.cpp -o dflash-training/v2/extract_feats_e3 \
 //     -L bin/cuda -lllama -lggml-base \
-//     -Wl,-rpath,/home/usman/Bonsai-demo/bin/cuda:/home/usman/Bonsai-demo/llama.cpp/build-cuda/bin
-// Run:  LD_LIBRARY_PATH=/home/usman/Bonsai-demo/bin/cuda ./extract_feats_e3 <model> <gen.jsonl> <out.bin> 100000
+//     -Wl,-rpath,/home/REDACTED/Bonsai-demo/bin/cuda:/home/REDACTED/Bonsai-demo/llama.cpp/build-cuda/bin
+// Run:  LD_LIBRARY_PATH=/home/REDACTED/Bonsai-demo/bin/cuda ./extract_feats_e3 <model> <gen.jsonl> <out.bin> 100000
 
 #include "llama.h"
 #include "llama-ext.h"
@@ -59,9 +59,9 @@ static bool parse_line(const std::string & s, std::vector<int32_t> & toks, int &
 }
 
 int main(int argc, char ** argv) {
-    const char * model_path = (argc>1)?argv[1] : "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
-    const char * data_path  = (argc>2)?argv[2] : "/home/usman/Bonsai-demo/dflash-training/v2/prompts_gen_batch2.jsonl";
-    const char * out_path   = (argc>3)?argv[3] : "/home/usman/Bonsai-demo/dflash-training/v2/feats_e3/batch2.bin";
+    const char * model_path = (argc>1)?argv[1] : "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
+    const char * data_path  = (argc>2)?argv[2] : "/home/REDACTED/Bonsai-demo/dflash-training/v2/prompts_gen_batch2.jsonl";
+    const char * out_path   = (argc>3)?argv[3] : "/home/REDACTED/Bonsai-demo/dflash-training/v2/feats_e3/batch2.bin";
     const int max_samples   = (argc>4)?atoi(argv[4]) : 100000;
 
     // EAGLE-3 reads the layer inputs of layers 6, 34 and 62 (BON2 tap indices 0, 2, 4).

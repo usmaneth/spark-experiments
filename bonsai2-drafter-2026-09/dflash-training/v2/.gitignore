@@ -1,0 +1,8 @@
+# Compiled experiment tool binaries: build from the matching .cpp source.
+# These are not tracked because they are machine-specific build outputs
+# and can carry an absolute build-time library search path (RUNPATH).
+extract_v2
+extract_v2_batched
+teacher_dump
+tokenize_prompts
+validate_wlm

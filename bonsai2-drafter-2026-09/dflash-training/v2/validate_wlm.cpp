@@ -43,9 +43,9 @@ static inline float f16_to_f32(uint16_t h) {
 
 int main(int argc, char ** argv) {
     const char * model_path = (argc > 1) ? argv[1]
-        : "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
+        : "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
     const char * wlm_path = (argc > 2) ? argv[2]
-        : "/home/usman/Bonsai-demo/dflash-training/v2/teacher/W_lm.bin";
+        : "/home/REDACTED/Bonsai-demo/dflash-training/v2/teacher/W_lm.bin";
     const char * prompt = (argc > 3) ? argv[3]
         : "The quick brown fox jumps over the lazy dog. In computer science, a hash table is a data structure that maps keys to values for highly efficient lookup.";
 

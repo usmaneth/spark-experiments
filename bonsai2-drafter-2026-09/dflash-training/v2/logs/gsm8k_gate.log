@@ -1,9 +1,9 @@
 [02:35:28] gsm8k gate waiter started (chained after FINAL EVAL FINISHED; cap 10h)
-[03:09:19] final eval done -> preparing gsm8k on spark2
+[03:09:19] final eval done -> preparing gsm8k on node_b
 huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/gsm8k@740312add88f781978c0658806c59bc2815b9866/.huggingface.yaml'. Repository id must be 'namespace/name', got 'gsm8k'.
 Traceback (most recent call last):
   File "<stdin>", line 2, in <module>
-FileNotFoundError: [Errno 2] No such file or directory: '/home/usman/Bonsai-demo/dflash-training/v2/gsm8k/problems.jsonl'
+FileNotFoundError: [Errno 2] No such file or directory: '/home/REDACTED/Bonsai-demo/dflash-training/v2/gsm8k/problems.jsonl'
 LONGCODE tau=0: terminated 1/5 | repetition-loops 0/5 | decode 21.3 tok/s
 LONGCODE tau=0.02: terminated 0/5 | repetition-loops 4/5 | decode 29.4 tok/s
 LONGCODE tau=0.05: terminated 2/5 | repetition-loops 1/5 | decode 24.6 tok/s

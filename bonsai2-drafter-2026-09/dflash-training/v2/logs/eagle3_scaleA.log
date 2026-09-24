@@ -46,8 +46,8 @@ ep 1/2 step 900/13202 loss 3.6726 (hard 3.3496 steps 3.219/3.648/3.812/4.011) ac
 ep 1/2 step 950/13202 loss 3.9633 (hard 3.8944 steps 3.286/3.938/4.226/4.403) acc 0.500/0.375/0.328/0.312 gnorm 3.83 lr 9.92e-05 vram 21.6G 0.98s/step 15.3m
 ep 1/2 step 1000/13202 loss 3.3872 (hard 3.2882 steps 2.709/3.341/3.601/3.897) acc 0.514/0.419/0.344/0.312 gnorm 4.00 lr 9.91e-05 vram 21.6G 0.94s/step 16.0m
 val step 1000/13202 acc 0.452/0.369/0.334/0.309 ce 3.496/4.027/4.248/4.437 n_tok 89337 (ema) 31s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step1000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step1000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step1000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step1000_ema.safetensors
 ep 1/2 step 1050/13202 loss 2.3700 (hard 2.1843 steps 1.868/2.318/2.499/2.795) acc 0.663/0.556/0.536/0.471 gnorm 4.93 lr 9.90e-05 vram 21.6G 2.05s/step 17.7m
 ep 1/2 step 1100/13202 loss 4.0956 (hard 4.0173 steps 3.393/4.082/4.333/4.574) acc 0.458/0.340/0.299/0.267 gnorm 5.77 lr 9.88e-05 vram 21.6G 0.86s/step 18.5m
 ep 1/2 step 1150/13202 loss 4.2665 (hard 4.0715 steps 3.713/4.233/4.440/4.679) acc 0.389/0.314/0.288/0.255 gnorm 3.73 lr 9.87e-05 vram 21.6G 0.85s/step 19.2m
@@ -70,8 +70,8 @@ ep 1/2 step 1900/13202 loss 4.0248 (hard 3.8429 steps 3.181/4.025/4.315/4.578) a
 ep 1/2 step 1950/13202 loss 1.9193 (hard 1.7944 steps 1.294/1.792/2.160/2.432) acc 0.762/0.622/0.536/0.475 gnorm 3.37 lr 9.56e-05 vram 21.6G 0.86s/step 31.7m
 ep 1/2 step 2000/13202 loss 3.1824 (hard 3.0266 steps 2.539/3.071/3.386/3.733) acc 0.589/0.483/0.424/0.382 gnorm 3.85 lr 9.54e-05 vram 21.6G 0.85s/step 32.4m
 val step 2000/13202 acc 0.551/0.455/0.405/0.371 ce 2.866/3.433/3.720/3.948 n_tok 89337 (ema) 29s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step2000_ema.safetensors
 ep 1/2 step 2050/13202 loss 3.7518 (hard 3.5471 steps 2.964/3.687/4.071/4.285) acc 0.555/0.418/0.368/0.340 gnorm 3.86 lr 9.51e-05 vram 21.6G 2.09s/step 34.2m
 ep 1/2 step 2100/13202 loss 2.0546 (hard 1.9764 steps 1.214/1.932/2.391/2.682) acc 0.720/0.556/0.470/0.413 gnorm 4.41 lr 9.49e-05 vram 21.6G 0.86s/step 34.9m
 ep 1/2 step 2150/13202 loss 3.8360 (hard 3.3880 steps 3.279/3.788/4.028/4.249) acc 0.516/0.426/0.400/0.372 gnorm 3.97 lr 9.46e-05 vram 21.6G 0.86s/step 35.6m
@@ -94,8 +94,8 @@ ep 1/2 step 2900/13202 loss 2.4961 (hard 2.3381 steps 1.730/2.425/2.770/3.060) a
 ep 1/2 step 2950/13202 loss 4.2342 (hard 3.7334 steps 3.377/4.132/4.565/4.862) acc 0.489/0.375/0.327/0.285 gnorm 3.53 lr 8.95e-05 vram 21.6G 0.96s/step 48.2m
 ep 1/2 step 3000/13202 loss 2.3988 (hard 2.1565 steps 1.741/2.370/2.643/2.841) acc 0.710/0.577/0.532/0.487 gnorm 3.97 lr 8.91e-05 vram 21.6G 0.90s/step 48.9m
 val step 3000/13202 acc 0.604/0.503/0.446/0.407 ce 2.510/3.094/3.410/3.664 n_tok 89337 (ema) 32s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step3000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step3000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step3000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step3000_ema.safetensors
 ep 1/2 step 3050/13202 loss 2.1170 (hard 2.0032 steps 1.486/1.977/2.316/2.688) acc 0.725/0.634/0.569/0.515 gnorm 5.30 lr 8.87e-05 vram 21.6G 2.03s/step 50.6m
 ep 1/2 step 3100/13202 loss 4.1014 (hard 3.9515 steps 3.437/4.065/4.328/4.576) acc 0.482/0.404/0.358/0.335 gnorm 4.13 lr 8.83e-05 vram 21.6G 0.84s/step 51.3m
 ep 1/2 step 3150/13202 loss 2.0514 (hard 1.8739 steps 1.413/1.995/2.267/2.531) acc 0.741/0.620/0.584/0.512 gnorm 3.36 lr 8.79e-05 vram 21.6G 0.86s/step 52.0m
@@ -118,8 +118,8 @@ ep 1/2 step 3900/13202 loss 2.9949 (hard 2.9301 steps 2.355/2.914/3.198/3.513) a
 ep 1/2 step 3950/13202 loss 1.6658 (hard 1.5988 steps 1.147/1.604/1.860/2.051) acc 0.795/0.722/0.664/0.629 gnorm 2.98 lr 8.10e-05 vram 21.6G 0.92s/step 64.5m
 ep 1/2 step 4000/13202 loss 2.6303 (hard 2.4789 steps 1.955/2.569/2.850/3.147) acc 0.629/0.525/0.471/0.431 gnorm 2.96 lr 8.06e-05 vram 21.6G 0.91s/step 65.3m
 val step 4000/13202 acc 0.637/0.530/0.474/0.432 ce 2.281/2.868/3.195/3.460 n_tok 89337 (ema) 28s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step4000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step4000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step4000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step4000_ema.safetensors
 ep 1/2 step 4050/13202 loss 3.5228 (hard 3.3042 steps 2.824/3.437/3.764/4.066) acc 0.603/0.491/0.414/0.391 gnorm 3.79 lr 8.01e-05 vram 21.6G 2.40s/step 67.3m
 ep 1/2 step 4100/13202 loss 4.2631 (hard 4.0539 steps 3.353/4.187/4.615/4.897) acc 0.523/0.413/0.339/0.327 gnorm 3.44 lr 7.96e-05 vram 21.6G 0.85s/step 68.0m
 ep 1/2 step 4150/13202 loss 2.5566 (hard 2.4371 steps 1.723/2.493/2.847/3.163) acc 0.694/0.532/0.462/0.423 gnorm 3.67 lr 7.91e-05 vram 21.6G 0.84s/step 68.7m
@@ -142,8 +142,8 @@ ep 1/2 step 4900/13202 loss 2.1809 (hard 2.0927 steps 1.585/2.093/2.380/2.665) a
 ep 1/2 step 4950/13202 loss 1.8528 (hard 1.7701 steps 1.233/1.759/2.069/2.351) acc 0.778/0.643/0.587/0.538 gnorm 3.06 lr 7.08e-05 vram 21.6G 0.90s/step 81.1m
 ep 1/2 step 5000/13202 loss 4.4183 (hard 4.1386 steps 3.568/4.344/4.745/5.016) acc 0.482/0.381/0.321/0.297 gnorm 2.81 lr 7.03e-05 vram 21.6G 0.92s/step 81.9m
 val step 5000/13202 acc 0.656/0.551/0.493/0.451 ce 2.147/2.727/3.064/3.330 n_tok 89337 (ema) 30s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step5000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step5000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step5000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step5000_ema.safetensors
 ep 1/2 step 5050/13202 loss 0.8839 (hard 0.8284 steps 0.400/0.768/1.077/1.290) acc 0.902/0.815/0.734/0.678 gnorm 3.10 lr 6.97e-05 vram 21.6G 2.51s/step 84.0m
 ep 1/2 step 5100/13202 loss 2.7362 (hard 2.5741 steps 1.926/2.633/3.033/3.354) acc 0.669/0.551/0.485/0.425 gnorm 3.03 lr 6.92e-05 vram 21.6G 0.86s/step 84.7m
 ep 1/2 step 5150/13202 loss 5.8844 (hard 4.9107 steps 5.321/6.062/6.040/6.114) acc 0.386/0.203/0.192/0.172 gnorm 17.30 lr 6.86e-05 vram 21.6G 0.84s/step 85.4m
@@ -166,8 +166,8 @@ ep 1/2 step 5900/13202 loss 3.6213 (hard 3.3884 steps 2.812/3.521/3.933/4.220) a
 ep 1/2 step 5950/13202 loss 3.3893 (hard 3.0819 steps 2.667/3.333/3.664/3.892) acc 0.569/0.452/0.385/0.373 gnorm 2.77 lr 5.94e-05 vram 21.6G 0.91s/step 97.5m
 ep 1/2 step 6000/13202 loss 1.5024 (hard 1.4102 steps 0.942/1.383/1.706/1.979) acc 0.797/0.704/0.613/0.540 gnorm 3.14 lr 5.88e-05 vram 21.6G 0.91s/step 98.3m
 val step 6000/13202 acc 0.671/0.568/0.508/0.465 ce 2.050/2.622/2.958/3.229 n_tok 89337 (ema) 25s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step6000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step6000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step6000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step6000_ema.safetensors
 ep 1/2 step 6050/13202 loss 1.7430 (hard 1.6561 steps 1.086/1.588/1.994/2.303) acc 0.797/0.678/0.564/0.492 gnorm 2.74 lr 5.83e-05 vram 21.6G 2.38s/step 100.3m
 ep 1/2 step 6100/13202 loss 3.2955 (hard 3.1238 steps 2.587/3.178/3.571/3.846) acc 0.609/0.490/0.429/0.379 gnorm 2.70 lr 5.77e-05 vram 21.6G 0.83s/step 101.0m
 ep 1/2 step 6150/13202 loss 2.3173 (hard 2.1634 steps 1.489/2.229/2.598/2.953) acc 0.754/0.603/0.523/0.484 gnorm 4.63 lr 5.71e-05 vram 21.6G 0.86s/step 101.7m
@@ -182,10 +182,10 @@ val step 6500/13202 acc 0.677/0.575/0.516/0.474 ce 2.005/2.575/2.908/3.179 n_tok
 ep 1/2 step 6550/13202 loss 3.7068 (hard 3.2614 steps 3.097/3.610/3.953/4.167) acc 0.530/0.461/0.403/0.369 gnorm 2.84 lr 5.23e-05 vram 21.6G 1.37s/step 107.8m
 ep 1/2 step 6600/13202 loss 4.3888 (hard 3.6832 steps 3.791/4.298/4.597/4.869) acc 0.470/0.393/0.354/0.314 gnorm 4.23 lr 5.17e-05 vram 21.6G 0.92s/step 108.6m
 val step 6601/13202 acc 0.679/0.576/0.517/0.475 ce 1.996/2.565/2.898/3.168 n_tok 89337 (ema) 28s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_ema.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch1.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch1_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch1.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch1_ema.safetensors
 ep 2/2 step 6650/13202 loss 3.3533 (hard 2.9923 steps 2.534/3.286/3.647/3.945) acc 0.614/0.490/0.433/0.415 gnorm 3.46 lr 5.11e-05 vram 21.6G 3.02s/step 111.1m
 ep 2/2 step 6700/13202 loss 1.6653 (hard 1.6017 steps 1.127/1.562/1.847/2.124) acc 0.785/0.706/0.654/0.588 gnorm 2.24 lr 5.05e-05 vram 21.6G 0.89s/step 111.8m
 ep 2/2 step 6750/13202 loss 2.7338 (hard 2.5074 steps 2.170/2.674/2.926/3.165) acc 0.654/0.533/0.509/0.478 gnorm 3.07 lr 4.99e-05 vram 21.6G 0.82s/step 112.5m
@@ -195,8 +195,8 @@ ep 2/2 step 6900/13202 loss 2.7670 (hard 2.5296 steps 2.307/2.735/2.928/3.098) a
 ep 2/2 step 6950/13202 loss 2.3225 (hard 2.0063 steps 1.796/2.239/2.513/2.742) acc 0.722/0.638/0.570/0.540 gnorm 3.21 lr 4.75e-05 vram 21.6G 0.84s/step 115.3m
 ep 2/2 step 7000/13202 loss 2.6229 (hard 2.4744 steps 1.851/2.501/2.901/3.239) acc 0.678/0.593/0.505/0.456 gnorm 2.66 lr 4.69e-05 vram 21.6G 0.84s/step 116.0m
 val step 7000/13202 acc 0.683/0.581/0.523/0.481 ce 1.966/2.531/2.862/3.132 n_tok 89337 (ema) 25s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step7000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step7000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step7000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step7000_ema.safetensors
 ep 2/2 step 7050/13202 loss 2.0776 (hard 1.8990 steps 1.368/1.929/2.371/2.643) acc 0.758/0.645/0.563/0.525 gnorm 2.77 lr 4.63e-05 vram 21.6G 2.39s/step 118.0m
 ep 2/2 step 7100/13202 loss 3.7272 (hard 3.3720 steps 3.196/3.652/3.889/4.172) acc 0.543/0.472/0.434/0.398 gnorm 2.21 lr 4.57e-05 vram 21.6G 0.84s/step 118.7m
 ep 2/2 step 7150/13202 loss 3.5023 (hard 3.3445 steps 2.493/3.378/3.897/4.241) acc 0.629/0.466/0.391/0.375 gnorm 3.88 lr 4.51e-05 vram 21.6G 0.84s/step 119.4m
@@ -219,8 +219,8 @@ ep 2/2 step 7900/13202 loss 3.1450 (hard 2.8747 steps 2.350/3.045/3.429/3.756) a
 ep 2/2 step 7950/13202 loss 3.5921 (hard 3.3046 steps 2.936/3.520/3.829/4.084) acc 0.553/0.476/0.425/0.412 gnorm 3.10 lr 3.58e-05 vram 21.6G 0.89s/step 136.1m
 ep 2/2 step 8000/13202 loss 3.1230 (hard 2.8404 steps 2.230/2.994/3.456/3.812) acc 0.674/0.532/0.450/0.394 gnorm 3.17 lr 3.52e-05 vram 21.6G 0.90s/step 136.9m
 val step 8000/13202 acc 0.693/0.591/0.534/0.491 ce 1.906/2.463/2.792/3.063 n_tok 89337 (ema) 26s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step8000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step8000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step8000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step8000_ema.safetensors
 ep 2/2 step 8050/13202 loss 0.9949 (hard 0.9118 steps 0.595/0.854/1.163/1.367) acc 0.896/0.830/0.761/0.711 gnorm 2.46 lr 3.46e-05 vram 21.6G 2.41s/step 138.9m
 ep 2/2 step 8100/13202 loss 3.6615 (hard 3.3346 steps 3.033/3.549/3.884/4.180) acc 0.562/0.446/0.401/0.367 gnorm 2.61 lr 3.41e-05 vram 21.6G 0.86s/step 139.6m
 ep 2/2 step 8150/13202 loss 1.9726 (hard 1.6911 steps 1.424/1.867/2.183/2.417) acc 0.745/0.664/0.593/0.548 gnorm 2.37 lr 3.35e-05 vram 21.6G 0.91s/step 140.4m
@@ -243,8 +243,8 @@ ep 2/2 step 8900/13202 loss 2.0706 (hard 2.0068 steps 1.461/1.976/2.303/2.542) a
 ep 2/2 step 8950/13202 loss 0.7236 (hard 0.6685 steps 0.398/0.640/0.830/1.026) acc 0.936/0.878/0.826/0.777 gnorm 2.10 lr 2.49e-05 vram 21.6G 0.89s/step 152.7m
 ep 2/2 step 9000/13202 loss 2.9548 (hard 2.7489 steps 2.309/2.882/3.189/3.439) acc 0.637/0.529/0.483/0.440 gnorm 2.40 lr 2.44e-05 vram 21.6G 0.92s/step 153.4m
 val step 9000/13202 acc 0.699/0.599/0.541/0.498 ce 1.865/2.414/2.742/3.014 n_tok 89337 (ema) 29s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step9000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step9000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step9000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step9000_ema.safetensors
 ep 2/2 step 9050/13202 loss 1.4602 (hard 1.3120 steps 0.889/1.365/1.662/1.925) acc 0.827/0.722/0.669/0.601 gnorm 2.33 lr 2.39e-05 vram 21.6G 2.45s/step 155.5m
 ep 2/2 step 9100/13202 loss 3.4771 (hard 3.1458 steps 2.851/3.423/3.714/3.920) acc 0.532/0.432/0.387/0.362 gnorm 2.18 lr 2.34e-05 vram 21.6G 0.84s/step 156.2m
 ep 2/2 step 9150/13202 loss 3.2162 (hard 2.7920 steps 2.705/3.134/3.414/3.612) acc 0.611/0.550/0.506/0.475 gnorm 2.73 lr 2.29e-05 vram 21.6G 0.83s/step 156.9m
@@ -267,8 +267,8 @@ ep 2/2 step 9900/13202 loss 1.4606 (hard 1.3363 steps 1.006/1.371/1.623/1.842) a
 ep 2/2 step 9950/13202 loss 2.5721 (hard 2.3325 steps 1.855/2.449/2.837/3.147) acc 0.728/0.597/0.541/0.503 gnorm 3.63 lr 1.55e-05 vram 21.6G 0.85s/step 171.0m
 ep 2/2 step 10000/13202 loss 1.6517 (hard 1.5781 steps 1.058/1.562/1.863/2.123) acc 0.775/0.695/0.622/0.574 gnorm 3.08 lr 1.51e-05 vram 21.6G 0.85s/step 171.7m
 val step 10000/13202 acc 0.705/0.605/0.546/0.504 ce 1.833/2.376/2.702/2.974 n_tok 89337 (ema) 27s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step10000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step10000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step10000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step10000_ema.safetensors
 ep 2/2 step 10050/13202 loss 2.8225 (hard 2.4411 steps 2.433/2.780/2.930/3.146) acc 0.623/0.563/0.544/0.514 gnorm 2.23 lr 1.47e-05 vram 21.6G 2.59s/step 173.9m
 ep 2/2 step 10100/13202 loss 4.3297 (hard 4.1728 steps 3.456/4.279/4.625/4.959) acc 0.561/0.431/0.380/0.330 gnorm 4.92 lr 1.43e-05 vram 21.6G 1.18s/step 174.8m
 ep 2/2 step 10150/13202 loss 2.4222 (hard 2.3407 steps 1.642/2.281/2.716/3.049) acc 0.699/0.602/0.537/0.471 gnorm 3.91 lr 1.39e-05 vram 21.6G 1.18s/step 175.8m
@@ -291,8 +291,8 @@ ep 2/2 step 10900/13202 loss 2.3145 (hard 2.1809 steps 1.836/2.267/2.462/2.693) 
 ep 2/2 step 10950/13202 loss 1.9558 (hard 1.7127 steps 1.381/1.809/2.167/2.467) acc 0.777/0.678/0.605/0.548 gnorm 2.33 lr 8.15e-06 vram 21.6G 1.43s/step 195.6m
 ep 2/2 step 11000/13202 loss 3.0620 (hard 2.6851 steps 2.575/3.012/3.197/3.464) acc 0.619/0.534/0.520/0.446 gnorm 2.88 lr 7.84e-06 vram 21.6G 1.42s/step 196.8m
 val step 11000/13202 acc 0.708/0.609/0.551/0.508 ce 1.814/2.350/2.676/2.950 n_tok 89337 (ema) 41s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step11000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step11000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step11000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step11000_ema.safetensors
 ep 2/2 step 11050/13202 loss 3.4114 (hard 3.0264 steps 2.792/3.360/3.613/3.881) acc 0.582/0.482/0.448/0.396 gnorm 2.79 lr 7.54e-06 vram 21.6G 3.32s/step 199.6m
 ep 2/2 step 11100/13202 loss 3.0617 (hard 2.7378 steps 2.435/2.952/3.312/3.547) acc 0.622/0.538/0.466/0.436 gnorm 2.20 lr 7.25e-06 vram 21.6G 1.06s/step 200.5m
 ep 2/2 step 11150/13202 loss 1.8994 (hard 1.6298 steps 1.281/1.809/2.113/2.395) acc 0.765/0.659/0.594/0.541 gnorm 2.40 lr 6.96e-06 vram 21.6G 0.86s/step 201.2m
@@ -315,8 +315,8 @@ ep 2/2 step 11900/13202 loss 2.7296 (hard 2.4716 steps 2.166/2.668/2.862/3.223) 
 ep 2/2 step 11950/13202 loss 2.6179 (hard 2.4181 steps 1.711/2.482/2.973/3.306) acc 0.719/0.574/0.492/0.443 gnorm 3.12 lr 3.25e-06 vram 21.6G 0.95s/step 214.4m
 ep 2/2 step 12000/13202 loss 0.9043 (hard 0.8403 steps 0.542/0.790/1.020/1.265) acc 0.876/0.819/0.748/0.688 gnorm 2.15 lr 3.07e-06 vram 21.6G 0.96s/step 215.2m
 val step 12000/13202 acc 0.711/0.612/0.554/0.511 ce 1.801/2.334/2.660/2.933 n_tok 89337 (ema) 28s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step12000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step12000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step12000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step12000_ema.safetensors
 ep 2/2 step 12050/13202 loss 2.5942 (hard 2.3208 steps 2.019/2.502/2.797/3.059) acc 0.665/0.566/0.522/0.497 gnorm 2.50 lr 2.91e-06 vram 21.6G 2.43s/step 217.3m
 ep 2/2 step 12100/13202 loss 2.4567 (hard 2.2786 steps 1.872/2.342/2.665/2.948) acc 0.678/0.600/0.551/0.492 gnorm 2.43 lr 2.74e-06 vram 21.6G 0.87s/step 218.0m
 ep 2/2 step 12150/13202 loss 3.4693 (hard 3.1209 steps 2.828/3.393/3.710/3.946) acc 0.566/0.454/0.404/0.366 gnorm 2.65 lr 2.59e-06 vram 21.6G 0.86s/step 218.7m
@@ -339,16 +339,16 @@ ep 2/2 step 12900/13202 loss 1.8863 (hard 1.6504 steps 1.338/1.800/2.092/2.315) 
 ep 2/2 step 12950/13202 loss 0.8155 (hard 0.7660 steps 0.466/0.691/0.929/1.176) acc 0.895/0.846/0.774/0.713 gnorm 2.19 lr 1.09e-06 vram 21.6G 0.95s/step 231.4m
 ep 2/2 step 13000/13202 loss 2.4901 (hard 2.1107 steps 1.922/2.396/2.677/2.965) acc 0.679/0.591/0.535/0.501 gnorm 2.89 lr 1.06e-06 vram 21.6G 0.96s/step 232.2m
 val step 13000/13202 acc 0.712/0.614/0.555/0.512 ce 1.793/2.325/2.651/2.924 n_tok 89337 (ema) 27s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step13000.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step13000_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step13000.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_step13000_ema.safetensors
 ep 2/2 step 13050/13202 loss 2.7309 (hard 2.4315 steps 2.243/2.638/2.895/3.147) acc 0.673/0.579/0.536/0.506 gnorm 2.42 lr 1.03e-06 vram 21.6G 1.96s/step 233.9m
 ep 2/2 step 13100/13202 loss 3.1821 (hard 2.8256 steps 2.606/3.138/3.387/3.598) acc 0.613/0.506/0.479/0.446 gnorm 2.77 lr 1.02e-06 vram 21.6G 0.91s/step 234.6m
 ep 2/2 step 13150/13202 loss 1.3440 (hard 1.2202 steps 0.955/1.281/1.459/1.681) acc 0.844/0.763/0.734/0.688 gnorm 2.86 lr 1.00e-06 vram 21.6G 0.87s/step 235.3m
 ep 2/2 step 13200/13202 loss 0.8860 (hard 0.7908 steps 0.534/0.797/1.002/1.210) acc 0.893/0.820/0.760/0.716 gnorm 1.84 lr 1.00e-06 vram 21.6G 0.86s/step 236.1m
 ep 2/2 step 13202/13202 loss 2.6554 (hard 2.3562 steps 2.086/2.588/2.830/3.117) acc 0.654/0.553/0.531/0.494 gnorm 2.78 lr 1.00e-06 vram 21.6G 0.03s/step 236.1m
 val step 13202/13202 acc 0.713/0.614/0.556/0.512 ce 1.792/2.324/2.650/2.923 n_tok 89337 (ema) 26s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_ema.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch2.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch2_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_ema.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch2.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_epoch2_ema.safetensors
 [train] done.

@@ -76,9 +76,9 @@ static std::string extract_user_prompt(const std::string & line) {
 }
 
 int main(int argc, char ** argv) {
-    const char * model_path = (argc>1)?argv[1] : "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
-    const char * data_path  = (argc>2)?argv[2] : "/home/usman/Bonsai-demo/dflash-training/v2/prompts_batch1.jsonl";
-    const char * out_path   = (argc>3)?argv[3] : "/home/usman/Bonsai-demo/dflash-training/v2/feats/batch2.bin";
+    const char * model_path = (argc>1)?argv[1] : "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf";
+    const char * data_path  = (argc>2)?argv[2] : "/home/REDACTED/Bonsai-demo/dflash-training/v2/prompts_batch1.jsonl";
+    const char * out_path   = (argc>3)?argv[3] : "/home/REDACTED/Bonsai-demo/dflash-training/v2/feats/batch2.bin";
     const int max_samples = (argc>4)?atoi(argv[4]) : 2000;
     const int max_gen     = (argc>5)?atoi(argv[5]) : 256;
     const int group_size  = (argc>6)?atoi(argv[6]) : 16;   // parallel sequences

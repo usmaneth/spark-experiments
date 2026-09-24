@@ -1,6 +1,6 @@
-[server] http://10.99.0.2:8096 model=models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf build=b10687-5d80cff0b template_len=8952
-[dedupe] /home/usman/Bonsai-demo/dflash-training/v2/prompts_broad2.jsonl: 20000 user texts (cumulative)
-[bench] 370 texts loaded from /home/usman/Bonsai-demo/dflash-training/v2/../eval/spec_bench_full/prompts.json (16 tool+agent prompts)
+[server] http://203.0.113.12:8096 model=models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf build=b10687-5d80cff0b template_len=8952
+[dedupe] /home/REDACTED/Bonsai-demo/dflash-training/v2/prompts_broad2.jsonl: 20000 user texts (cumulative)
+[bench] 370 texts loaded from /home/REDACTED/Bonsai-demo/dflash-training/v2/../eval/spec_bench_full/prompts.json (16 tool+agent prompts)
 [cand] tool: 1568 (0.1s)
 [cand] mixed: 896 (0.0s)
 [cand] agent: 896 draws=1314 size_fail=0 (1.8s)
@@ -376,10 +376,10 @@
   "max_tokens_limit": 3600,
   "dedupe": {
     "files": [
-      "/home/usman/Bonsai-demo/dflash-training/v2/prompts_broad2.jsonl"
+      "/home/REDACTED/Bonsai-demo/dflash-training/v2/prompts_broad2.jsonl"
     ],
     "external_user_texts": 20000,
-    "bench_file": "/home/usman/Bonsai-demo/dflash-training/v2/../eval/spec_bench_full/prompts.json",
+    "bench_file": "/home/REDACTED/Bonsai-demo/dflash-training/v2/../eval/spec_bench_full/prompts.json",
     "bench_texts": 370,
     "bench_tool_agent_prompts": 16,
     "rejected": {
@@ -403,7 +403,7 @@
     "nonascii": 0,
     "error": 0
   },
-  "server": "http://10.99.0.2:8096",
+  "server": "http://203.0.113.12:8096",
   "server_calls": 8034,
   "seed": 1,
   "ids_file": "prompts_tools_ids.jsonl",

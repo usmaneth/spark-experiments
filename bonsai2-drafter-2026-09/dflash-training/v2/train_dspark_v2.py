@@ -41,10 +41,10 @@ Run a shape/loss dry-run on a synthetic fixture (no real data needed):
 
 Launch full training once the real v2 features and teacher files exist:
     python3 train_dspark_v2.py \
-        --feats-dir /home/usman/Bonsai-demo/dflash-training/v2/feats \
-        --teacher-dir /home/usman/Bonsai-demo/dflash-training/v2/teacher \
-        --warm-start /home/usman/Bonsai-demo/models/qwen38-dspark/model.safetensors \
-        --out /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2.safetensors \
+        --feats-dir /home/REDACTED/Bonsai-demo/dflash-training/v2/feats \
+        --teacher-dir /home/REDACTED/Bonsai-demo/dflash-training/v2/teacher \
+        --warm-start /home/REDACTED/Bonsai-demo/models/qwen38-dspark/model.safetensors \
+        --out /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2.safetensors \
         --epochs 2 --batch-size 2 --lr 1e-4
 """
 
@@ -994,10 +994,10 @@ def main():
     ap = argparse.ArgumentParser(description="DSpark v2 drafter trainer (Bonsai 2)")
     ap.add_argument("--dry-run", action="store_true", help="synthetic shape/loss test on CPU")
     ap.add_argument("--dry-run-steps", type=int, default=12)
-    ap.add_argument("--feats-dir", default="/home/usman/Bonsai-demo/dflash-training/v2/feats")
-    ap.add_argument("--teacher-dir", default="/home/usman/Bonsai-demo/dflash-training/v2/teacher")
-    ap.add_argument("--warm-start", default="/home/usman/Bonsai-demo/models/qwen38-dspark/model.safetensors")
-    ap.add_argument("--out", default="/home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2.safetensors")
+    ap.add_argument("--feats-dir", default="/home/REDACTED/Bonsai-demo/dflash-training/v2/feats")
+    ap.add_argument("--teacher-dir", default="/home/REDACTED/Bonsai-demo/dflash-training/v2/teacher")
+    ap.add_argument("--warm-start", default="/home/REDACTED/Bonsai-demo/models/qwen38-dspark/model.safetensors")
+    ap.add_argument("--out", default="/home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_v2.safetensors")
     ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--batch-size", type=int, default=2)
     ap.add_argument("--lr", type=float, default=1e-4)

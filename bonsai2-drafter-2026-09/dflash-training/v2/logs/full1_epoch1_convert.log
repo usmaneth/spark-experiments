@@ -3,4 +3,4 @@
 step1 exit 0 size 7429438048
 step2 exit 0 size 7440380352
 quantize exit 0 size 1104605632
-[02:14:31] EPOCH1 GGUF READY: /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1ep1-Q4_K_M.gguf
+[02:14:31] EPOCH1 GGUF READY: /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-full1ep1-Q4_K_M.gguf

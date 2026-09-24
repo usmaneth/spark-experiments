@@ -15,7 +15,7 @@ The script prints the coverage of the loss_mask=1 tokens (the tokens that the
 target model generated).
 
 Usage:
-    python3 build_draft_vocab.py --feats-dir /home/usman/Bonsai-demo/dflash-training/v2/feats_all
+    python3 build_draft_vocab.py --feats-dir /home/REDACTED/Bonsai-demo/dflash-training/v2/feats_all
 """
 
 from __future__ import annotations
@@ -29,11 +29,11 @@ import time
 
 import numpy as np
 
-LLAMA_CPP = "/home/usman/Bonsai-demo/llama.cpp"
+LLAMA_CPP = "/home/REDACTED/Bonsai-demo/llama.cpp"
 sys.path.insert(0, os.path.join(LLAMA_CPP, "gguf-py"))
 
-DEFAULT_FEATS = "/home/usman/Bonsai-demo/dflash-training/v2/feats_all"
-DEFAULT_DONOR = "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"
+DEFAULT_FEATS = "/home/REDACTED/Bonsai-demo/dflash-training/v2/feats_all"
+DEFAULT_DONOR = "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"
 DEFAULT_OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "draft_vocab.npz")
 
 # llama.cpp token types

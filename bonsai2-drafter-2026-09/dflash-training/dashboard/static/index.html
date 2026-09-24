@@ -1187,7 +1187,7 @@
       </div>
       <div class="brand-title">
         <h1>Bonsai 2 & DFlash Speculative Mission Control</h1>
-        <p>Dual DGX Spark Cluster (spark1 + spark2) · 243.4 GiB Unified Pool · 400 Gbps Interconnect</p>
+        <p>Dual DGX Spark Cluster (node_a + node_b) · 243.4 GiB Unified Pool · 400 Gbps Interconnect</p>
       </div>
     </div>
     <div class="header-telemetry">
@@ -1234,7 +1234,7 @@
     <button class="tab-btn" onclick="switchTab('tab-chat')">
       <i data-lucide="message-square"></i>
       <span>Interactive Playground & Chat</span>
-      <span class="tab-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);" id="active-chat-node-badge">spark1</span>
+      <span class="tab-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);" id="active-chat-node-badge">node_a</span>
     </button>
     <button class="tab-btn" onclick="switchTab('tab-training')">
       <i data-lucide="trending-up"></i>
@@ -1269,7 +1269,7 @@
           <span><i data-lucide="server"></i> Cluster Architecture</span>
           <span class="tag tag-green" id="kpi-nodes-tag">2/2 Online</span>
         </div>
-        <div class="stat-val" id="kpi-nodes-val">spark1 + spark2</div>
+        <div class="stat-val" id="kpi-nodes-val">node_a + node_b</div>
         <div class="stat-sub">Dual NVIDIA GB10 Blackwell Nodes</div>
       </div>
 
@@ -1310,7 +1310,7 @@
           <span class="tag tag-warning">Dual-Node Total</span>
         </div>
         <div class="stat-val" id="kpi-cluster-power" style="color: var(--warning);">-- W</div>
-        <div class="stat-sub" id="kpi-power-sub">spark1: --W · spark2: --W</div>
+        <div class="stat-sub" id="kpi-power-sub">node_a: --W · node_b: --W</div>
       </div>
     </div>
 
@@ -1322,14 +1322,14 @@
       </div>
 
       <div class="topology-container">
-        <!-- Node 1: spark1 (Primary) -->
+        <!-- Node 1: node_a (Primary) -->
         <div class="node-box active-primary" id="topo-sp1-box">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong style="font-size: 0.95rem; color: var(--accent);">Node 1: spark1</strong>
+            <strong style="font-size: 0.95rem; color: var(--accent);">Node 1: node_a</strong>
             <span class="tag tag-green"><i data-lucide="shield-check"></i> PRIMARY HOST</span>
           </div>
           <p style="font-size: 0.74rem; color: var(--text-muted);">
-            Fabric IPs: <code>10.99.0.1</code> / <code>10.99.1.1</code> (MTU 9000)
+            Fabric IPs: <code>203.0.113.11</code> / <code>203.0.113.21</code> (MTU 9000)
           </p>
           <div style="margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem;">
             <div style="display: flex; justify-content: space-between;">
@@ -1385,14 +1385,14 @@
           </div>
         </div>
 
-        <!-- Node 2: spark2 (Worker) -->
+        <!-- Node 2: node_b (Worker) -->
         <div class="node-box active-worker" id="topo-sp2-box">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong style="font-size: 0.95rem; color: var(--accent-cyan);">Node 2: spark2</strong>
+            <strong style="font-size: 0.95rem; color: var(--accent-cyan);">Node 2: node_b</strong>
             <span class="tag tag-cyan" id="topo-sp2-role-badge"><i data-lucide="server"></i> CLUSTER WORKER</span>
           </div>
           <p style="font-size: 0.74rem; color: var(--text-muted);">
-            Fabric IPs: <code>10.99.0.2</code> / <code>10.99.1.2</code> (MTU 9000)
+            Fabric IPs: <code>203.0.113.12</code> / <code>203.0.113.22</code> (MTU 9000)
           </p>
           <div style="margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem;">
             <div style="display: flex; justify-content: space-between;">
@@ -1538,8 +1538,8 @@
           <div class="card-title">
             <span><i data-lucide="line-chart"></i> Dual-Spark Hardware Telemetry (1s SSE Comparison Stream)</span>
             <div style="display: flex; gap: 0.6rem; font-size: 0.74rem;">
-              <span style="color: var(--accent);">● spark1 GPU</span>
-              <span style="color: var(--accent-cyan);">● spark2 GPU</span>
+              <span style="color: var(--accent);">● node_a GPU</span>
+              <span style="color: var(--accent-cyan);">● node_b GPU</span>
             </div>
           </div>
           <div style="position: relative; height: 190px; width: 100%;">
@@ -1556,11 +1556,11 @@
 
           <!-- Segmented Bar -->
           <div class="memory-segmented-bar" id="memory-segmented-bar">
-            <div class="memory-segment" id="seg-base" style="width: 2.8%; background: #10b981;" title="Base Model Weights (spark1)"></div>
-            <div class="memory-segment" id="seg-draft" style="width: 0.4%; background: #06b6d4;" title="Drafter Model Weights (spark1)"></div>
-            <div class="memory-segment" id="seg-sp2-used" style="width: 2.2%; background: #8b5cf6;" title="spark2 Active Memory"></div>
+            <div class="memory-segment" id="seg-base" style="width: 2.8%; background: #10b981;" title="Base Model Weights (node_a)"></div>
+            <div class="memory-segment" id="seg-draft" style="width: 0.4%; background: #06b6d4;" title="Drafter Model Weights (node_a)"></div>
+            <div class="memory-segment" id="seg-sp2-used" style="width: 2.2%; background: #8b5cf6;" title="node_b Active Memory"></div>
             <div class="memory-segment" id="seg-kv" style="width: 0.4%; background: #f59e0b;" title="KV Cache Buffer"></div>
-            <div class="memory-segment" id="seg-os" style="width: 1.5%; background: #ef4444;" title="spark1 OS & Runtime"></div>
+            <div class="memory-segment" id="seg-os" style="width: 1.5%; background: #ef4444;" title="node_a OS & Runtime"></div>
             <div class="memory-segment" id="seg-free" style="width: 92.7%; background: #161928;" title="Available Cluster Unified Headroom"></div>
           </div>
 
@@ -1901,7 +1901,7 @@
         <div class="card-title">
           <span><i data-lucide="message-square"></i> Bonsai 2 Interactive Playground</span>
           <div style="display: flex; gap: 0.4rem; align-items: center;">
-            <span class="tag tag-cyan" id="chat-active-node-tag">Node: spark1 (Local)</span>
+            <span class="tag tag-cyan" id="chat-active-node-tag">Node: node_a (Local)</span>
             <span id="chat-token-stats" class="tag tag-green">Ready for prompt</span>
           </div>
         </div>
@@ -1910,7 +1910,7 @@
           <div class="chat-messages" id="chat-box">
             <div class="chat-bubble assistant">
               <div class="bubble-header">
-                <span>Bonsai 2 (27B) · Node: spark1 (Primary)</span>
+                <span>Bonsai 2 (27B) · Node: node_a (Primary)</span>
                 <span>System Initialized</span>
               </div>
               Bonsai 2 (27B) is loaded in Grace Blackwell unified memory. Ask a coding, CUDA, or reasoning question to test speculative generation!
@@ -1955,15 +1955,15 @@
             Execution Node Target:
           </label>
           <div style="display: flex; gap: 0.4rem;">
-            <button class="btn" id="btn-node-spark1" onclick="setChatTargetNode('spark1')" style="flex: 1; padding: 0.45rem; font-size: 0.76rem;">
-              <i data-lucide="server"></i> spark1 (Local)
+            <button class="btn" id="btn-node-node_a" onclick="setChatTargetNode('node_a')" style="flex: 1; padding: 0.45rem; font-size: 0.76rem;">
+              <i data-lucide="server"></i> node_a (Local)
             </button>
-            <button class="btn btn-secondary" id="btn-node-spark2" onclick="setChatTargetNode('spark2')" style="flex: 1; padding: 0.45rem; font-size: 0.76rem;">
-              <i data-lucide="network"></i> spark2 (Fabric)
+            <button class="btn btn-secondary" id="btn-node-node_b" onclick="setChatTargetNode('node_b')" style="flex: 1; padding: 0.45rem; font-size: 0.76rem;">
+              <i data-lucide="network"></i> node_b (Fabric)
             </button>
           </div>
           <small style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-top: 0.3rem;">
-            Run inference locally on spark1 or route across the 400 Gbps fabric to spark2.
+            Run inference locally on node_a or route across the 400 Gbps fabric to node_b.
           </small>
         </div>
 
@@ -2228,7 +2228,7 @@
             <ul style="font-size: 0.78rem; line-height: 1.6; color: var(--text-muted); list-style: none; padding: 0;">
               <li>• <strong style="color: var(--text);">Dataset</strong>: <code>sahil2801/CodeAlpaca-20k</code> (20,022 sequences)</li>
               <li>• <strong style="color: var(--text);">Volume</strong>: <strong>2,370,010 tokens</strong> of real Python code & logic</li>
-              <li>• <strong style="color: var(--text);">Cluster Extraction</strong>: Parallel GB10 extraction across <code>spark1</code> (10,000) & <code>spark2</code> (10,022)</li>
+              <li>• <strong style="color: var(--text);">Cluster Extraction</strong>: Parallel GB10 extraction across <code>node_a</code> (10,000) & <code>node_b</code> (10,022)</li>
               <li>• <strong style="color: var(--text);">Tapped Tensors</strong>: Intermediate residual stream before Attention/FFN layers</li>
               <li>• <strong style="color: var(--text);">Interconnect</strong>: Dual 200Gbps Direct Attach Copper (400Gbps aggregate)</li>
               <li>• <strong style="color: var(--text);">Dataloader</strong>: Multi-file zero-copy streaming direct to VRAM</li>
@@ -2439,7 +2439,7 @@
       context_size: 8192
     };
 
-    let chatTargetNode = "spark1";
+    let chatTargetNode = "node_a";
 
     let lossChartInstance = null;
     let benchChartInstance = null;
@@ -2616,8 +2616,8 @@
       try {
         const res = await fetch('/api/cluster/status');
         const data = await res.json();
-        const sp1 = data.spark1;
-        const sp2 = data.spark2;
+        const sp1 = data.node_a;
+        const sp2 = data.node_b;
         
         const totalMb = sp1.memory_total_mb + sp2.memory_total_mb;
         const totalGb = totalMb / 1024.0;
@@ -2625,7 +2625,7 @@
         const usedGb = usedMb / 1024.0;
         const freeGb = totalGb - usedGb;
 
-        // Base & Drafter estimates on spark1
+        // Base & Drafter estimates on node_a
         const baseGb = activeConfig.base_model === 'PQ2_0' ? 6.78 : 5.53;
         const draftGb = activeConfig.drafter === 'trained_q4' ? 0.98 : (activeConfig.drafter === 'trained_conv' ? 7.0 : 0.6);
         const sp1Other = Math.max(0, (sp1.memory_used_mb / 1024.0) - baseGb - draftGb);
@@ -2644,10 +2644,10 @@
         // Legend
         const legend = document.getElementById('memory-legend');
         legend.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #10b981;"></div><span>spark1 Base (${activeConfig.base_model}): <strong>${baseGb} GB</strong></span></div>
-          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #06b6d4;"></div><span>spark1 Drafter: <strong>${draftGb} GB</strong></span></div>
-          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #8b5cf6;"></div><span>spark2 Active/OS: <strong>${sp2Gb.toFixed(1)} GB</strong></span></div>
-          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #ef4444;"></div><span>spark1 OS/Runtime: <strong>${sp1Other.toFixed(1)} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #10b981;"></div><span>node_a Base (${activeConfig.base_model}): <strong>${baseGb} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #06b6d4;"></div><span>node_a Drafter: <strong>${draftGb} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #8b5cf6;"></div><span>node_b Active/OS: <strong>${sp2Gb.toFixed(1)} GB</strong></span></div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #ef4444;"></div><span>node_a OS/Runtime: <strong>${sp1Other.toFixed(1)} GB</strong></span></div>
           <div style="display: flex; align-items: center; gap: 0.35rem;"><div style="width: 8px; height: 8px; border-radius: 2px; background: #161928; border: 1px solid rgba(255,255,255,0.1);"></div><span>Cluster Headroom: <strong>${freeGb.toFixed(1)} GB</strong></span></div>
         `;
       } catch (err) {}
@@ -3555,7 +3555,7 @@
           labels: rollingHistory.labels,
           datasets: [
             {
-              label: 'spark1 GPU (%)',
+              label: 'node_a GPU (%)',
               data: rollingHistory.sp1_util,
               borderColor: '#10b981',
               backgroundColor: 'rgba(16, 185, 129, 0.04)',
@@ -3565,7 +3565,7 @@
               pointRadius: 0
             },
             {
-              label: 'spark2 GPU (%)',
+              label: 'node_b GPU (%)',
               data: rollingHistory.sp2_util,
               borderColor: '#06b6d4',
               backgroundColor: 'rgba(6, 182, 212, 0.04)',
@@ -3575,7 +3575,7 @@
               pointRadius: 0
             },
             {
-              label: 'spark1 Power (W)',
+              label: 'node_a Power (W)',
               data: rollingHistory.sp1_power,
               borderColor: 'rgba(16, 185, 129, 0.4)',
               borderDash: [4, 4],
@@ -3585,7 +3585,7 @@
               yAxisID: 'y1'
             },
             {
-              label: 'spark2 Power (W)',
+              label: 'node_b Power (W)',
               data: rollingHistory.sp2_power,
               borderColor: 'rgba(6, 182, 212, 0.4)',
               borderDash: [4, 4],
@@ -3628,8 +3628,8 @@
           const data = JSON.parse(e.data);
           const c = data.cluster;
           if (c) {
-            const sp1 = c.spark1;
-            const sp2 = c.spark2;
+            const sp1 = c.node_a;
+            const sp2 = c.node_b;
             const ic = c.interconnect;
             const agg = c.aggregate;
 
@@ -3660,7 +3660,7 @@
             document.getElementById('kpi-cluster-free-mem').textContent = `${agg.free_memory_gb} GB Free Headroom (Zero-Copy)`;
             document.getElementById('kpi-interconnect-rtt').textContent = `${rttAvg} ms`;
             document.getElementById('kpi-cluster-power').textContent = `${agg.total_power_w} W`;
-            document.getElementById('kpi-power-sub').textContent = `spark1: ${sp1.power_draw_w.toFixed(1)}W · spark2: ${sp2.power_draw_w.toFixed(1)}W`;
+            document.getElementById('kpi-power-sub').textContent = `node_a: ${sp1.power_draw_w.toFixed(1)}W · node_b: ${sp2.power_draw_w.toFixed(1)}W`;
 
             // 3. Topology Visualizer
             document.getElementById('topo-sp1-telemetry').textContent = `Util: ${sp1Util}% · Temp: ${sp1.temperature_c.toFixed(0)}°C · Power: ${sp1.power_draw_w.toFixed(1)}W`;
@@ -3674,7 +3674,7 @@
             document.getElementById('topo-link1-rtt').textContent = `${ic.link1.rtt_ms.toFixed(2)} ms RTT · ${ic.link1.status}`;
 
             // 4. Deep Health Cards
-            // spark1
+            // node_a
             const sp1SmClock = sp1.sm_clock_mhz || 2418;
             const sp1ClockPct = Math.round((sp1SmClock / 3003) * 100);
             document.getElementById('h-sp1-sm-clock').textContent = `${sp1SmClock.toLocaleString()} MHz / 3,003 MHz (${sp1ClockPct}%)`;
@@ -3705,7 +3705,7 @@
               document.getElementById('h-sp1-rx').textContent = sp1.fabric_stats.link0.rx_gb + ' GB';
             }
 
-            // spark2
+            // node_b
             const sp2SmClock = sp2.sm_clock_mhz || 2380;
             const sp2ClockPct = Math.round((sp2SmClock / 3003) * 100);
             document.getElementById('h-sp2-sm-clock').textContent = `${sp2SmClock.toLocaleString()} MHz / 3,003 MHz (${sp2ClockPct}%)`;
@@ -3781,24 +3781,24 @@
     // Chat Playground Controls & Target Selection
     function setChatTargetNode(nodeId) {
       chatTargetNode = nodeId;
-      const btnSp1 = document.getElementById('btn-node-spark1');
-      const btnSp2 = document.getElementById('btn-node-spark2');
+      const btnSp1 = document.getElementById('btn-node-node_a');
+      const btnSp2 = document.getElementById('btn-node-node_b');
       const tag = document.getElementById('chat-active-node-tag');
       const tabBadge = document.getElementById('active-chat-node-badge');
 
-      if (nodeId === 'spark1') {
+      if (nodeId === 'node_a') {
         btnSp1.className = 'btn';
         btnSp2.className = 'btn btn-secondary';
-        tag.textContent = 'Node: spark1 (Primary)';
+        tag.textContent = 'Node: node_a (Primary)';
         tag.className = 'tag tag-green';
-        tabBadge.textContent = 'spark1';
+        tabBadge.textContent = 'node_a';
         tabBadge.style.color = 'var(--accent)';
       } else {
         btnSp2.className = 'btn';
         btnSp1.className = 'btn btn-secondary';
-        tag.textContent = 'Node: spark2 (Fabric)';
+        tag.textContent = 'Node: node_b (Fabric)';
         tag.className = 'tag tag-cyan';
-        tabBadge.textContent = 'spark2';
+        tabBadge.textContent = 'node_b';
         tabBadge.style.color = 'var(--accent-cyan)';
       }
       showToast(`Chat Execution Node: ${nodeId}`);
@@ -3869,7 +3869,7 @@
       assistantBubble.className = 'chat-bubble assistant';
       assistantBubble.innerHTML = `
         <div class="bubble-header">
-          <span>Bonsai 2 · Node: <strong style="color: ${chatTargetNode==='spark2'?'var(--accent-cyan)':'var(--accent)'};">${chatTargetNode}</strong> (${activeConfig.base_model})</span>
+          <span>Bonsai 2 · Node: <strong style="color: ${chatTargetNode==='node_b'?'var(--accent-cyan)':'var(--accent)'};">${chatTargetNode}</strong> (${activeConfig.base_model})</span>
           <span id="bubble-live-speed">Generating...</span>
         </div>
         <div class="bubble-body"></div>

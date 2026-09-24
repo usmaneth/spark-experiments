@@ -1,2 +1,2 @@
-[10:01:50] ABLATIONS START (spark2, contended by gen half b)
+[10:01:50] ABLATIONS START (node_b, contended by gen half b)
 [10:01:50] ABL base start: --ttt-depth 4 --lr 1e-4

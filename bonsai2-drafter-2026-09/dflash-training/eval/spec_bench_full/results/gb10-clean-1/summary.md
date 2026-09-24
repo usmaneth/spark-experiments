@@ -1,6 +1,6 @@
 # Speculative decoding benchmark
 
-Generated 2026-09-18T18:50:39Z on spark2 (NVIDIA GB10, driver 580.178.04, CUDA 13.0). llama-server version: 0.2.0-dev (build 10687, commit 5d80cff0b), build b10687-5d80cff0b.
+Generated 2026-09-18T18:50:39Z on node_b (NVIDIA GB10, driver 580.178.04, CUDA 13.0). llama-server version: 0.2.0-dev (build 10687, commit 5d80cff0b), build b10687-5d80cff0b.
 
 Prompts: 40 matrix prompts x 512 tokens, 6 long prompts x 2000 tokens, 8 tool prompts x 512 tokens, 8 agent prompts x 512 tokens. Passes per prompt: 1. Slots: 1, 2, 4. Rates are arithmetic means of the server decode-only `predicted_per_second`; acceptance is aggregated accepted/drafted tokens; speedup is the ratio of the two means over the same prompts. The tool and agent rows come from `/v1/chat/completions` with a tools list and the server template (reasoning effort: template); the other rows come from `/completion` with a client-side ChatML template. The single quicksort prompt runs 3 passes at 256 tokens on every single-slot server.
 
@@ -100,7 +100,7 @@ Each run fires the same 8 prompts (code-01, code-02, reasoning-01, reasoning-02,
 
 ## Power
 
-`nvidia-smi` sampled at 1 Hz on spark2. Idle is the mean draw over 10 s with the model loaded and no request in flight. Mean and max cover the generation phase. `gen tok/s` is generated tokens over the wall time of that phase, prefill included, and mJ/token is mean W / gen tok/s x 1000.
+`nvidia-smi` sampled at 1 Hz on node_b. Idle is the mean draw over 10 s with the model loaded and no request in flight. Mean and max cover the generation phase. `gen tok/s` is generated tokens over the wall time of that phase, prefill included, and mJ/token is mean W / gen tok/s x 1000.
 
 | config | slots | idle W | mean W | max W | util % | tokens | gen tok/s | mJ/token |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -117,28 +117,28 @@ Each run fires the same 8 prompts (code-01, code-02, reasoning-01, reasoning-02,
 ## Configuration
 
 - `baseline` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
 - `baseline` slots 2: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 2, n_ctx 8192, load 3.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 2, n_ctx 8192, load 3.0 s
 - `baseline` slots 4: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 4, n_ctx 4096, load 3.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 4, n_ctx 4096, load 3.0 s
 - `dspark-v1` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 4.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 4.0 s
   drafter metadata: {"dflash.block_count": 6, "dflash.block_size": 4, "general.architecture": "dflash", "general.name": "Bonsai-27B-dspark"}
 - `dspark-v1` slots 2: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 2, n_ctx 8192, load 4.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 2, n_ctx 8192, load 4.0 s
   drafter metadata: {"dflash.block_count": 6, "dflash.block_size": 4, "general.architecture": "dflash", "general.name": "Bonsai-27B-dspark"}
 - `dspark-v1` slots 4: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 4, n_ctx 4096, load 4.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 4, n_ctx 4096, load 4.0 s
   drafter metadata: {"dflash.block_count": 6, "dflash.block_size": 4, "general.architecture": "dflash", "general.name": "Bonsai-27B-dspark"}
 - `dspark-v2` slots 1: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 1, n_ctx 16384, load 3.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - `dspark-v2` slots 2: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 2, n_ctx 8192, load 4.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 2, n_ctx 8192, load 4.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - `dspark-v2` slots 4: `bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999`
-  build b10687-5d80cff0b, model `/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 4, n_ctx 4096, load 4.0 s
+  build b10687-5d80cff0b, model `/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf`, slots 4, n_ctx 4096, load 4.0 s
   drafter metadata: {"dflash.block_count": 5, "dflash.block_size": 7, "general.architecture": "dflash", "general.name": "Qwen3.8-27B-DSpark"}
 - GPU: NVIDIA GB10, 580.178.04
 - GPU processes at start: ./bin/cuda/llama-server (11006 MiB), bin/cuda/llama-server (13310 MiB)

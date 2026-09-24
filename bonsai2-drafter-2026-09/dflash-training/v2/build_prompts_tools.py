@@ -23,7 +23,7 @@ false, with_pieces true; the pieces must join back to the text). Records over --
 Dedupe: normalized user text against every --dedupe file and within the set; the benchmark prompt texts in
 --bench are excluded (exact and substring). The only network use is /apply-template and /tokenize.
 
-usage: build_prompts_tools.py <out.jsonl> [--server http://10.99.0.2:8096] [--seed 1] [--n-tool 1400]
+usage: build_prompts_tools.py <out.jsonl> [--server http://203.0.113.12:8096] [--seed 1] [--n-tool 1400]
            [--n-agent 800] [--n-mixed 800] [--max-tokens 3600] [--dedupe f1.jsonl ...] [--bench prompts.json]
            [--workers 6] [--effort-mix template:1.0]
 """
@@ -347,7 +347,7 @@ def render_one(srv, rec):
 def main():
     apr = argparse.ArgumentParser()
     apr.add_argument("out")
-    apr.add_argument("--server", default="http://10.99.0.2:8096")
+    apr.add_argument("--server", default="http://203.0.113.12:8096")
     apr.add_argument("--seed", type=int, default=1)
     apr.add_argument("--n-tool", type=int, default=1400)
     apr.add_argument("--n-agent", type=int, default=800)

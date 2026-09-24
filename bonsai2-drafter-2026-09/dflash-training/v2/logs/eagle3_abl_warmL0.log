@@ -20,7 +20,7 @@ NOTE: CUDA Forward Compatibility mode ENABLED.
 
 [train] device=cuda bf16-autocast=True (NVIDIA GB10)
 [init] reading teacher matrices (2 x 2.5 GB f16) ...
-[warm-start] loading /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_warmL0_init.safetensors
+[warm-start] loading /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_warmL0_init.safetensors
 [warm-start] loaded 14 tensors. missing=0 unexpected=0 meta={'fold_qk_norm': '1', 'embd_scale': '0.5', 'warm_layer': '0', 'seed': '0', 'taps': '0,2,4', 'step': '0', 'warm_source': 'bonsai2_dspark_full2_step600.safetensors', 'target_layers': '6,34,62'}
 [init] trainable params = 597,724,160; token_embd frozen (248320, 5120)
 [data] indexed 3401 samples across 3 file(s) (BON2: 3, BON3: 0); embd=5120 taps=[0, 2, 4] target_layers=[6, 34, 62]
@@ -66,6 +66,6 @@ ep 1/1 step 1600/1651 loss 5.1434 (hard 5.0120 steps 4.492/5.050/5.380/5.652) ac
 ep 1/1 step 1650/1651 loss 3.1956 (hard 3.1088 steps 2.418/3.013/3.464/3.888) acc 0.590/0.463/0.377/0.312 gnorm 3.99 lr 1.00e-06 vram 19.4G 2.27s/step 61.7m
 ep 1/1 step 1651/1651 loss 2.0654 (hard 1.9758 steps 1.403/1.876/2.262/2.720) acc 0.729/0.633/0.516/0.430 gnorm 3.92 lr 1.00e-06 vram 19.4G 0.02s/step 61.7m
 val step 1651/1651 acc 0.504/0.403/0.346/0.299 ce 3.554/4.136/4.493/4.840 n_tok 47009 69s
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_warmL0.safetensors
-[save] wrote 16 tensors -> /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_warmL0_epoch1.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_warmL0.safetensors
+[save] wrote 16 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_abl_warmL0_epoch1.safetensors
 [train] done.

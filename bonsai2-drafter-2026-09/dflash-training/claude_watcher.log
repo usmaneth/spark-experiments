@@ -1,7 +1,7 @@
 [2026-09-17 21:52:03] ==================================================================
 [2026-09-17 21:52:03] Starting 12-Hour Watcher for Claude Session: 'Mafia terminal panel testing'
 [2026-09-17 21:52:03] Target PID: 1407421 | Target TTY: /dev/pts/7
-[2026-09-17 21:52:03] Duration: 12 hours | Log: /home/usman/Bonsai-demo/dflash-training/claude_watcher.log
+[2026-09-17 21:52:03] Duration: 12 hours | Log: /home/REDACTED/Bonsai-demo/dflash-training/claude_watcher.log
 [2026-09-17 21:52:03] ==================================================================
 [2026-09-17 21:52:03] [HEARTBEAT] PID 1407421 Alive on /dev/pts/7 | Elapsed: 0.0m / 720m (Remaining: 720.0m)
 [2026-09-17 21:53:03] [HEARTBEAT] PID 1407421 Alive on /dev/pts/7 | Elapsed: 1.0m / 720m (Remaining: 719.0m)
@@ -24502,7 +24502,7 @@
 [2026-09-18 05:17:37] [HEARTBEAT] PID 1407421 Alive on /dev/pts/7 | Elapsed: 445.6m / 720m (Remaining: 274.4m)
 [2026-09-18 05:18:37] [HEARTBEAT] PID 1407421 Alive on /dev/pts/7 | Elapsed: 446.6m / 720m (Remaining: 273.4m)
 [2026-09-18 05:19:13] ******************************************************************
-[2026-09-18 05:19:13] [LIMIT DETECTED] {"parentUuid":"1a29a908-c432-4909-9c74-79664601e75f","isSidechain":false,"type":"system","subtype":"stop_hook_summary","hookCount":1,"hookInfos":[{"command":"bash /home/usman/vault/.claude-hooks/sessi
+[2026-09-18 05:19:13] [LIMIT DETECTED] {"parentUuid":"1a29a908-c432-4909-9c74-79664601e75f","isSidechain":false,"type":"system","subtype":"stop_hook_summary","hookCount":1,"hookInfos":[{"command":"bash /home/REDACTED/vault/.claude-hooks/sessi
 [2026-09-18 05:19:13] [WARNING] Could not parse exact duration from limit text. Retrying in 60s...
 [2026-09-18 05:20:16] [HEARTBEAT] PID 1407421 Alive on /dev/pts/7 | Elapsed: 448.2m / 720m (Remaining: 271.8m)
 [2026-09-18 05:21:16] [HEARTBEAT] PID 1407421 Alive on /dev/pts/7 | Elapsed: 449.2m / 720m (Remaining: 270.8m)
@@ -34106,7 +34106,7 @@
 [2026-09-18 10:59:04] ==================================================================
 [2026-09-18 10:59:04] Starting 12-Hour Watcher for Claude Session: 'Mafia terminal panel testing'
 [2026-09-18 10:59:04] Target PID: 1407421 | Target TTY: /dev/pts/7
-[2026-09-18 10:59:04] Duration: 12 hours | Log: /home/usman/Bonsai-demo/dflash-training/claude_watcher.log
+[2026-09-18 10:59:04] Duration: 12 hours | Log: /home/REDACTED/Bonsai-demo/dflash-training/claude_watcher.log
 [2026-09-18 10:59:04] ==================================================================
 [2026-09-18 10:59:04] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 0.0m / 720m (Remaining: 720.0m)
 [2026-09-18 10:59:22] ******************************************************************
@@ -34163,7 +34163,7 @@
 [2026-09-18 11:26:26] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 27.4m / 720m (Remaining: 692.6m)
 [2026-09-18 11:27:26] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 28.4m / 720m (Remaining: 691.6m)
 [2026-09-18 11:27:32] ******************************************************************
-[2026-09-18 11:27:32] [LIMIT DETECTED] {"parentUuid":"be020804-66e9-4aca-86c2-48c70956c3b6","isSidechain":false,"type":"system","subtype":"stop_hook_summary","hookCount":1,"hookInfos":[{"command":"bash /home/usman/vault/.claude-hooks/sessi
+[2026-09-18 11:27:32] [LIMIT DETECTED] {"parentUuid":"be020804-66e9-4aca-86c2-48c70956c3b6","isSidechain":false,"type":"system","subtype":"stop_hook_summary","hookCount":1,"hookInfos":[{"command":"bash /home/REDACTED/vault/.claude-hooks/sessi
 [2026-09-18 11:27:32] [WARNING] Could not parse exact duration from limit text. Retrying in 60s...
 [2026-09-18 11:28:35] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 29.5m / 720m (Remaining: 690.5m)
 [2026-09-18 11:29:35] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 30.5m / 720m (Remaining: 689.5m)
@@ -34821,7 +34821,7 @@
 [2026-09-18 21:22:54] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 623.8m / 720m (Remaining: 96.2m)
 [2026-09-18 21:23:54] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 624.8m / 720m (Remaining: 95.2m)
 [2026-09-18 21:24:00] ******************************************************************
-[2026-09-18 21:24:00] [LIMIT DETECTED] {"parentUuid":"6f094659-e36a-433f-b7de-757b625623c5","isSidechain":false,"type":"system","subtype":"stop_hook_summary","hookCount":1,"hookInfos":[{"command":"bash /home/usman/vault/.claude-hooks/sessi
+[2026-09-18 21:24:00] [LIMIT DETECTED] {"parentUuid":"6f094659-e36a-433f-b7de-757b625623c5","isSidechain":false,"type":"system","subtype":"stop_hook_summary","hookCount":1,"hookInfos":[{"command":"bash /home/REDACTED/vault/.claude-hooks/sessi
 [2026-09-18 21:24:00] [WARNING] Could not parse exact duration from limit text. Retrying in 60s...
 [2026-09-18 21:25:03] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 626.0m / 720m (Remaining: 94.0m)
 [2026-09-18 21:26:03] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 627.0m / 720m (Remaining: 93.0m)
@@ -34926,7 +34926,7 @@
 [2026-09-18 22:59:06] ==================================================================
 [2026-09-18 22:59:06] Starting 12-Hour Watcher for Claude Session: 'Mafia terminal panel testing'
 [2026-09-18 22:59:06] Target PID: 1407421 | Target TTY: /dev/pts/7
-[2026-09-18 22:59:06] Duration: 12 hours | Log: /home/usman/Bonsai-demo/dflash-training/claude_watcher.log
+[2026-09-18 22:59:06] Duration: 12 hours | Log: /home/REDACTED/Bonsai-demo/dflash-training/claude_watcher.log
 [2026-09-18 22:59:06] ==================================================================
 [2026-09-18 22:59:06] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 0.0m / 720m (Remaining: 720.0m)
 [2026-09-18 23:00:06] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 1.0m / 720m (Remaining: 719.0m)
@@ -47006,7 +47006,7 @@
 [2026-09-19 10:59:07] ==================================================================
 [2026-09-19 10:59:07] Starting 12-Hour Watcher for Claude Session: 'Mafia terminal panel testing'
 [2026-09-19 10:59:07] Target PID: 1407421 | Target TTY: /dev/pts/7
-[2026-09-19 10:59:07] Duration: 12 hours | Log: /home/usman/Bonsai-demo/dflash-training/claude_watcher.log
+[2026-09-19 10:59:07] Duration: 12 hours | Log: /home/REDACTED/Bonsai-demo/dflash-training/claude_watcher.log
 [2026-09-19 10:59:07] ==================================================================
 [2026-09-19 10:59:07] [HEARTBEAT] PID 2602681 Alive on /dev/pts/4 | Elapsed: 0.0m / 720m (Remaining: 720.0m)
 [2026-09-19 11:00:07] [HEARTBEAT] PID 2602681 Alive on /dev/pts/4 | Elapsed: 1.0m / 720m (Remaining: 719.0m)

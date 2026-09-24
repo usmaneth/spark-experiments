@@ -1,6 +1,6 @@
-[07:13:46] LR PROBE: continue from step600, lr 2e-4, 200 steps, anchors 256 (spark2)
+[07:13:46] LR PROBE: continue from step600, lr 2e-4, 200 steps, anchors 256 (node_b)
 [data] indexed 3401 samples across 3 file(s); embd=5120 n_taps=5
-[warm-start] loading /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step600.safetensors
+[warm-start] loading /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_full2_step600.safetensors
 [warm-start] loaded. missing=0 unexpected=0
 ep 1/1 step 10/1701 loss 1.1522 (ce 0.1341 l1 0.5247 conf 0.4934) acc 0.722 acc_p 0.709 lr 4.00e-04 vram 18.7G 3.3m
 ep 1/1 step 20/1701 loss 1.7757 (ce 0.2701 l1 0.9100 conf 0.5955) acc 0.509 acc_p 0.494 lr 4.00e-04 vram 18.7G 6.7m
@@ -22,20 +22,20 @@ ep 1/1 step 170/1701 loss 0.9025 (ce 0.0870 l1 0.3886 conf 0.4268) acc 0.813 acc
 ep 1/1 step 180/1701 loss 0.9553 (ce 0.0940 l1 0.4206 conf 0.4408) acc 0.794 acc_p 0.766 lr 3.89e-04 vram 18.7G 61.9m
 ep 1/1 step 190/1701 loss 1.3028 (ce 0.1949 l1 0.6562 conf 0.4517) acc 0.651 acc_p 0.635 lr 3.88e-04 vram 18.7G 65.4m
 [train] max_steps 200 reached; stopping early
-[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe.safetensors
-[save] wrote 62 tensors -> /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe_epoch1.safetensors
-ckpt: 3714723290 /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe.safetensors
-[08:23:32] convert + quantize on spark2
-ls: cannot access '/home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf': No such file or directory
-[08:23:33] eval K=5 exact (200-tok x3 + long-form x6) on spark2
+[save] wrote 62 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe.safetensors
+[save] wrote 62 tensors -> /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe_epoch1.safetensors
+ckpt: 3714723290 /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2_dspark_lrprobe.safetensors
+[08:23:32] convert + quantize on node_b
+ls: cannot access '/home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf': No such file or directory
+[08:23:33] eval K=5 exact (200-tok x3 + long-form x6) on node_b
 SWEEP DONE
 SWEEP+TYP DONE
 LONGFORM DONE
 [08:24:01] LR PROBE FINISHED
-[08:25:31] LR PROBE FIX: convert on spark1 (spark2 python has no numpy), eval on spark2
-[08:25:36] ckpt on spark1: 3714723290 bytes
-[08:27:46] gguf: 1104605632 /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf
-[08:27:49] eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on spark2; demo llama-server co-resident (idle unless chatted)
+[08:25:31] LR PROBE FIX: convert on node_a (node_b python has no numpy), eval on node_b
+[08:25:36] ckpt on node_a: 3714723290 bytes
+[08:27:46] gguf: 1104605632 /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf
+[08:27:49] eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on node_b; demo llama-server co-resident (idle unless chatted)
 RESULT lrprobe K=5 math | accept 47.368% | 57.447 tok/s | 144/304
 RESULT lrprobe K=5 code | accept 35.165% | 47.678 tok/s | 128/364
 RESULT lrprobe K=5 code2 | accept 43.949% | 54.936 tok/s | 138/314

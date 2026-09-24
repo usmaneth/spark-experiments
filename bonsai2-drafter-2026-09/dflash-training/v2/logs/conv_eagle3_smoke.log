@@ -1,5 +1,5 @@
 Duplicated key name 'general.architecture', overwriting it with new value 'eagle3' of type STRING
-[gguf] reading /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_smoke.safetensors
+[gguf] reading /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_smoke.safetensors
 [gguf] target_layers = [6, 34, 62] (default (no metadata))
 [gguf] copied 10 tokenizer.* keys from Ternary-Bonsai-2-27B-PQ2_0.gguf
 [gguf] + fc.weight                    float16  (5120, 15360)
@@ -18,7 +18,7 @@ Duplicated key name 'general.architecture', overwriting it with new value 'eagle
 [gguf] + output.weight                float16  (32768, 5120)
 [gguf] + d2t                          int64    (32768,)
 [gguf] + token_embd.weight            float16  (248320, 5120)
-[gguf] wrote /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-smoke-conv.gguf (3.49 GiB)
+[gguf] wrote /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2-eagle3-smoke-conv.gguf (3.49 GiB)
 [gguf] KV:
   GGUF.version = 3 (UINT32)
   GGUF.tensor_count = 16 (UINT64)

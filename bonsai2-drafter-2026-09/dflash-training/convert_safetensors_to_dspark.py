@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from safetensors import safe_open
 
-sys.path.insert(0, '/home/usman/Bonsai-demo/llama.cpp/gguf-py')
+sys.path.insert(0, '/home/REDACTED/Bonsai-demo/llama.cpp/gguf-py')
 from gguf import GGUFWriter
 
 def convert_to_dspark(safetensors_path, output_gguf_path):
@@ -88,6 +88,6 @@ def convert_to_dspark(safetensors_path, output_gguf_path):
     print("Raw dspark GGUF written successfully!")
 
 if __name__ == "__main__":
-    safetensors_path = "/home/usman/Bonsai-demo/models/qwen38-dspark/model.safetensors"
-    output_gguf_path = "/home/usman/Bonsai-demo/models/qwen38-dspark/Qwen3.8-27B-dspark-raw.gguf"
+    safetensors_path = "/home/REDACTED/Bonsai-demo/models/qwen38-dspark/model.safetensors"
+    output_gguf_path = "/home/REDACTED/Bonsai-demo/models/qwen38-dspark/Qwen3.8-27B-dspark-raw.gguf"
     convert_to_dspark(safetensors_path, output_gguf_path)

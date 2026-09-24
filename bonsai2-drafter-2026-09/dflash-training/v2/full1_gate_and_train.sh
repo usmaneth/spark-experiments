@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Detached: wait for batch2 gate (stable>=90s, >=100k tokens), snapshot, run full pipeline.
-V2=/home/usman/Bonsai-demo/dflash-training/v2; B2=$V2/feats/batch2.bin; FULL=$V2/feats_full
+V2=/home/REDACTED/Bonsai-demo/dflash-training/v2; B2=$V2/feats/batch2.bin; FULL=$V2/feats_full
 ct(){ python3 - "$1" <<'EOF'
 import struct,os,sys
 p=sys.argv[1]; sz=os.path.getsize(p); f=open(p,'rb'); f.read(4); embd,ntaps=struct.unpack('<II',f.read(8)); f.read(20)

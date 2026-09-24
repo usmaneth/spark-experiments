@@ -1,6 +1,6 @@
-[00:44:14] PROBE scaleA-final: /home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_ema.safetensors
+[00:44:14] PROBE scaleA-final: /home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3_scaleA_ema.safetensors
 RESULT eagle3-scaleA-final K=5 math | accept 39.823% | 19.781 tok/s | 135/339
 RESULT eagle3-scaleA-final K=5 code | accept 25.513% | 13.462 tok/s | 112/439
 RESULT eagle3-scaleA-final K=5 code2 | accept 33.333% | 11.804 tok/s | 127/381
 SWEEP DONE
-[00:45:48] PROBE scaleA-final FINISHED (spark2 contended by gen B; acceptance valid, tok/s not)
+[00:45:48] PROBE scaleA-final FINISHED (node_b contended by gen B; acceptance valid, tok/s not)

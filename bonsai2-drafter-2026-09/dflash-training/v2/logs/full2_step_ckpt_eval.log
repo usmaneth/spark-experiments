@@ -1,6 +1,6 @@
 [03:22:52] step-checkpoint waiter started (cap 14h)
 [05:15:23] CKPT step300: converting
-[05:17:49] CKPT step300: eval on spark2 (clean)
+[05:17:49] CKPT step300: eval on node_b (clean)
 RESULT full2step300 K=5 math | accept 52.113% | 61.542 tok/s | 148/284
 RESULT full2step300 K=5 code | accept 40.120% | 51.760 tok/s | 134/334
 RESULT full2step300 K=5 code2 | accept 51.064% | 60.590 tok/s | 144/282
@@ -10,7 +10,7 @@ RESULT full2step300 K=5 tau=0.05 code | accept 62.195% | 68.258 tok/s | 153/246
 RESULT full2step300 K=5 tau=0.05 code2 | accept 69.027% | 74.638 tok/s | 156/226
 SWEEP+TYP DONE
 [07:05:33] CKPT step600: converting
-[07:07:57] CKPT step600: eval on spark2 (clean)
+[07:07:57] CKPT step600: eval on node_b (clean)
 RESULT full2step600 K=5 math | accept 52.113% | 61.520 tok/s | 148/284
 RESULT full2step600 K=5 code | accept 42.947% | 53.865 tok/s | 137/319
 RESULT full2step600 K=5 code2 | accept 49.481% | 59.790 tok/s | 143/289
@@ -31,7 +31,7 @@ LONGFORM DONE
 [07:29:05] CKPT step300: skip: gguf exists
 [07:29:05] CKPT step600: skip: gguf exists
 [09:13:36] CKPT step900: converting
-[09:16:25] CKPT step900: eval on spark2 (clean)
+[09:16:25] CKPT step900: eval on node_b (clean)
 RESULT full2step900 K=5 math | accept 52.113% | 59.542 tok/s | 148/284
 RESULT full2step900 K=5 code | accept 42.947% | 52.592 tok/s | 137/319
 RESULT full2step900 K=5 code2 | accept 49.481% | 59.349 tok/s | 143/289

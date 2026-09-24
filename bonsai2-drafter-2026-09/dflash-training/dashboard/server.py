@@ -13,9 +13,9 @@ from aiohttp import web, ClientSession
 HOST = "0.0.0.0"
 PORT = 8090
 LLAMA_SERVER_PORT = 8085
-LLAMA_SERVER_URL = os.environ.get("DASH_CHAT_URL", "http://10.99.0.2:8096/v1/chat/completions")  # playground chat target: the DSpark v2 speculative server on spark2
+LLAMA_SERVER_URL = os.environ.get("DASH_CHAT_URL", "http://203.0.113.12:8096/v1/chat/completions")  # playground chat target: the DSpark v2 speculative server on node_b
 
-BASE_DIR = "/home/usman/Bonsai-demo"
+BASE_DIR = "/home/REDACTED/Bonsai-demo"
 BIN_DIR = os.path.join(BASE_DIR, "bin", "cuda")
 SPEC_BIN = os.path.join(BIN_DIR, "llama-speculative-simple")
 SERVER_BIN = os.path.join(BIN_DIR, "llama-server")
@@ -683,12 +683,12 @@ benchmark_lock = asyncio.Lock()
 
 # Cluster State Cache for Dual DGX Sparks (Deep Health)
 CLUSTER_STATE = {
-    "spark1": {
-        "hostname": "spark1",
+    "node_a": {
+        "hostname": "node_a",
         "online": True,
         "role": "Primary / Inference Node",
-        "ip_fabric0": "10.99.0.1",
-        "ip_fabric1": "10.99.1.1",
+        "ip_fabric0": "203.0.113.11",
+        "ip_fabric1": "203.0.113.21",
         "gpu_name": "NVIDIA GB10",
         "temperature_c": 75.0,
         "utilization_pct": 91.0,
@@ -707,12 +707,12 @@ CLUSTER_STATE = {
         },
         "last_seen": time.time()
     },
-    "spark2": {
-        "hostname": "spark2",
+    "node_b": {
+        "hostname": "node_b",
         "online": True,
         "role": "Cluster / Worker Node",
-        "ip_fabric0": "10.99.0.2",
-        "ip_fabric1": "10.99.1.2",
+        "ip_fabric0": "203.0.113.12",
+        "ip_fabric1": "203.0.113.22",
         "gpu_name": "NVIDIA GB10",
         "temperature_c": 80.0,
         "utilization_pct": 88.0,
@@ -735,8 +735,8 @@ CLUSTER_STATE = {
             "interface": "enp1s0f1np1",
             "speed_mbps": 200000,
             "mtu": 9000,
-            "local_ip": "10.99.0.1",
-            "remote_ip": "10.99.0.2",
+            "local_ip": "203.0.113.11",
+            "remote_ip": "203.0.113.12",
             "rtt_ms": 0.11,
             "status": "UP"
         },
@@ -744,15 +744,15 @@ CLUSTER_STATE = {
             "interface": "enP2p1s0f1np1",
             "speed_mbps": 200000,
             "mtu": 9000,
-            "local_ip": "10.99.1.1",
-            "remote_ip": "10.99.1.2",
+            "local_ip": "203.0.113.21",
+            "remote_ip": "203.0.113.22",
             "rtt_ms": 0.11,
             "status": "UP"
         }
     }
 }
 
-async def probe_spark2_stats():
+async def probe_node_b_stats():
     cmd = (
         "python3 -c '"
         "import os, subprocess, json;"
@@ -786,14 +786,14 @@ async def probe_spark2_stats():
     )
     try:
         proc = await asyncio.create_subprocess_exec(
-            "ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=2", "spark2", cmd,
+            "ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=2", "node_b", cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
         stdout, _ = await proc.communicate()
         if stdout:
             data = json.loads(stdout.decode().strip())
-            sp2 = CLUSTER_STATE["spark2"]
+            sp2 = CLUSTER_STATE["node_b"]
             sp2["online"] = True
             if "gpu_name" in data:
                 sp2["gpu_name"] = data["gpu_name"]
@@ -815,10 +815,10 @@ async def probe_spark2_stats():
                 sp2["cpu_load"] = {"1m": l[0], "5m": l[1], "15m": l[2]}
             sp2["last_seen"] = time.time()
     except Exception:
-        if time.time() - CLUSTER_STATE["spark2"]["last_seen"] > 8.0:
-            CLUSTER_STATE["spark2"]["online"] = False
+        if time.time() - CLUSTER_STATE["node_b"]["last_seen"] > 8.0:
+            CLUSTER_STATE["node_b"]["online"] = False
 async def probe_fabric_links():
-    for idx, (ip, dev) in enumerate([("10.99.0.2", "enp1s0f1np1"), ("10.99.1.2", "enP2p1s0f1np1")]):
+    for idx, (ip, dev) in enumerate([("203.0.113.12", "enp1s0f1np1"), ("203.0.113.22", "enP2p1s0f1np1")]):
         key = f"link{idx}"
         # ping RTT
         try:
@@ -859,7 +859,7 @@ async def probe_fabric_links():
 async def update_cluster_loop():
     while True:
         try:
-            await probe_spark2_stats()
+            await probe_node_b_stats()
             await probe_fabric_links()
         except Exception:
             pass
@@ -947,7 +947,7 @@ async def get_gpu_telemetry():
         except Exception:
             pass
 
-        # Fabric traffic stats on spark1
+        # Fabric traffic stats on node_a
         fabric_stats = {
             "link0": {"rx_gb": 0.41, "tx_gb": 136.28, "rx_pkts": 3587120, "tx_pkts": 18238123},
             "link1": {"rx_gb": 0.0, "tx_gb": 0.0, "rx_pkts": 3189, "tx_pkts": 3161}
@@ -970,8 +970,8 @@ async def get_gpu_telemetry():
         except Exception:
             pass
 
-        # Update local spark1 in CLUSTER_STATE
-        sp1 = CLUSTER_STATE["spark1"]
+        # Update local node_a in CLUSTER_STATE
+        sp1 = CLUSTER_STATE["node_a"]
         sp1["temperature_c"] = temp
         sp1["utilization_pct"] = util
         sp1["power_draw_w"] = pwr
@@ -986,7 +986,7 @@ async def get_gpu_telemetry():
         sp1["fabric_stats"] = fabric_stats
         sp1["last_seen"] = time.time()
 
-        sp2 = CLUSTER_STATE["spark2"]
+        sp2 = CLUSTER_STATE["node_b"]
         total_cluster_mem_gb = (sp1["memory_total_mb"] + sp2["memory_total_mb"]) / 1024.0
         used_cluster_mem_gb = (sp1["memory_used_mb"] + sp2["memory_used_mb"]) / 1024.0
         free_cluster_mem_gb = total_cluster_mem_gb - used_cluster_mem_gb
@@ -1012,8 +1012,8 @@ async def get_gpu_telemetry():
             "cluster": {
                 "nodes_online": 2 if sp2.get("online") else 1,
                 "total_nodes": 2,
-                "spark1": sp1,
-                "spark2": sp2,
+                "node_a": sp1,
+                "node_b": sp2,
                 "interconnect": CLUSTER_STATE["interconnect"],
                 "aggregate": {
                     "total_memory_gb": round(total_cluster_mem_gb, 2),
@@ -1578,7 +1578,7 @@ def get_live_training_progress():
 
 # --- Checkpoint eval log ----------------------------------------------------
 #
-#   [05:17:49] CKPT step300: eval on spark2 (clean)
+#   [05:17:49] CKPT step300: eval on node_b (clean)
 #   RESULT full2step300 K=5 math | accept 52.113% | 61.542 tok/s | 148/284
 #   RESULT full2step300 K=5 tau=0.05 code | accept 53.214% | 62.554 tok/s | 149/280
 #   RESULT LONGFORM exact K=5 p6 | 1451 | 71.847 tok/s | 1100/1755
@@ -1713,7 +1713,7 @@ async def handle_training_checkpoints(request):
 
 # --- Run history (all v2 runs, parsed from disk) ----------------------------
 
-VAULT_NOTE_PATH = "/home/usman/vault/agents/claude-code/sessions/2026-09-17-bonsai2-speculative-audit-and-correct-retrain.md"
+VAULT_NOTE_PATH = "/home/REDACTED/vault/agents/claude-code/sessions/2026-09-17-bonsai2-speculative-audit-and-correct-retrain.md"
 
 V2_TRAIN_HDR_RE = re.compile(r'\[train\] (\d+) steps, (\d+) epochs, (\d+) samples, num_anchors=(\d+), block_size=(\d+)')
 EVAL_RESULT_RE = re.compile(
@@ -1910,7 +1910,7 @@ NOTE_SMOKE_AB = {
 }
 NOTE_SMOKE_CLEAN = {
     "source": "vault note: Result: clean-GPU throughput of the smoke drafter, and PTQ1_0 is a loss for speculation",
-    "conditions": "idle spark2, 200 tokens, temp 0, p_min 0; plain baseline PQ2_0 29.90 tok/s, PTQ1_0 34.69 tok/s",
+    "conditions": "idle node_b, 200 tokens, temp 0, p_min 0; plain baseline PQ2_0 29.90 tok/s, PTQ1_0 34.69 tok/s",
     "rows": [
         {"base": "PQ2_0", "K": 4, "math_accept_pct": 48.9, "math_tok_s": 53.8, "code_accept_pct": 42.6, "code_tok_s": 49.0},
         {"base": "PQ2_0", "K": 5, "math_accept_pct": 42.9, "math_tok_s": 54.1, "code_accept_pct": 38.1, "code_tok_s": 49.9},
@@ -1922,7 +1922,7 @@ NOTE_SMOKE_CLEAN = {
 }
 NOTE_FULL1_SPARK1 = {
     "source": "vault note: Result: full-data epoch 1 (2026-09-18 ~09:25Z) - more narrow data does not help",
-    "conditions": "clean idle spark1 (mafia's idle server co-resident, plain baseline 25.9 tok/s there), 200 tokens, temp 0, p_min 0",
+    "conditions": "clean idle node_a (mafia's idle server co-resident, plain baseline 25.9 tok/s there), 200 tokens, temp 0, p_min 0",
     "rows": [
         {"K": 4, "prompt": "math", "accept_pct": 50.0, "tok_s": 48.2},
         {"K": 4, "prompt": "code", "accept_pct": 45.8, "tok_s": 45.5},
@@ -1946,7 +1946,7 @@ def build_run_history():
         "order": 1,
         "name": "v2 smoke (first correct-objective run)",
         "status": "finished" if smoke_train and smoke_train.get("done_marker") else "unknown",
-        "node": "spark1",
+        "node": "node_a",
         "dataset": "batch1: 47 self-distilled samples, 13,432 tokens (note: 47+856 was the plan; the smoke used batch1 only)",
         "lr_flag": None,
         "epochs": 1,
@@ -1958,7 +1958,7 @@ def build_run_history():
         "eval_source": "note",
         "note_blocks": [NOTE_SMOKE_AB, NOTE_SMOKE_CLEAN],
         "best_k5_exact": {
-            "source": "note (clean spark2, PQ2_0)",
+            "source": "note (clean node_b, PQ2_0)",
             "math": {"accept_pct": 42.9, "tok_s": 54.1},
             "code": {"accept_pct": 38.1, "tok_s": 49.9},
         },
@@ -1990,7 +1990,7 @@ def build_run_history():
         "order": 2,
         "name": "full1 epoch 1 (batch1+batch2, narrow codealpaca-heavy)",
         "status": "finished (epoch-1 checkpoint saved at step 452)",
-        "node": "spark1",
+        "node": "node_a",
         "dataset": "batch1+batch2: 903 self-distilled samples, ~250k tokens",
         "lr_flag": lr_m.group(1) if lr_m else None,
         "epochs": 2,
@@ -2003,7 +2003,7 @@ def build_run_history():
         "eval_source": "log",
         "eval_caveat": ep1_eval["gpu_note"] or None,
         "note_blocks": [NOTE_FULL1_SPARK1],
-        "best_k5_exact": {"source": "log (spark2, contended: tok/s invalid)", **best_k5_exact(ep1_eval["results"])},
+        "best_k5_exact": {"source": "log (node_b, contended: tok/s invalid)", **best_k5_exact(ep1_eval["results"])},
         "longform_mean_tok_s": None,
         "learned": "Result: full-data epoch 1 - more narrow data does not help. Acceptance rose 1-3 points from 19x more data; the drafter fits the narrow distribution.",
         "learned_source": "vault note heading: 'Result: full-data epoch 1 (2026-09-18 ~09:25Z) - more narrow data does not help'",
@@ -2013,7 +2013,7 @@ def build_run_history():
         "order": 3,
         "name": "full1 final eval + quality gates (epoch-1 weights; epoch 2 aborted)",
         "status": full1_status,
-        "node": "spark1 train / spark2 eval",
+        "node": "node_a train / node_b eval",
         "dataset": "same weights as full1 epoch 1 (the `full1` file is the epoch-1 checkpoint; epoch 2 was stopped)",
         "lr_flag": lr_m.group(1) if lr_m else None,
         "epochs": 2,
@@ -2024,7 +2024,7 @@ def build_run_history():
         "train_slice": "epoch 2 aborted (steps 453-480)",
         "eval": final_eval,
         "eval_source": "log",
-        "eval_caveat": "Log header says GPU clean, but the vault note records that Medusa v2 training began seconds later on spark2: tok/s in this sweep are not valid; acceptance matches the spark1 numbers exactly.",
+        "eval_caveat": "Log header says GPU clean, but the vault note records that Medusa v2 training began seconds later on node_b: tok/s in this sweep are not valid; acceptance matches the node_a numbers exactly.",
         "gates": {
             "longcode": {"source": os.path.join(logs, "gsm8k_gate.log"), "rows": gate1["gates"]["longcode"],
                          "conditions": "5 long code prompts, 2,000-token budget, K=5"},
@@ -2033,7 +2033,7 @@ def build_run_history():
             "errors": gate1["errors"],
         },
         "note_blocks": [],
-        "best_k5_exact": {"source": "log (spark2; tok/s not valid, see caveat)", **best_k5_exact(final_eval["results"])},
+        "best_k5_exact": {"source": "log (node_b; tok/s not valid, see caveat)", **best_k5_exact(final_eval["results"])},
         "longform_mean_tok_s": None,
         "learned": "Typical acceptance is a short-form-only knob (GSM8K parity at tau 0.02/0.05; 4/5 repetition loops at tau 0.02 on long code). The bit-exact path is the product path.",
         "learned_source": "vault note: 'Round-2 (broad data) launched with periodic checkpoints' eval-hygiene paragraph",
@@ -2055,7 +2055,7 @@ def build_run_history():
         "order": 4,
         "name": ROUND2_RUN_META["name"],
         "status": r2_status,
-        "node": "spark1 train / spark2 eval",
+        "node": "node_a train / node_b eval",
         "dataset": "batch1+batch2+batch3_broad: 3,401 samples (~1.57M tokens)",
         "lr_flag": ROUND2_RUN_META["lr"],
         "epochs": 1,
@@ -2069,7 +2069,7 @@ def build_run_history():
         "checkpoints_pending": ckpt["pending_steps"],
         "per_checkpoint_k5_exact": best_by_step,
         "best_k5_exact": (
-            {"source": f"log (step {latest_ckpt['step']}, spark2 {latest_ckpt['gpu_state']})",
+            {"source": f"log (step {latest_ckpt['step']}, node_b {latest_ckpt['gpu_state']})",
              **{k: {"accept_pct": v["accept_pct"], "tok_s": v["tok_s"]} for k, v in best_k5_exact(latest_ckpt["results"]).items()}}
             if latest_ckpt else {"source": "no checkpoint measured yet"}
         ),
@@ -2079,19 +2079,19 @@ def build_run_history():
         "learned_source": "vault note heading: 'Round-2 step-600 checkpoint (35% of the epoch) - plateau - 2026-09-18 ~14:10Z'",
     })
 
-    # 5. LR probe on spark2
+    # 5. LR probe on node_b
     probe_path = os.path.join(logs, "lr_probe.log")
     probe_txt = read_text_file(probe_path)
     probe_train = summarize_train_log(probe_path)
     probe_eval = parse_eval_log(probe_path)
     launch_m = re.search(r'\[(\d{2}:\d{2}:\d{2})\] LR PROBE: (.*)', probe_txt)
-    probe_status = "finished" if "LR PROBE FINISHED" in probe_txt else ("running (on spark2)" if probe_txt else "not started")
+    probe_status = "finished" if "LR PROBE FINISHED" in probe_txt else ("running (on node_b)" if probe_txt else "not started")
     runs.append({
         "id": "lr_probe",
         "order": 5,
-        "name": "LR probe on spark2 (capacity vs under-optimization)",
+        "name": "LR probe on node_b (capacity vs under-optimization)",
         "status": probe_status,
-        "node": "spark2",
+        "node": "node_b",
         "dataset": "batch1+batch2+batch3_broad (all three feature files)",
         "lr_flag": "2e-4",
         "epochs": 1,
@@ -2108,7 +2108,7 @@ def build_run_history():
         "longform_mean_tok_s": probe_eval["longform_mean_tok_s"],
         "decision_rule": "If exact-match acceptance rises by more than ~3 points over step-600 (math 52.1%, code 42.9%), round-2 is under-optimized and a round-3 at higher LR is warranted; if it stays flat, the capacity ceiling is confirmed and the next step is drafter architecture (EAGLE-3 / larger backbone).",
         "learned": "In progress. Decision rule: >~3 points over step-600 = under-optimized; flat = capacity ceiling confirmed.",
-        "learned_source": "vault note: 'LR probe (capacity vs under-optimization), launched 07:13 on spark2'",
+        "learned_source": "vault note: 'LR probe (capacity vs under-optimization), launched 07:13 on node_b'",
     })
 
     return {
@@ -2192,7 +2192,7 @@ async def handle_training(request):
         "target_layers": [6, 20, 34, 48, 62],
         "dataset": "CodeAlpaca-20k (20,022 sequences, 2,370,010 tokens extracted across DGX cluster)",
         "training_status": training_status,
-        "extractor_speed": "780.0 tok/s per GPU (parallel on spark1 + spark2)",
+        "extractor_speed": "780.0 tok/s per GPU (parallel on node_a + node_b)",
         "batch_size": 8,
         "epochs": 2,
         "total_steps": 5006,
@@ -2305,7 +2305,7 @@ async def handle_chat_proxy(request):
     body = await request.json()
     prompt = body.get("prompt", "Hello")
     system_prompt = body.get("system_prompt", "You are Bonsai 2, a 27B native ternary language model on NVIDIA DGX Spark (GB10). Answer concisely and accurately.")
-    target_node = body.get("target_node", "spark1")
+    target_node = body.get("target_node", "node_a")
     max_tokens = body.get("max_tokens", 256)
     base_id = body.get("base_model") or CURRENT_CONFIG.get("base_model", "PQ2_0")
     drafter_id = body.get("drafter") or CURRENT_CONFIG.get("drafter", "trained_q4")
@@ -2338,8 +2338,8 @@ async def handle_chat_proxy(request):
     }
     await response.write(f"data: {json.dumps(meta_event)}\n\n".encode())
 
-    # Option A: Forward to live llama-server if running on spark1 and node is spark1
-    if target_node == "spark1" and server_mgr.is_running():
+    # Option A: Forward to live llama-server if running on node_a and node is node_a
+    if target_node == "node_a" and server_mgr.is_running():
         payload = {
             "model": f"Ternary-Bonsai-2-27B-{base_id}",
             "messages": [
@@ -2360,26 +2360,26 @@ async def handle_chat_proxy(request):
             err_data = json.dumps({"error": f"llama-server proxy error: {str(e)}"})
             await response.write(f"data: {err_data}\n\n".encode())
 
-    # Option B: Execution via CLI (spark1 local or spark2 over fabric)
+    # Option B: Execution via CLI (node_a local or node_b over fabric)
     base_path = BASE_MODELS.get(base_id, BASE_MODELS["PQ2_0"])["path"]
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = BIN_DIR + (f":{env['LD_LIBRARY_PATH']}" if "LD_LIBRARY_PATH" in env else "")
 
-    if target_node == "spark2":
-        # Execute remotely on spark2 via SSH
+    if target_node == "node_b":
+        # Execute remotely on node_b via SSH
         remote_cmd = (
-            f"cd /home/usman/Bonsai-demo && "
-            f"LD_LIBRARY_PATH=/home/usman/Bonsai-demo/bin/cuda "
-            f"/home/usman/Bonsai-demo/bin/cuda/llama-cli "
+            f"cd /home/REDACTED/Bonsai-demo && "
+            f"LD_LIBRARY_PATH=/home/REDACTED/Bonsai-demo/bin/cuda "
+            f"/home/REDACTED/Bonsai-demo/bin/cuda/llama-cli "
             f"-m {base_path} "
             f"-p '{chatml_prompt}' "
             f"-n {max_tokens} "
             f"-ngl 999 "
             f"-st --simple-io"
         )
-        cmd = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=4", "spark2", remote_cmd]
+        cmd = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=4", "node_b", remote_cmd]
     else:
-        # Execute locally on spark1
+        # Execute locally on node_a
         if speculative and drafter_id != "none":
             drafter_path = DRAFTER_MODELS.get(drafter_id, DRAFTER_MODELS["trained_q4"])["path"]
             cmd = [

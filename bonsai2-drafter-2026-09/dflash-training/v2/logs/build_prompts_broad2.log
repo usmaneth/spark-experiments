@@ -20,7 +20,7 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [load] allenai/ai2_arc ('ARC-Challenge',) validation: ok (1s)
 [load] allenai/ai2_arc ('ARC-Easy',) train: ok (1s)
 Using the latest cached version of the dataset since lucasmccabe/logiqa couldn't be found on the Hugging Face Hub
-Found the latest cached dataset configuration 'default' at /home/usman/.cache/huggingface/datasets/lucasmccabe___logiqa/default/0.0.0/fa9f9918fa81eca088805c1395d7f592f7755ae0 (last modified on Fri Sep 18 09:16:18 2026).
+Found the latest cached dataset configuration 'default' at /home/REDACTED/.cache/huggingface/datasets/lucasmccabe___logiqa/default/0.0.0/fa9f9918fa81eca088805c1395d7f592f7755ae0 (last modified on Fri Sep 18 09:16:18 2026).
 [load] lucasmccabe/logiqa () train: ok (0s)
 [load] ChilleD/StrategyQA () train: ok (1s)
 [load] ChilleD/StrategyQA () test: ok (1s)

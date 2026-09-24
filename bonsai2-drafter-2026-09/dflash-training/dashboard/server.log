@@ -17,7 +17,7 @@ Traceback (most recent call last):
     raise RuntimeError('Event loop is closed')
 RuntimeError: Event loop is closed
 Traceback (most recent call last):
-  File "/home/usman/Bonsai-demo/dflash-training/dashboard/server.py", line 2673, in <module>
+  File "/home/REDACTED/Bonsai-demo/dflash-training/dashboard/server.py", line 2673, in <module>
     web.run_app(app, host=HOST, port=PORT)
   File "/opt/sparkpool/venv/lib/python3.12/site-packages/aiohttp/web.py", line 502, in run_app
     loop.run_until_complete(main_task)

@@ -1,4 +1,4 @@
-[09:59:10] smoke eval finished; launching gen half b on spark2
+[09:59:10] smoke eval finished; launching gen half b on node_b
 100676 bash ./gen_broad2_node.sh b
 101069 bash ./after_gen_extract.sh b
 [09:59:14] GEN B LAUNCHED

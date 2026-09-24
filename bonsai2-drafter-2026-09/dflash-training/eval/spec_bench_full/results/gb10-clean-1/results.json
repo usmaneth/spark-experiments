@@ -4,7 +4,7 @@
  "created_utc": "2026-09-18T18:50:39Z",
  "note": null,
  "environment": {
-  "hostname": "spark2",
+  "hostname": "node_b",
   "platform": "Linux-7.0.0-1019-nvidia-aarch64-with-glibc2.39",
   "python": "3.12.3",
   "gpu_name": "NVIDIA GB10",
@@ -41,7 +41,7 @@
    4
   ],
   "slot_prompt_ids": "code-01,code-02,chat-01,chat-02,reasoning-01,reasoning-02,tool-01,tool-02",
-  "prompts": "/home/usman/Bonsai-demo/dflash-training/eval/spec_bench_run_gb10-clean-1/prompts.json",
+  "prompts": "/home/REDACTED/Bonsai-demo/dflash-training/eval/spec_bench_run_gb10-clean-1/prompts.json",
   "prompt_ids": null,
   "categories": null,
   "limit": null,
@@ -65,7 +65,7 @@
   "gpu_index": 0,
   "allow_busy_gpu": true,
   "plan_only": false,
-  "out": "/home/usman/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-clean-1",
+  "out": "/home/REDACTED/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-clean-1",
   "note": null
  },
  "server_urls": {},
@@ -382,8 +382,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 1,
     "n_ctx": 16384,
     "supports_tools": true
@@ -406,7 +406,7 @@
     "generation_seconds": 1203.7,
     "tok_s_wall": 28.521976427083295,
     "energy_mj_per_token": 2135.091777896328,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T18:50:44Z",
@@ -441,8 +441,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 2,
     "n_ctx": 8192,
     "supports_tools": true
@@ -465,7 +465,7 @@
     "generation_seconds": 66.8,
     "tok_s_wall": 45.67834412128022,
     "energy_mj_per_token": 1312.1918307909125,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:11:02Z",
@@ -500,8 +500,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 4,
     "n_ctx": 4096,
     "supports_tools": true
@@ -524,7 +524,7 @@
     "generation_seconds": 53.7,
     "tok_s_wall": 56.858664884301405,
     "energy_mj_per_token": 1150.2339944817504,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:12:23Z",
@@ -567,8 +567,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 1,
     "n_ctx": 16384,
     "supports_tools": true
@@ -596,7 +596,7 @@
     "generation_seconds": 653.9,
     "tok_s_wall": 52.84899027997579,
     "energy_mj_per_token": 1457.5293735628552,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:13:31Z",
@@ -639,8 +639,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 2,
     "n_ctx": 8192,
     "supports_tools": true
@@ -668,7 +668,7 @@
     "generation_seconds": 45.5,
     "tok_s_wall": 67.15173448965709,
     "energy_mj_per_token": 899.0731012482963,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:24:41Z",
@@ -711,8 +711,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 4,
     "n_ctx": 4096,
     "supports_tools": true
@@ -740,7 +740,7 @@
     "generation_seconds": 40.8,
     "tok_s_wall": 74.83751663789191,
     "energy_mj_per_token": 788.1108174077676,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:25:43Z",
@@ -783,8 +783,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 1,
     "n_ctx": 16384,
     "supports_tools": true
@@ -812,7 +812,7 @@
     "generation_seconds": 662.6,
     "tok_s_wall": 52.24172763849098,
     "energy_mj_per_token": 1494.6064970416958,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:26:39Z",
@@ -855,8 +855,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 2,
     "n_ctx": 8192,
     "supports_tools": true
@@ -884,7 +884,7 @@
     "generation_seconds": 46.1,
     "tok_s_wall": 66.25184986245824,
     "energy_mj_per_token": 896.7934079662494,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:37:57Z",
@@ -927,8 +927,8 @@
    ],
    "props": {
     "build_info": "b10687-5d80cff0b",
-    "model_path": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
-    "model_alias": "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_path": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+    "model_alias": "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf",
     "total_slots": 4,
     "n_ctx": 4096,
     "supports_tools": true
@@ -956,7 +956,7 @@
     "generation_seconds": 41.0,
     "tok_s_wall": 74.42694646328657,
     "energy_mj_per_token": 823.1427313791571,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    },
    "started_utc": "2026-09-18T19:38:59Z",
@@ -9658,7 +9658,7 @@
   "slots.4.v2.accept": "47.2%",
   "slots.4.v2.speedup": "1.48x",
   "slots.4.v2.aggregate_speedup": "1.31x",
-  "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on spark2 while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
+  "power.source": "nvidia-smi --query-gpu=power.draw sampled at 1 Hz by a background thread on node_b while the server ran; mean W over the generation phase, and mJ/token = mean W / (generated tokens per wall second) x 1000.",
   "power.idle.w": "14.5",
   "power.baseline.w": "60.9",
   "power.baseline.mj": "2135",
@@ -9687,7 +9687,7 @@
     "generation_seconds": 1203.7,
     "tok_s_wall": 28.521976427083295,
     "energy_mj_per_token": 2135.091777896328,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9706,7 +9706,7 @@
     "generation_seconds": 66.8,
     "tok_s_wall": 45.67834412128022,
     "energy_mj_per_token": 1312.1918307909125,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9725,7 +9725,7 @@
     "generation_seconds": 53.7,
     "tok_s_wall": 56.858664884301405,
     "energy_mj_per_token": 1150.2339944817504,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9744,7 +9744,7 @@
     "generation_seconds": 653.9,
     "tok_s_wall": 52.84899027997579,
     "energy_mj_per_token": 1457.5293735628552,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9763,7 +9763,7 @@
     "generation_seconds": 45.5,
     "tok_s_wall": 67.15173448965709,
     "energy_mj_per_token": 899.0731012482963,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9782,7 +9782,7 @@
     "generation_seconds": 40.8,
     "tok_s_wall": 74.83751663789191,
     "energy_mj_per_token": 788.1108174077676,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9801,7 +9801,7 @@
     "generation_seconds": 662.6,
     "tok_s_wall": 52.24172763849098,
     "energy_mj_per_token": 1494.6064970416958,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9820,7 +9820,7 @@
     "generation_seconds": 46.1,
     "tok_s_wall": 66.25184986245824,
     "energy_mj_per_token": 896.7934079662494,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   },
@@ -9839,7 +9839,7 @@
     "generation_seconds": 41.0,
     "tok_s_wall": 74.42694646328657,
     "energy_mj_per_token": 823.1427313791571,
-    "host": "spark2",
+    "host": "node_b",
     "interval_s": 1.0
    }
   }

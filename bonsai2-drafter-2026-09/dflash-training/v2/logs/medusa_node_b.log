@@ -1,8 +1,8 @@
-[23:01:37] medusa/spark2 waiter started
-[23:22:12] medusa/spark2 waiter started
-[23:26:43] GATE MET: 856 samples / 237426 tokens -> rsync to spark2
-[23:27:39] batch2 on spark2: 29176097466 bytes
-[23:27:40] LAUNCH medusa training on spark2
+[23:01:37] medusa/node_b waiter started
+[23:22:12] medusa/node_b waiter started
+[23:26:43] GATE MET: 856 samples / 237426 tokens -> rsync to node_b
+[23:27:39] batch2 on node_b: 29176097466 bytes
+[23:27:40] LAUNCH medusa training on node_b
   ep 2 step 120/297 loss=5.9919 [h1=0.748 h2=1.982 h3=2.911 h4=3.507] lr=7.17e-04
   ep 2 step 130/297 loss=5.9463 [h1=0.790 h2=1.918 h3=2.871 h4=3.485] lr=6.64e-04
   ep 2 step 140/297 loss=5.9795 [h1=0.773 h2=1.968 h3=2.919 h4=3.445] lr=6.10e-04
@@ -42,10 +42,10 @@
   head 3 (t+4): top1=0.3242 top5=0.5498 ce=4.0039 n=21942
   head 4 (t+5): top1=0.2440 top5=0.4571 ce=4.6675 n=21942
 loss first=47.4015 last=3.7211 decreased=yes
-[save] wrote 8 tensors -> /home/usman/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.safetensors
+[save] wrote 8 tensors -> /home/REDACTED/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.safetensors
 [23:35:39] MEDUSA FINISHED exit=0
--rw-r--r-- 1 usman p-usman      1578 Sep 17 23:35 /home/usman/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.json
--rw-r----- 1 usman p-usman 419514336 Sep 17 23:35 /home/usman/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.safetensors
+-rw-r--r-- 1 usman p-usman      1578 Sep 17 23:35 /home/REDACTED/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.json
+-rw-r----- 1 usman p-usman 419514336 Sep 17 23:35 /home/REDACTED/Bonsai-demo/dflash-training/v2/medusa/medusa_heads.safetensors
 {
   "format": "medusa_heads_v1",
   "num_heads": 4,
@@ -64,8 +64,8 @@ loss first=47.4015 last=3.7211 decreased=yes
   "lr": 0.001,
   "batch_tokens": 2048,
   "synthetic": false,
-  "feats": "/home/usman/Bonsai-demo/dflash-training/v2/feats/*.bin",
-  "teacher": "/home/usman/Bonsai-demo/dflash-training/v2/teacher/W_lm.bin",
+  "feats": "/home/REDACTED/Bonsai-demo/dflash-training/v2/feats/*.bin",
+  "teacher": "/home/REDACTED/Bonsai-demo/dflash-training/v2/teacher/W_lm.bin",
   "final_eval": {
     "per_head": [
       {

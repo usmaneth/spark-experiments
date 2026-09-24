@@ -1,7 +1,7 @@
-[08:25:31] LR PROBE FIX: convert on spark1 (spark2 python has no numpy), eval on spark2
-[08:25:36] ckpt on spark1: 3714723290 bytes
-[08:27:46] gguf: 1104605632 /home/usman/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf
-[08:27:49] eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on spark2; demo llama-server co-resident (idle unless chatted)
+[08:25:31] LR PROBE FIX: convert on node_a (node_b python has no numpy), eval on node_b
+[08:25:36] ckpt on node_a: 3714723290 bytes
+[08:27:46] gguf: 1104605632 /home/REDACTED/Bonsai-demo/models/bonsai2-dspark/bonsai2-dspark-lrprobe-Q4_K_M.gguf
+[08:27:49] eval K=5 exact (200-tok x3 + tau 0.05 x3 + long-form x6) on node_b; demo llama-server co-resident (idle unless chatted)
 RESULT lrprobe K=5 math | accept 47.368% | 57.447 tok/s | 144/304
 RESULT lrprobe K=5 code | accept 35.165% | 47.678 tok/s | 128/364
 RESULT lrprobe K=5 code2 | accept 43.949% | 54.936 tok/s | 138/314

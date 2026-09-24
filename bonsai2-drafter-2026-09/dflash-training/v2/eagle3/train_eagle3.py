@@ -60,7 +60,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 from train_dspark_v2 import RMSNorm, bon2_collate, read_teacher_matrix  # noqa: E402
 from read_feats_e3 import BON3File  # noqa: E402
 
-DEFAULT_V2 = "/home/usman/Bonsai-demo/dflash-training/v2"
+DEFAULT_V2 = "/home/REDACTED/Bonsai-demo/dflash-training/v2"
 DEFAULT_TAPS = (0, 2, 4)  # BON2 tap indices of layers [6, 34, 62] in [6, 20, 34, 48, 62]
 DEFAULT_TARGET_LAYERS = (6, 34, 62)
 
@@ -1180,7 +1180,7 @@ def main():
     ap.add_argument("--teacher-dir", default=os.path.join(DEFAULT_V2, "teacher"))
     ap.add_argument("--draft-vocab", default=os.path.join(HERE, "draft_vocab.npz"))
     ap.add_argument("--warm-start", default="")
-    ap.add_argument("--out", default="/home/usman/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3.safetensors")
+    ap.add_argument("--out", default="/home/REDACTED/Bonsai-demo/models/bonsai2-eagle3/bonsai2_eagle3.safetensors")
     ap.add_argument("--epochs", type=int, default=1)
     ap.add_argument("--ttt-depth", type=int, default=4)
     ap.add_argument("--batch-size", type=int, default=2)

@@ -5,7 +5,7 @@ import time
 import subprocess
 import json
 
-BASE_DIR = "/home/usman/Bonsai-demo"
+BASE_DIR = "/home/REDACTED/Bonsai-demo"
 CONV_GGUF = f"{BASE_DIR}/models/bonsai2-dspark/bonsai2-dspark-trained-conv.gguf"
 TARGET_GGUF = f"{BASE_DIR}/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"
 QUANT_BIN = f"{BASE_DIR}/bin/cuda/llama-quantize"

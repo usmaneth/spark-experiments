@@ -1,7 +1,7 @@
-[11:48:44] tool snapshot: /home/usman/Bonsai-demo/dflash-training/eval/spec_bench_run_gb10-clean-1
+[11:48:44] tool snapshot: /home/REDACTED/Bonsai-demo/dflash-training/eval/spec_bench_run_gb10-clean-1
 [11:48:45] opening the window
 [11:48:45] flag set
-gen client pid(s) on spark2: 101696
+gen client pid(s) on node_b: 101696
 [11:48:48] slots busy=24 gpu util=86%
 [11:48:58] slots busy=20 gpu util=89%
 [11:49:09] slots busy=16 gpu util=95%
@@ -17,13 +17,13 @@ gen client pid(s) on spark2: 101696
 100703, bin/cuda/llama-server, 13310 MiB
 WINDOW OPEN
 [11:50:38] gpu util before start: 0%
-[11:50:38] launching spec_bench on spark2 (detached)
+[11:50:38] launching spec_bench on node_b (detached)
 1018922
-[11:50:38] poll: tail -f spark2:/home/usman/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-clean-1/run.log ; finish marker: 'done in' line
+[11:50:38] poll: tail -f node_b:/home/REDACTED/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-clean-1/run.log ; finish marker: 'done in' line
   stopped llama-server pid 1424696 (exit 0)
 
 done in 49.2 min; results in dflash-training/eval/spec_bench_full/results/gb10-clean-1
-rsync: [Receiver] mkdir "/home/usman/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-clean-1" failed: No such file or directory (2)
+rsync: [Receiver] mkdir "/home/REDACTED/Bonsai-demo/dflash-training/eval/spec_bench_full/results/gb10-clean-1" failed: No such file or directory (2)
 rsync error: error in file IO (code 11) at main.c(800) [Receiver=3.2.7]
 [12:40:01] closing the window
 gen client resumed: 101696

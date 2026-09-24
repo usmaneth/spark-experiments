@@ -16,7 +16,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja
   started llama-server pid 1020001, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-baseline-np1.log
   healthy after 3.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    29.66 tok/s
   code-02          pass 1   353 tok    29.75 tok/s
@@ -90,7 +90,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja
   started llama-server pid 1188511, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-baseline-np2.log
   healthy after 3.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
   sampling idle power for 10 s
   code-01          pass 1   512 tok    26.34 tok/s
   code-02          pass 1   353 tok    25.09 tok/s
@@ -111,7 +111,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja
   started llama-server pid 1199998, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-baseline-np4.log
   healthy after 3.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
   sampling idle power for 10 s
   code-01          pass 1   512 tok    17.60 tok/s
   code-02          pass 1   353 tok    21.03 tok/s
@@ -130,7 +130,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999
   started llama-server pid 1210312, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v1-np1.log
   healthy after 4.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    66.16 tok/s  accept 0.603 (361/599)  3.39 tok/step  identical
   code-02          pass 1   353 tok    67.23 tok/s  accept 0.618 (252/408)  3.50 tok/step  identical
@@ -204,7 +204,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999
   started llama-server pid 1303159, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v1-np2.log
   healthy after 4.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
   sampling idle power for 10 s
   code-01          pass 1   512 tok    48.36 tok/s  accept 0.586 (358/611)  3.32 tok/step
   code-02          pass 1   353 tok    44.43 tok/s  accept 0.618 (252/408)  3.50 tok/step
@@ -225,7 +225,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-Q4_0.gguf --spec-type draft-dspark --spec-draft-n-max 4 -ngld 999
   started llama-server pid 1311621, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v1-np4.log
   healthy after 4.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
   sampling idle power for 10 s
   code-01          pass 1   512 tok    29.72 tok/s  accept 0.597 (360/603)  3.37 tok/step
   code-02          pass 1   353 tok    33.05 tok/s  accept 0.609 (251/412)  3.46 tok/step
@@ -244,7 +244,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 1 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999
   started llama-server pid 1320360, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v2-np1.log
   healthy after 3.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 1
   sampling idle power for 10 s
   code-01          pass 1   512 tok    70.63 tok/s  accept 0.610 (384/630)  4.00 tok/step  identical
   code-02          pass 1   353 tok    67.92 tok/s  accept 0.578 (263/455)  3.92 tok/step  identical
@@ -318,7 +318,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 2 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999
   started llama-server pid 1415076, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v2-np2.log
   healthy after 4.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 2
   sampling idle power for 10 s
   code-01          pass 1   512 tok    47.86 tok/s  accept 0.538 (372/691)  3.66 tok/step
   code-02          pass 1   353 tok    43.78 tok/s  accept 0.553 (260/470)  3.80 tok/step
@@ -339,7 +339,7 @@ spec_bench: 9 runs (3 configs x 3 slot counts), 1 passes
   command: bin/cuda/llama-server -m models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf --host 127.0.0.1 --port 8099 -ngl 999 -fa on -c 16384 -np 4 --jinja -md models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf --spec-type draft-dspark --spec-draft-n-max 5 -ngld 999
   started llama-server pid 1424696, log dflash-training/eval/spec_bench_full/results/gb10-clean-1/server-dspark-v2-np4.log
   healthy after 4.0 s
-  server build b10687-5d80cff0b, model /home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
+  server build b10687-5d80cff0b, model /home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf, slots 4
   sampling idle power for 10 s
   code-01          pass 1   512 tok    32.41 tok/s  accept 0.616 (385/625)  4.03 tok/step
   code-02          pass 1   353 tok    32.77 tok/s  accept 0.561 (261/465)  3.84 tok/step

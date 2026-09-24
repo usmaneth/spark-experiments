@@ -45,7 +45,7 @@ os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
 os.environ.setdefault("HF_DATASETS_DISABLE_PROGRESS_BARS", "1")
 
 MIN_CHARS = 20
-DEFAULT_MODEL = "/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"
+DEFAULT_MODEL = "/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf"
 CHAT_TEMPLATE = "<|im_start|>user\n{u}<|im_end|>\n<|im_start|>assistant\n"
 
 # Sources that the task allows only when they are already in the local HF cache.

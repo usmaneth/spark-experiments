@@ -4,11 +4,11 @@
 0.00.184.961 W srv  llama_server: this can be a security risk (cross-origin attacks)
 0.00.184.962 W srv  llama_server: more info: https://github.com/ggml-org/llama.cpp/pull/25655
 0.00.184.962 W srv  llama_server: -----------------
-0.00.186.229 I srv    load_model: loading model '/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf'
+0.00.186.229 I srv    load_model: loading model '/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-PQ2_0.gguf'
 0.00.810.911 E llama_init_from_model: failed to initialize the context: dflash requires ctx_other to be set (this warning is normal during memory fitting)
 0.00.854.946 W operator(): failed to measure the memory of the extra model, fitting without it: failed to create llama_context from model
 0.02.176.933 I cmn          init: llama threadpool init, n_threads = 20
-0.02.364.741 I common_speculative_init_result: loading draft model '/home/usman/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf'
+0.02.364.741 I common_speculative_init_result: loading draft model '/home/REDACTED/Bonsai-demo/models/bonsai2-gguf/27B/Ternary-Bonsai-2-27B-dspark-dflash-v2-Q4_K_M.gguf'
 0.02.832.085 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 16384, kv_unified = 'false'
 0.02.832.116 I common_speculative_impl_draft_dflash: adding speculative implementation 'draft-dspark'
 0.02.832.118 I common_speculative_impl_draft_dflash: - n_max=3, n_min=0, p_min=0.00
