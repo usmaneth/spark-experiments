@@ -26,7 +26,7 @@ TARGET_TITLE = "Mafia terminal panel testing"
 INITIAL_PID = 1407421
 INITIAL_TTY = "/dev/pts/7"
 
-TRANSCRIPT_PATH = f"/home/REDACTED/.claude/projects/-home-usman/{SESSION_ID}.jsonl"
+TRANSCRIPT_PATH = f"/home/REDACTED/.claude/projects/-home-REDACTED/{SESSION_ID}.jsonl"
 SESSION_JSON_PATH = f"/home/REDACTED/.claude/sessions/{INITIAL_PID}.json"
 LOG_FILE = "/home/REDACTED/Bonsai-demo/dflash-training/claude_watcher.log"
 
@@ -63,7 +63,7 @@ def find_active_target():
             sid = data.get("sessionId")
             if pid and os.path.exists(f"/proc/{pid}"):
                 # Check transcript for title
-                trans = f"/home/REDACTED/.claude/projects/-home-usman/{sid}.jsonl"
+                trans = f"/home/REDACTED/.claude/projects/-home-REDACTED/{sid}.jsonl"
                 if os.path.exists(trans):
                     with open(trans, "r") as tf:
                         for l in tf:

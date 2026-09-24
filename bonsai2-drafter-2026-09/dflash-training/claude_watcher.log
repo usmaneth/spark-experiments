@@ -34140,7 +34140,7 @@
 [2026-09-18 11:08:37] [WARNING] Could not parse exact duration from limit text. Retrying in 60s...
 [2026-09-18 11:09:40] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 10.6m / 720m (Remaining: 709.4m)
 [2026-09-18 11:10:16] ******************************************************************
-[2026-09-18 11:10:16] [LIMIT DETECTED] {"type":"file-history-snapshot","messageId":"773aee57-4269-4030-aa95-f595234bf762","snapshot":{"messageId":"773aee57-4269-4030-aa95-f595234bf762","trackedFileBackups":{"/tmp/claude-1001/-home-usman/46
+[2026-09-18 11:10:16] [LIMIT DETECTED] {"type":"file-history-snapshot","messageId":"773aee57-4269-4030-aa95-f595234bf762","snapshot":{"messageId":"773aee57-4269-4030-aa95-f595234bf762","trackedFileBackups":{"/tmp/claude-1001/-home-REDACTED/46
 [2026-09-18 11:10:16] [WARNING] Could not parse exact duration from limit text. Retrying in 60s...
 [2026-09-18 11:11:19] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 12.3m / 720m (Remaining: 707.7m)
 [2026-09-18 11:12:19] [HEARTBEAT] PID 30095 Alive on /dev/pts/3 | Elapsed: 13.3m / 720m (Remaining: 706.7m)
